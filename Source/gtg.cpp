@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
 	/* Initialize default configuration */
 	cfg.start = NULL;
 	cfg.end = NULL;
-	cfg.interval_units = hours;
+	cfg.interval_units = minutes;
 	cfg.interval_length = 1.0;
-	cfg.feature_count = 24;
+	cfg.feature_count = 100;
 	cfg.tleText = NULL;
 	cfg.inputTlePath = NULL;
 	cfg.outputShpBasepath = NULL;

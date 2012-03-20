@@ -2,10 +2,11 @@
 #include <string.h>
 #include <math.h>
 
+#include "gtgtrace.h"
+
 #include "gtg.h"
 #include "gtgutil.h"
 #include "gtgtle.h"
-#include "gtgtrace.h"
 #include "gtgshp.h"
 
 #include "SGP4.h"
@@ -15,22 +16,28 @@
 
 Julian InitTime(const char *desc, Julian now, Tle tle)
 {
+	Julian time;
+
 	if (0 == strcmp("now", desc)) {
-		return now;
+		time = now;
 	} else if (0 == strcmp("epoch", desc)) {
-		return tle.Epoch();
+		time = tle.Epoch();
 	} else {
-		/* here is an example of the time format output by Julian::ToString():
-		 * 2012-03-19 21:30:13.819814 UTC
-		 * That's fp precision 6; with 0 as fill character.
-		 * %4d-%2d-%2d %2d:%2d:%9.6 UTC
-		 * of course, perhaps UTC could be set to some other time zone
-		 * Also, alternatively, just read a big number as seconds-since-epoch */
-		 Fail("Arbitrary timestamp parsing is not yet implemented.\n");
+		int year, month, day, hour, minute;
+		double second;
+		if (6 == sscanf(desc, "%4d-%2d-%2d %2d:%2d:%9lf UTC", &year, &month, &day, &hour, &minute, &second)) {
+			time = Julian(year, month, day, hour, minute, second);
+		} else {
+			double unixtime;
+			if (1 == sscanf(desc, "%lf", &unixtime)) {
+				time = Julian((time_t)unixtime);
+			} else {
+				Fail("Could not scan time as timestamp or unix time\n");
+			}
+		}
 	}
-	
-	// kludge
-	return now;
+		
+	return time;
 }
 
 Timespan InitInterval(enum interval_unit_type units, double interval_length)
