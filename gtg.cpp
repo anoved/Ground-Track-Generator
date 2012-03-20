@@ -2,63 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
-/* Intermediate structure to help keep command line parameters organized */
-enum interval_unit_type {
-	seconds,
-	minutes,
-	hours,
-	days
-};
-enum output_format_type {
-	multipoint,
-	line
-};
-struct configuration {
-	char *start;
-	char *end;
-	enum interval_unit_type interval_units;
-	double interval_length;
-	int feature_count;
-	char *tleText;
-	char *inputTlePath;
-	char *outputShpBasepath;
-	enum output_format_type format;
-} cfg;
+#include "gtg.h"
+#include "gtgutil.h"
+#include "gtgtrace.h"
 
-/* Expected arguments for getopt_long */
-static const char *optString = "s:e:u:l:c:n:t:i:o:f:";
-static const struct option longOpts[] = {
-		{"start", required_argument, NULL, 's'},
-		{"end", required_argument, NULL, 'e'},
-		{"interval_unit", required_argument, NULL, 'u'},
-		{"interval_length", required_argument, NULL, 'l'},
-		{"feature_count", required_argument, NULL, 'n'},
-		{"tle", required_argument, NULL, 't'},
-		{"input", required_argument, NULL, 'i'},
-		{"output", required_argument, NULL, 'o'},
-		{"format", required_argument, NULL, 'f'},
-		{NULL, no_argument, NULL, 0}
-};
-
-/* Print an error message to stderr and exit with failure status. */
-void Fail(const char *errorString, ...) {
-	va_list arglist;
-	va_start(arglist, errorString);
-	fprintf(stderr, "ERROR:\n");
-	vfprintf(stderr, errorString, arglist);
-	va_end(arglist);
-	exit(EXIT_FAILURE);
-}
-
-/* Print a diagnostic message. We could rewrite these to a log file. */
-void Note(const char *noteString, ...) {
-	va_list arglist;
-	va_start(arglist, noteString);
-	vprintf(noteString, arglist);
-	va_end(arglist);
-}
+struct configuration cfg;
 
 int main(int argc, char *argv[])
 {
@@ -80,6 +29,21 @@ int main(int argc, char *argv[])
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
+
+	/* Expected arguments for getopt_long */
+	static const char *optString = "s:e:u:l:c:n:t:i:o:f:";
+	static const struct option longOpts[] = {
+			{"start", required_argument, NULL, 's'},
+			{"end", required_argument, NULL, 'e'},
+			{"interval_unit", required_argument, NULL, 'u'},
+			{"interval_length", required_argument, NULL, 'l'},
+			{"feature_count", required_argument, NULL, 'n'},
+			{"tle", required_argument, NULL, 't'},
+			{"input", required_argument, NULL, 'i'},
+			{"output", required_argument, NULL, 'o'},
+			{"format", required_argument, NULL, 'f'},
+			{NULL, no_argument, NULL, 0}
+	};
 	
 	/* Store command line arguments and perform some preliminary validation */
 	while(-1 != (opt = getopt_long(argc, argv, optString, longOpts, &longIndex))) {
@@ -212,33 +176,11 @@ int main(int argc, char *argv[])
 		}
 	} else {
 		/* If an end point IS specified, ignore feature count. */
-		cfg.feature_count = 0;
-		
-		/* Once start and end are parsed, validate that the intervening time
-		 * span is greater than cfg.interval_length; if not, it's a Fail.
-		 */ 
+		cfg.feature_count = 0; 
 	}
-
-
-	/** Configuration report... **/
 	
-	Note("Start: %s\n", cfg.start);
-	if (cfg.end != NULL) {
-		Note("End: %s\n", cfg.end);
-	} else {
-		Note("Feature count: %d\n", cfg.feature_count);
-	}
-	Note("Interval: %lf (%d)\n", cfg.interval_length, (int)cfg.interval_units);
-	Note("Shapefile output will go to: %s\n", cfg.outputShpBasepath);	
-
-	/* Report TLE source; use this conditional to direct actual TLE loading. */
-	if ((NULL == cfg.tleText) and (NULL == cfg.inputTlePath)) {
-		Note("TLEs will be read from stdin.\n");
-	} else if (NULL != cfg.tleText) {
-		Note("TLEs will be read from this argument:\n%s\n", cfg.tleText);
-	} else if (NULL != cfg.inputTlePath) {
-		Note("TLEs will be read from this file:\n%s\n", cfg.inputTlePath);
-	}
+	/* get dis party started */
+	StartGroundTrack();
 	
 	return EXIT_SUCCESS;
 }

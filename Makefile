@@ -19,12 +19,24 @@ LIB_SHP  = $(LIB_SHP_DIR)/libshp.a
 
 # Ground Track Generator
 
-gtg: $(LIB_SGP4) $(LIB_SHP) gtg.o
-	$(CPP) $(LIB_SGP4) $(LIB_SHP) gtg.o -o gtg
+gtg: $(LIB_SGP4) $(LIB_SHP) gtgshp.o gtgtrace.o gtgutil.o gtgtle.o gtg.o
+	$(CPP) $(LIB_SGP4) $(LIB_SHP) gtgshp.o gtgtrace.o gtgutil.o gtgtle.o gtg.o -o gtg
 
-gtg.o: gtg.cpp
+gtg.o: gtg.cpp gtg.h gtgutil.h gtgtrace.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtg.cpp
 
+gtgtle.o: gtgtle.cpp gtgtle.h gtgutil.h
+	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtle.cpp
+
+gtgutil.o: gtgutil.cpp gtgutil.h
+	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgutil.cpp
+
+gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h
+	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtrace.cpp
+
+gtgshp.o: gtgshp.cpp gtgshp.h
+	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgshp.cpp
+	
 # Prerequisite Libraries
 
 libs: libsgp4 libshp
