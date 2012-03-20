@@ -15,27 +15,23 @@ INCLUDES = -I $(LIB_SGP4_DIR) -I $(LIB_SHP_DIR)
 LIB_SGP4 = $(LIB_SGP4_DIR)/libsgp4.a
 LIB_SHP  = $(LIB_SHP_DIR)/libshp.a
 
-.PHONY: libs libsgp4 libshp $(LIB_SGP4_DIR) $(LIB_SHP_DIR) clean-libs clean-sgp4 clean-shp clean clean-all
+LIB_GTG_DIR = Source
+LIB_GTG     = $(LIB_GTG_DIR)/libgtg.a
+
+.PHONY: libs libsgp4 libshp $(LIB_SGP4_DIR) $(LIB_SHP_DIR) clean-libs clean-sgp4 clean-shp clean clean-all libgtg
 
 # Ground Track Generator
 
-gtg: $(LIB_SGP4) $(LIB_SHP) gtgshp.o gtgtrace.o gtgutil.o gtgtle.o gtg.o
-	$(CPP) $(LIB_SGP4) $(LIB_SHP) gtgshp.o gtgtrace.o gtgutil.o gtgtle.o gtg.o -o gtg
+gtg: $(LIB_SGP4) $(LIB_SHP) $(LIB_GTG)
+	$(CPP) $(LIB_SGP4) $(LIB_SHP) $(LIB_GTG) -o $@
 
-gtg.o: gtg.cpp gtg.h gtgutil.h gtgtrace.h
-	$(CPP) $(CFLAGS) $(INCLUDES) -c gtg.cpp
+# Program Library
 
-gtgtle.o: gtgtle.cpp gtgtle.h gtgutil.h
-	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtle.cpp
+$(LIB_GTG): libgtg
 
-gtgutil.o: gtgutil.cpp gtgutil.h
-	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgutil.cpp
-
-gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h
-	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtrace.cpp
-
-gtgshp.o: gtgshp.cpp gtgshp.h gtg.h gtgutil.h
-	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgshp.cpp
+libgtg:
+	@echo "# Making libgtg..."
+	@$(MAKE) --directory=$(LIB_GTG_DIR) lib
 	
 # Prerequisite Libraries
 
@@ -60,7 +56,7 @@ $(LIB_SHP_DIR):
 # Clean
 
 clean:
-	$(RM) -f *.o testapp
+	$(RM) -f gtg
 
 clean-all: clean clean-libs
 
