@@ -1,5 +1,5 @@
-#ifndef _GTG_H_
-#define _GTG_H_
+#ifndef _GTGUTIL_H_
+#define _GTGUTIL_H_
 
 #include <stdarg.h>
 
