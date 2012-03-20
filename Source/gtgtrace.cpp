@@ -142,7 +142,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		
 		if (line == cfg.format) {
 			if (prevSet) {
-				shout.outputLine(feature, prevEci, eci);
+				shout.output(&prevEci, &eci);
 				feature++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
@@ -156,8 +156,8 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		} else {
 		
 			/* output this location */
-			shout.outputPoint(feature, eci);
-		
+			shout.output(&eci);
+			
 			/* increment feature */
 			feature++;
 		}

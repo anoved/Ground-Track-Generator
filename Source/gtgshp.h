@@ -14,10 +14,8 @@ public:
 	{
 	}
 	
-	int outputPoint(int feature, Eci eci);
-	
-	int outputLine(int feature, Eci start, Eci end);
-	
+	int output(Eci *loc, Eci *nextloc = NULL);
+		
 	void close(void);
 
 private:
