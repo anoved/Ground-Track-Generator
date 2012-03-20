@@ -36,7 +36,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_format_type f
 	Note("Altitude field ID: %d\n", fieldID);
 }
 
-void ShapefileWriter::outputPoint(int feature, Eci eci)
+int ShapefileWriter::outputPoint(int feature, Eci eci)
 {
 	CoordGeodetic cg(eci.ToGeodetic());
 	double latitude = Util::RadiansToDegrees(cg.latitude);
@@ -54,12 +54,13 @@ void ShapefileWriter::outputPoint(int feature, Eci eci)
 	SHPDestroyObject(obj);
 	
 	/* output the attribute */
-	DBFWriteDoubleAttribute(dbf_, feature, 0, altitude);
-	
+	DBFWriteDoubleAttribute(dbf_, entityID, 0, altitude);
+		
 	/* more explicit ID tracking/assignment would be a good */
+	return entityID;
 }
 
-void ShapefileWriter::outputLine(int feature, Eci start, Eci end)
+int ShapefileWriter::outputLine(int feature, Eci start, Eci end)
 {
 	CoordGeodetic startCg(start.ToGeodetic()), endCg(end.ToGeodetic());
 	double latitude[2];
@@ -81,8 +82,12 @@ void ShapefileWriter::outputLine(int feature, Eci start, Eci end)
 	entityID = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	DBFWriteDoubleAttribute(dbf_, feature, 0, altitude);
+	DBFWriteDoubleAttribute(dbf_, entityID, 0, altitude);
+	
+	return entityID;
 }
+
+
 
 void ShapefileWriter::close(void)
 {
