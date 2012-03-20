@@ -14,6 +14,22 @@
 #include "Timespan.h"
 #include "Tle.h"
 
+/*
+	InitTime
+	
+	Parameters:
+		desc, string to read time specification from. Accepts four formats:
+				now - current time
+				epoch - reference time of orbit info
+				YYYY-MM-DD HH:MM:SS.SSSSSS UTC
+				S - UNIX time (seconds since 1970-01-01 00:00:00)
+		now, reference date to use if "now" time is specified
+		tle, orbital elements to use if orbit "epoch" is specified
+	
+	Returns:
+		A Julian date object initialized to time requested by desc
+		Aborts if desc cannot be parsed.
+*/
 Julian InitTime(const char *desc, Julian now, Tle tle)
 {
 	Julian time;
@@ -40,6 +56,16 @@ Julian InitTime(const char *desc, Julian now, Tle tle)
 	return time;
 }
 
+/*
+	InitInterval
+	
+	Parameters:
+		units, type of unit used to specify interval length
+		interval_length, length of each interval in given units
+	
+	Return:
+		A Timespan object initialized to the specified interval
+*/
 Timespan InitInterval(enum interval_unit_type units, double interval_length)
 {
 	Timespan interval;
