@@ -87,7 +87,9 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 			
 		Note("End time: %s\n", endtime.ToString().c_str());
 	}
-		
+	
+	ShapefileWriter shout(cfg.outputShpBasepath, cfg.format);
+	
 	while (1) {
 		
 		/* where is the satellite now? */
@@ -102,7 +104,8 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		}
 		
 		/* output this location */
-		OutputPoint(feature, eci);
+		//OutputPoint(feature, eci);
+		shout.output(feature, eci);
 		
 		/* increment feature */
 		feature++;
@@ -118,7 +121,9 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		}
 		
 	}
-		
+	
+	shout.close();
+	
 }
 
 void InitSatModel(Tle tle) {

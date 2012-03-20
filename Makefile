@@ -34,7 +34,7 @@ gtgutil.o: gtgutil.cpp gtgutil.h
 gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtrace.cpp
 
-gtgshp.o: gtgshp.cpp gtgshp.h
+gtgshp.o: gtgshp.cpp gtgshp.h gtg.h gtgutil.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgshp.cpp
 	
 # Prerequisite Libraries

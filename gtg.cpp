@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	cfg.tleText = NULL;
 	cfg.inputTlePath = NULL;
 	cfg.outputShpBasepath = NULL;
-	cfg.format = line;
+	cfg.format = point;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -132,13 +132,13 @@ int main(int argc, char *argv[])
 			
 			case 'f':
 				/* Output format */
-				/* Accepted argument values: multipoint, line */
-				if (0 == strcmp("multipoint", optarg)) {
-					cfg.format = multipoint;
+				/* Accepted argument values: point, line */
+				if (0 == strcmp("poing", optarg)) {
+					cfg.format = point;
 				} else if (0 == strcmp("line", optarg)) {
 					cfg.format = line;
 				} else {
-					Fail("Invalid output format (should be multipoint or line).\n");
+					Fail("Invalid output format (should be point or line).\n");
 				}
 				break;
 			

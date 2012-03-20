@@ -9,7 +9,7 @@ enum interval_unit_type {
 };
 
 enum output_format_type {
-	multipoint,
+	point,
 	line
 };
 
