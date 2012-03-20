@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 			case 'f':
 				/* Output format */
 				/* Accepted argument values: point, line */
-				if (0 == strcmp("poing", optarg)) {
+				if (0 == strcmp("point", optarg)) {
 					cfg.format = point;
 				} else if (0 == strcmp("line", optarg)) {
 					cfg.format = line;
