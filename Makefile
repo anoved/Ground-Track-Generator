@@ -18,7 +18,7 @@ LIB_SHP  = $(LIB_SHP_DIR)/libshp.a
 LIB_GTG_DIR = Source
 LIB_GTG     = $(LIB_GTG_DIR)/libgtg.a
 
-.PHONY: libs libsgp4 libshp $(LIB_SGP4_DIR) $(LIB_SHP_DIR) clean-libs clean-sgp4 clean-shp clean clean-all libgtg
+.PHONY: libs libsgp4 libshp $(LIB_SGP4_DIR) $(LIB_SHP_DIR) clean-libs clean-sgp4 clean-shp clean clean-all clean-gtg libgtg
 
 # Ground Track Generator
 
@@ -55,8 +55,11 @@ $(LIB_SHP_DIR):
 
 # Clean
 
-clean:
+clean: clean-gtg
 	$(RM) -f gtg
+
+clean-gtg:
+	$(MAKE) --directory=$(LIB_GTG_DIR) clean
 
 clean-all: clean clean-libs
 
