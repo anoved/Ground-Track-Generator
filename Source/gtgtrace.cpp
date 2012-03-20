@@ -103,8 +103,8 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	/* Initialize the feature interval */
 	interval = InitInterval(cfg.interval_units, cfg.interval_length);
 	
-	/* Initialize the starting timestamp */
-	time = InitTime(cfg.start, now, tle);
+	/* Initialize the starting timestamp; default to epoch */
+	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle);
 	Note("Start time: %s\n", time.ToString().c_str());
 
 	/* Initialize the ending timestamp, if needed */

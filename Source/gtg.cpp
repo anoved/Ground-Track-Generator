@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	int pos_argc = 0;
 	
 	/* Initialize default configuration */
-	cfg.start = NULL;
+	cfg.start = NULL; /* NULL start implies epoch start time */
 	cfg.end = NULL;
 	cfg.interval_units = minutes;
 	cfg.interval_length = 1.0;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 	/* Positional arguments */
 	pos_argv = argv + optind;
 	pos_argc = argc - optind;
-
+	
 	/* Determine output path */
 	if (NULL == cfg.outputShpBasepath) {
 		if (1 == pos_argc) {
@@ -162,12 +162,7 @@ int main(int argc, char *argv[])
 	} else if (0 != pos_argc) {
 		Fail("Unexpected arguments (output path already specified).\n");
 	}
-	
-	/* Confirm that a start time is specified */
-	if (NULL == cfg.start) {
-		Fail("No trace start time specified.\n");
-	}
-	
+		
 	/* Determine whether output is constrained by end time or feature count */
 	if (NULL == cfg.end) {
 		/* If no end is specified, output the specified number of features. */
