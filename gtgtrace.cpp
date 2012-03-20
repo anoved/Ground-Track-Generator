@@ -63,6 +63,10 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	Timespan interval;
 	Eci eci(now, 0, 0, 0);
 	
+	/* for line output mode */
+	Eci prevEci(eci);
+	int prevSet = 0;
+	
 	/* Initialize the feature interval */
 	interval = InitInterval(cfg.interval_units, cfg.interval_length);
 	
@@ -103,12 +107,27 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 			break;
 		}
 		
-		/* output this location */
-		//OutputPoint(feature, eci);
-		shout.output(feature, eci);
+		if (line == cfg.format) {
+			if (prevSet) {
+				shout.outputLine(feature, prevEci, eci);
+				feature++;
+			} else {
+				/* prevSet is only false on the first pass, which yields an
+				   extra interval not counted against feature count - needed
+				   since line segments imply n+1 intervals for n features */
+				prevSet = 1;
+			}
+			
+			prevEci = eci;
+			
+		} else {
 		
-		/* increment feature */
-		feature++;
+			/* output this location */
+			shout.outputPoint(feature, eci);
+		
+			/* increment feature */
+			feature++;
+		}
 		
 		/* increment time interval */
 		time += interval;

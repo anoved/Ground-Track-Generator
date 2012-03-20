@@ -14,7 +14,9 @@ public:
 	{
 	}
 	
-	void output(int feature, Eci eci);
+	void outputPoint(int feature, Eci eci);
+	
+	void outputLine(int feature, Eci start, Eci end);
 	
 	void close(void);
 

@@ -36,9 +36,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_format_type f
 	Note("Altitude field ID: %d\n", fieldID);
 }
 
-/* note this method is not compatible with line format output */
-/* we will have a separate output method that accepts two ecis for line output */
-void ShapefileWriter::output(int feature, Eci eci)
+void ShapefileWriter::outputPoint(int feature, Eci eci)
 {
 	CoordGeodetic cg(eci.ToGeodetic());
 	double latitude = Util::RadiansToDegrees(cg.latitude);
@@ -50,7 +48,7 @@ void ShapefileWriter::output(int feature, Eci eci)
 	/* output the geometry */
 	obj = SHPCreateSimpleObject(SHPT_POINT, 1, &longitude, &latitude, NULL);
 	if (NULL == obj) {
-		Fail("Shape creation failed at feature %d\n", feature);
+		Fail("Point creation failed at feature %d\n", feature);
 	}
 	entityID = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
@@ -59,6 +57,31 @@ void ShapefileWriter::output(int feature, Eci eci)
 	DBFWriteDoubleAttribute(dbf_, feature, 0, altitude);
 	
 	/* more explicit ID tracking/assignment would be a good */
+}
+
+void ShapefileWriter::outputLine(int feature, Eci start, Eci end)
+{
+	CoordGeodetic startCg(start.ToGeodetic()), endCg(end.ToGeodetic());
+	double latitude[2];
+	double longitude[2];
+	double altitude = startCg.altitude;
+	SHPObject *obj;
+	int entityID;
+	
+	latitude[0] = Util::RadiansToDegrees(startCg.latitude);
+	latitude[1] = Util::RadiansToDegrees(endCg.latitude);
+	
+	longitude[0] = Util::RadiansToDegrees(startCg.longitude);
+	longitude[1] = Util::RadiansToDegrees(endCg.longitude);
+	
+	obj = SHPCreateSimpleObject(SHPT_ARC, 2, longitude, latitude, NULL);
+	if (NULL == obj) {
+		Fail("Line creation failed at feature %d\n", feature);
+	}
+	entityID = SHPWriteObject(shp_, -1, obj);
+	SHPDestroyObject(obj);
+	
+	DBFWriteDoubleAttribute(dbf_, feature, 0, altitude);
 }
 
 void ShapefileWriter::close(void)
