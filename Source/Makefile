@@ -1,3 +1,5 @@
+# GTG/Source Makefile
+
 # Tools
 
 CPP = /usr/bin/g++
