@@ -19,24 +19,24 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_format_type f
 	/* create the shapefile geometry */
 	shp_ = SHPCreate(basepath, shpFormat_);
 	if (NULL == shp_) {
-		Fail("Could not create shapefile.\n");
+		Fail("cannot create shapefile: %s\n", basepath);
 	}
 	
 	/* create the shapefile attribute table */
 	dbf_ = DBFCreate(basepath);
 	if (NULL == dbf_) {
-		Fail("Could not create attribute table.\n");
+		Fail("cannot create shapefile attribute table: %s\n", basepath);
 	}
 	
 	/* eventually the attribute table will be user configurable */
 	fieldID = DBFAddField(dbf_, "ALTITUDE", FTDouble, 12, 6);
 	if (-1 == fieldID) {
-		Fail("Could not add Altitude field to attribute table.\n");
+		Fail("cannot add ALTITUDE field to attribute table\n");
 	}
 	
 	fieldID = DBFAddField(dbf_, "VELOCITY", FTDouble, 12, 6);
 	if (-1 == fieldID) {
-		Fail("Could not add Velocity field to attribute table.\n");
+		Fail("cannot add VELOCITY field to attribute table\n");
 	}
 }
 
@@ -57,13 +57,13 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	
 	/* nextloc is used for line segment end, if needed */
 	if (NULL != nextloc && shpFormat_ == SHPT_ARC) {
-		/* not necessary to keep it around; we use loc for all attributes */
+		/* not necessary to keep nextlocg around; we use loc for all attributes */
 		CoordGeodetic nextlocg(nextloc->ToGeodetic());
 		pointc = 2;
 		latitude[1] = Util::RadiansToDegrees(nextlocg.latitude);
 		longitude[1] = Util::RadiansToDegrees(nextlocg.longitude);		
 	} else if (shpFormat_ == SHPT_ARC) {
-		Fail("Line output requires two points.\n");
+		Fail("line output requires two points; only one received\n");
 	}
 	
 	/* hack to circumvent dateline rendering confusion */
@@ -75,7 +75,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	/* output the geometry */
 	obj = SHPCreateSimpleObject(shpFormat_, pointc, longitude, latitude, NULL);
 	if (NULL == obj) {
-		Fail("Shape creation failed.\n");
+		Fail("cannot create shape\n"); // not very informative
 	}
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);

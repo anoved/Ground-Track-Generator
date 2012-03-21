@@ -50,8 +50,13 @@ Tle ReadTleFromStream(std::istream *stream)
     std::string line1;
     std::string line2;
     std::string parameters;
+
+	/* create a dummy Tle and ignore it if reading fails; 
+	   this lets us handle exceptions yet assign read Tle for return */
+	Tle tle("1 25544U 98067A   12079.89583855  .00016581  00000-0  21080-3 0  2156",
+			"2 25544  51.6414 209.7068 0016865 175.1468 330.0443 15.59367837764090");
 	bool got_tle = false;
-	
+		
     while (!stream->eof())
     {
         std::string line;
@@ -87,7 +92,7 @@ Tle ReadTleFromStream(std::istream *stream)
             }
             catch (TleException& e)
             {
-            	Fail("%s\n%s\n", e.what(), line.c_str());
+            	Fail("TLE read error: %s\n", e.what());
             }
         }
         else
@@ -126,22 +131,22 @@ Tle ReadTleFromStream(std::istream *stream)
                 if (line.length() >= Tle::GetLineLength())
                 {
                     Tle::IsValidLine(line.substr(0, Tle::GetLineLength()), 2);
+                    tle = Tle(line1, line2);
                     got_tle = true;
                     break;
                 }
             }
             catch (TleException& e)
             {
-            	Fail("%s\n%s\n", e.what(), line.c_str());
+            	Fail("TLE read error: %s\n", e.what());
             }
         }
     }
 	
 	if (not got_tle) {
-		Fail("No TLE could be found.\n");
+		Fail("cannot read TLE\n");
 	}
-	
-	return Tle("", line1, line2);
+	return tle;
 }
 
 /* For loading a TLE from a file specified by a path */
@@ -149,7 +154,7 @@ Tle ReadTleFromPath(const char* infile)
 {
 	std::ifstream file(infile);
 	if (!file.is_open()) {
-		Fail("Could not open TLE file: %s\n", infile);
+		Fail("cannot open TLE file: %s\n", infile);
 	}
 	
 	Tle tle = ReadTleFromStream(&file);

@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 			case 's':
 				/* Start */
 				if(NULL != cfg.start) {
-					Fail("Extraneous trace start time argument.");
+					Fail("start already specified: %s\n", cfg.start);
 				}
 				cfg.start = optarg;
 				break;
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 			case 'e':
 				/* End */
 				if (NULL != cfg.end) {
-					Fail("Extraneous trace end time argument.");
+					Fail("end already specified: %s\n", cfg.end);
 				}
 				cfg.end = optarg;
 				break;
@@ -81,15 +81,18 @@ int main(int argc, char *argv[])
 				} else if (0 == strcmp("days", optarg)) {
 					cfg.unit = days;
 				} else {
-					Fail("Invalid interval unit (should be one of seconds, minutes, hours, or days).\n");
+					Fail("invalid unit: %s (should be seconds, minutes, hours, or days)\n", optarg);
 				}
 				break;
 			
 			case 'l':
 				/* Interval length */
-				/* Argument format: floating point number */
+				/* Argument format: positive floating point number */
 				if (1 != sscanf(optarg, "%lf", &cfg.interval)) {
-					Fail("Invalid interval length (should be positive floating point number).\n");
+					Fail("cannot parse interval: %s (should be positive number)\n", optarg);
+				}
+				if (cfg.interval <= 0.0) {
+					Fail("invalid interval: %s (should be positive number)\n", cfg.interval);
 				}
 				break;
 			
@@ -97,7 +100,10 @@ int main(int argc, char *argv[])
 				/* Steps */
 				/* Argument format: integer >= 1 */
 				if (1 != sscanf(optarg, "%d", &cfg.steps)) {
-					Fail("Invalid feature count (should be positive integer).\n");
+					Fail("cannot parse steps: %s (should be positive integer)\n", optarg);
+				}
+				if (cfg.steps <= 0) {
+					Fail("invalid steps: %s (should be positive integer)\n", cfg.steps);
 				}
 				break;
 			
@@ -105,10 +111,10 @@ int main(int argc, char *argv[])
 				/* TLE text */
 				/* Argument format: text to be parsed for TLE, ala runtest */
 				if (NULL != cfg.tleText) {
-					Fail("Extraneous TLE text argument.\n");
+					Fail("TLE text already specified\n");
 				}
 				if (NULL != cfg.tlePath) {
-					Fail("Extraneous TLE text argument (input TLE file already specified).\n");
+					Fail("TLE file already specified: %s (cannot use --tle and --input)\n", cfg.tlePath);
 				}
 				cfg.tleText = optarg;
 				break;
@@ -117,10 +123,10 @@ int main(int argc, char *argv[])
 				/* Input file */
 				/* Argument format: path to file to read for TLE, ala runtest */
 				if (NULL != cfg.tlePath) {
-					Fail("Extraneous input TLE file path argument.\n");
+					Fail("TLE file already specified\n");
 				}
 				if (NULL != cfg.tleText) {
-					Fail("Extraneous input TLE file path argument (TLE text already specified).\n");
+					Fail("TLE text already specified (cannot use --input and --tle)\n");
 				}
 				cfg.tlePath = optarg;
 				break;
@@ -129,7 +135,7 @@ int main(int argc, char *argv[])
 				/* Output file */
 				/* Argument format: path to output shapefile basename */
 				if (NULL != cfg.shpPath) {
-					Fail("Extraneous output shapefile base name argument.\n");
+					Fail("output shapefile already specified: %s\n", cfg.shpPath);
 				}
 				cfg.shpPath = optarg;
 				break;
@@ -142,7 +148,7 @@ int main(int argc, char *argv[])
 				} else if (0 == strcmp("line", optarg)) {
 					cfg.format = line;
 				} else {
-					Fail("Invalid output format (should be point or line).\n");
+					Fail("invalid format: %s (should be point or line)\n", optarg);
 				}
 				break;
 			
@@ -163,7 +169,7 @@ int main(int argc, char *argv[])
 						|| (0 == strcmp("-?", argv[optind - 1]))) {
 					ShowHelp();
 				} else {
-					Fail("Unrecognized option: %s (try --help)\n", argv[optind - 1]);
+					Fail("unrecognized option: %s (try --help)\n", argv[optind - 1]);
 				}
 				break;
 		}
@@ -181,21 +187,14 @@ int main(int argc, char *argv[])
 			Fail("no output shapefile specified\n");
 		}
 	} else if (0 != pos_argc) {
-		Fail("extra output shapefile specified (--output already specified as %s).\n", cfg.shpPath);
-	}
-		
-	/* Determine whether output is constrained by end time or feature count */
-	if (NULL == cfg.end) {
-		/* If no end is specified, output the specified number of features. */
-		if (0 >= cfg.steps) {
-			Fail("Feature count for line output must be a positive integer.\n");
-		}
-	} else {
-		/* If an end point IS specified, ignore feature count. */
-		cfg.steps = 0; 
+		Fail("output shapefile already specified: %s\n", cfg.shpPath);
 	}
 	
-	/* get dis party started */
+	/* If an end time is specified, use that instead of steps to constrain output */
+	if (NULL != cfg.end) {
+		cfg.steps = 0;
+	}
+	
 	StartGroundTrack();
 	
 	return EXIT_SUCCESS;

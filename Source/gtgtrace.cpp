@@ -48,7 +48,7 @@ Julian InitTime(const char *desc, Julian now, Tle tle)
 			if (1 == sscanf(desc, "%lf", &unixtime)) {
 				time = Julian((time_t)unixtime);
 			} else {
-				Fail("Could not scan time as timestamp or unix time\n");
+				Fail("cannot parse time: %s\n", desc);
 			}
 		}
 	}
@@ -105,7 +105,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	
 	/* Initialize the starting timestamp; default to epoch */
 	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle);
-	Note("Start time: %s\n", time.ToString().c_str());
+	Note("Start: %s\n", time.ToString().c_str());
 
 	/* Initialize the ending timestamp, if needed */
 	if (NULL != cfg.end) {
@@ -114,15 +114,15 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		
 		/* Sanity check 1 */
 		if (time >= endtime) {
-			Fail("End time must be after start time.\n");
+			Fail("end time (%s) not after start time (%s)\n", endtime.ToString().c_str(), time.ToString().c_str());
 		}
 		
 		/* Sanity check 2 */
 		if (interval > endtime - time) {
-			Fail("Trace interval exceeds time between start and end.\n");
+			Fail("interval (%lf minutes) exceeds period between start time and end time (%lf minutes).\n", interval.GetTotalMinutes(), (endtime - time).GetTotalMinutes());
 		}
 			
-		Note("End time: %s\n", endtime.ToString().c_str());
+		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
 	ShapefileWriter shout(cfg.shpPath, cfg.format);
@@ -133,7 +133,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		try {
 			eci = model.FindPosition(time);
 		} catch (SatelliteException &e) {
-			Fail("Satellite exception: %s\n", e.what());
+			Fail("satellite exception: %s\n", e.what());
 		} catch (DecayedException &e) {
 			/* A decaying orbit is OK - we just stop the trace now. */
 			Note("Satellite decayed (interval %d).\n", feature);
@@ -183,7 +183,7 @@ void InitSatModel(Tle tle) {
 		SGP4 model(tle);
 		GenerateGroundTrack(tle, model);
 	} catch (SatelliteException &e) {
-		Fail("Could not initialize satellite model: %s\n", e.what());
+		Fail("cannot initialize satellite model: %s\n", e.what());
 	}
 }
 
