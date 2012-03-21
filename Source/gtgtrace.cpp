@@ -125,7 +125,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		Note("End time: %s\n", endtime.ToString().c_str());
 	}
 	
-	ShapefileWriter shout(cfg.outputShpBasepath, cfg.format);
+	ShapefileWriter shout(cfg.shpPath, cfg.format);
 	
 	while (1) {
 		
@@ -189,11 +189,11 @@ void InitSatModel(Tle tle) {
 
 void StartGroundTrack(void)
 {
-	if ((NULL == cfg.tleText) and (NULL == cfg.inputTlePath)) {
+	if ((NULL == cfg.tleText) and (NULL == cfg.tlePath)) {
 		InitSatModel(ReadTleFromStream(&std::cin));
 	} else if (NULL != cfg.tleText) {
 		InitSatModel(ReadTleFromBuffer(cfg.tleText));
-	} else if (NULL != cfg.inputTlePath) {
-		InitSatModel(ReadTleFromPath(cfg.inputTlePath));
+	} else if (NULL != cfg.tlePath) {
+		InitSatModel(ReadTleFromPath(cfg.tlePath));
 	}
 }

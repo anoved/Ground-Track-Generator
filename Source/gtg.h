@@ -24,8 +24,8 @@ struct configuration {
 	double interval;
 	int steps;
 	char *tleText;
-	char *inputTlePath;
-	char *outputShpBasepath;
+	char *tlePath;
+	char *shpPath;
 	enum output_format_type format;
 	int verbose;
 };

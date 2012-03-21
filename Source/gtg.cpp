@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 	cfg.interval = 1.0;
 	cfg.steps = 100;
 	cfg.tleText = NULL;
-	cfg.inputTlePath = NULL;
-	cfg.outputShpBasepath = NULL;
+	cfg.tlePath = NULL;
+	cfg.shpPath = NULL;
 	cfg.format = point;
 	cfg.verbose = 0;
 	
@@ -32,18 +32,18 @@ int main(int argc, char *argv[])
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	static const char *optString = "s:e:u:l:c:n:t:i:o:f:v?";
+	static const char *optString = "e:f:?i:l:o:s:n:t:u:v";
 	static const struct option longOpts[] = {
 			{"end", required_argument, NULL, 'e'},
-			{"steps", required_argument, NULL, 'n'},
 			{"format", required_argument, NULL, 'f'},
 			{"help", no_argument, NULL, '?'},
 			{"input", required_argument, NULL, 'i'},
 			{"interval", required_argument, NULL, 'l'},
-			{"unit", required_argument, NULL, 'u'},
 			{"output", required_argument, NULL, 'o'},
 			{"start", required_argument, NULL, 's'},
+			{"steps", required_argument, NULL, 'n'},
 			{"tle", required_argument, NULL, 't'},
+			{"unit", required_argument, NULL, 'u'},
 			{"verbose", no_argument, &cfg.verbose, 1},
 			{"version", no_argument, NULL, 'v'},
 			{NULL, no_argument, NULL, 0}
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 				if (NULL != cfg.tleText) {
 					Fail("Extraneous TLE text argument.\n");
 				}
-				if (NULL != cfg.inputTlePath) {
+				if (NULL != cfg.tlePath) {
 					Fail("Extraneous TLE text argument (input TLE file already specified).\n");
 				}
 				cfg.tleText = optarg;
@@ -116,22 +116,22 @@ int main(int argc, char *argv[])
 			case 'i':
 				/* Input file */
 				/* Argument format: path to file to read for TLE, ala runtest */
-				if (NULL != cfg.inputTlePath) {
+				if (NULL != cfg.tlePath) {
 					Fail("Extraneous input TLE file path argument.\n");
 				}
 				if (NULL != cfg.tleText) {
 					Fail("Extraneous input TLE file path argument (TLE text already specified).\n");
 				}
-				cfg.inputTlePath = optarg;
+				cfg.tlePath = optarg;
 				break;
 			
 			case 'o':
 				/* Output file */
 				/* Argument format: path to output shapefile basename */
-				if (NULL != cfg.outputShpBasepath) {
+				if (NULL != cfg.shpPath) {
 					Fail("Extraneous output shapefile base name argument.\n");
 				}
-				cfg.outputShpBasepath = optarg;
+				cfg.shpPath = optarg;
 				break;
 			
 			case 'f':
@@ -174,14 +174,14 @@ int main(int argc, char *argv[])
 	pos_argc = argc - optind;
 	
 	/* Determine output path */
-	if (NULL == cfg.outputShpBasepath) {
+	if (NULL == cfg.shpPath) {
 		if (1 == pos_argc) {
-			cfg.outputShpBasepath = pos_argv[0];
+			cfg.shpPath = pos_argv[0];
 		} else {
-			Fail("Expected one additional argument to specify shapefile output path.\n");
+			Fail("no output shapefile specified\n");
 		}
 	} else if (0 != pos_argc) {
-		Fail("Unexpected arguments (output path already specified).\n");
+		Fail("extra output shapefile specified (--output already specified as %s).\n", cfg.shpPath);
 	}
 		
 	/* Determine whether output is constrained by end time or feature count */
