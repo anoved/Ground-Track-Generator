@@ -1,6 +1,9 @@
 #ifndef _GTG_H_
 #define _GTG_H_
 
+#define _GTG_NAME_ "Ground Track Generator"
+#define _GTG_VERSION_ "0.1"
+
 enum interval_unit_type {
 	seconds,
 	minutes,

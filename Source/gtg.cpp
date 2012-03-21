@@ -9,6 +9,19 @@
 
 struct configuration cfg;
 
+void ShowVersion(void)
+{
+	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
+	exit(EXIT_SUCCESS);
+}
+
+void ShowHelp(void)
+{
+	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
+	printf("Web page: <https://github.com/anoved/Ground-Track-Generator>\n");
+	exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[])
 {
 	int opt = 0;
@@ -31,7 +44,7 @@ int main(int argc, char *argv[])
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	static const char *optString = "s:e:u:l:c:n:t:i:o:f:";
+	static const char *optString = "s:e:u:l:c:n:t:i:o:f:v?";
 	static const struct option longOpts[] = {
 			{"start", required_argument, NULL, 's'},
 			{"end", required_argument, NULL, 'e'},
@@ -42,11 +55,13 @@ int main(int argc, char *argv[])
 			{"input", required_argument, NULL, 'i'},
 			{"output", required_argument, NULL, 'o'},
 			{"format", required_argument, NULL, 'f'},
+			{"version", no_argument, NULL, 'v'},
+			{"help", no_argument, NULL, '?'},
 			{NULL, no_argument, NULL, 0}
 	};
 	
 	/* Store command line arguments and perform some preliminary validation */
-	while(-1 != (opt = getopt_long(argc, argv, optString, longOpts, &longIndex))) {
+	while(-1 != (opt = getopt_long_only(argc, argv, optString, longOpts, &longIndex))) {
 		switch(opt) {
 			
 			case 's':
@@ -140,6 +155,16 @@ int main(int argc, char *argv[])
 				} else {
 					Fail("Invalid output format (should be point or line).\n");
 				}
+				break;
+			
+			case 'v':
+				/* Version information */
+				ShowVersion();
+				break;
+			
+			case '?':
+				/* Help / Usage */
+				ShowHelp();
 				break;
 			
 			default:
