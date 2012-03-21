@@ -32,8 +32,24 @@ void ShowVersion(void)
 void ShowHelp(void)
 {
 	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
-	printf("usage: %s [--start] [--end] [--unit] [--interval] [--tle]\n", _GTG_PROGRAM_);
-	printf("       [--steps] [--input] [--output] [--format] [output]\n");
+	printf("usage: %s [OPTIONS] [OUTPUT]\n", _GTG_PROGRAM_);
+	printf("Options:\n");
+	printf("\t--unit days | hours | minutes | seconds\n");
+	printf("\t\tDefault: minutes\n");
+	printf("\t--interval N\n");
+	printf("\t\tDefault: 1.0\n");
+	printf("\t--steps N\n");
+	printf("\t\tDefault: 100\n");
+	printf("\t--start now | epoch | YYYY-MM-DD HH:MM:SS.SSSSSS UTC | S\n");
+	printf("\t\tDefault: epoch (TLE reference date)\n");
+	printf("\t--end now | epoch | YYYY-MM-DD HH:MM:SS.SSSSSS UTC | S\n");
+	printf("\t\tIf specified, overrides --steps.\n");
+	printf("\t--format point | line\n");
+	printf("\t\tDefault: point\n");
+	printf("\t--tle TEXT | --input PATH\n");
+	printf("\t\tTLE read from TEXT value, PATH file, or otherwise stdin.\n");
+	printf("\t--output BASEPATH\n");
+	printf("\t\tIf not specified, BASEPATH be provided as OUTPUT argument.\n");
 	printf("Web page: <https://github.com/anoved/Ground-Track-Generator>\n");
 	exit(EXIT_SUCCESS);
 }
