@@ -32,8 +32,8 @@ void ShowVersion(void)
 void ShowHelp(void)
 {
 	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
-	printf("usage: gtg [--start] [--end] [--interval_unit] [--interval_length] [--tle]\n");
-	printf("           [--feature_count] [--input] [--output] [--format] [output]\n");
+	printf("usage: %s [--start] [--end] [--interval_unit] [--interval_length] [--tle]\n", _GTG_PROGRAM_);
+	printf("       [--feature_count] [--input] [--output] [--format] [output]\n");
 	printf("Web page: <https://github.com/anoved/Ground-Track-Generator>\n");
 	exit(EXIT_SUCCESS);
 }
