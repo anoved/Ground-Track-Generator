@@ -4,10 +4,10 @@
 #include <stdlib.h>
 
 /* Print an error message to stderr and exit with failure status. */
-void Fail(const char *errorString, ...) {
+void FailDetail(const char *file, int line, const char *errorString, ...) {
 	va_list arglist;
 	va_start(arglist, errorString);
-	fprintf(stderr, "%s: ", _GTG_PROGRAM_);
+	fprintf(stderr, "%s:%s:%d: ", _GTG_PROGRAM_, file, line);
 	vfprintf(stderr, errorString, arglist);
 	va_end(arglist);
 	exit(EXIT_FAILURE);

@@ -4,9 +4,11 @@
 #include "gtg.h"
 #include <stdarg.h>
 
-void Fail(const char *errorString, ...);
+void FailDetail(const char *file, int line, const char *errorString, ...);
 void Note(const char *noteString, ...);
 void ShowVersion(void);
 void ShowHelp(void);
+
+#define Fail(format, ...) FailDetail(__FILE__, __LINE__, (format), ## __VA_ARGS__)
 
 #endif
