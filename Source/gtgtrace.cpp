@@ -90,7 +90,7 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 
 void GenerateGroundTrack(Tle tle, SGP4 model)
 {
-	int feature = 0;
+	int step = 0;
 	Julian now;
 	Julian time, endtime;
 	Timespan interval;
@@ -100,7 +100,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	Eci prevEci(eci);
 	int prevSet = 0;
 	
-	/* Initialize the feature interval */
+	/* Initialize the step interval */
 	interval = InitInterval(cfg.unit, cfg.interval);
 	
 	/* Initialize the starting timestamp; default to epoch */
@@ -136,18 +136,18 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 			Fail("satellite exception: %s\n", e.what());
 		} catch (DecayedException &e) {
 			/* A decaying orbit is OK - we just stop the trace now. */
-			Note("Satellite decayed (interval %d).\n", feature);
+			Note("Satellite decayed (step %d).\n", step);
 			break;
 		}
 		
 		if (line == cfg.format) {
 			if (prevSet) {
 				shout.output(&prevEci, &eci);
-				feature++;
+				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
-				   extra interval not counted against feature count - needed
-				   since line segments imply n+1 intervals for n features */
+				   extra interval not counted against step count - needed
+				   since line segments imply n+1 intervals for n steps */
 				prevSet = 1;
 			}
 			
@@ -155,18 +155,16 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 			
 		} else {
 		
-			/* output this location */
 			shout.output(&eci);
 			
-			/* increment feature */
-			feature++;
+			step++;
 		}
 		
 		/* increment time interval */
 		time += interval;
 		
 		/* stop ground track once we've exceeded step count or end time */
-		if ((0 != cfg.steps) && (feature > cfg.steps)) {
+		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
 		} else if ((NULL != cfg.end) && (time >= endtime)) {
 			break;
