@@ -9,12 +9,42 @@
 
 struct configuration cfg;
 
+/* used to parse attributes specified on command line and as dbf field titles */
+enum attribute_ids {
+	ATTR_ALTITUDE = 0,
+	ATTR_VELOCITY,
+	ATTR_COUNT
+};
+
+/* must be defined in same order as attribute_ids */
+const char *attribute_names[] = {
+		"altitude",
+		"velocity"};
+
+/* each element is set to true if the corresponding attribute should be output */
+int attribute_flags[ATTR_COUNT];
+
+/* returns index of attribute, if valid, or -1 if not */
+int IsValidAttribute(const char *s)
+{
+	for (int i = 0; i < ATTR_COUNT; i++) {
+		if (0 == strcmp(s, attribute_names[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 int main(int argc, char *argv[])
 {
 	int opt = 0;
 	int longIndex = 0;
-	char **pos_argv;
-	int pos_argc = 0;
+	int attrid = -1;
+	
+	/* no attributes output by default */
+	for (int i = 0; i < ATTR_COUNT; i++) {
+		attribute_flags[i] = 0;
+	}
 	
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
@@ -32,8 +62,9 @@ int main(int argc, char *argv[])
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	static const char *optString = "e:f:?i:l:o:s:n:t:u:v";
+	static const char *optString = "a:e:f:?i:l:o:s:n:t:u:v";
 	static const struct option longOpts[] = {
+			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
 			{"format", required_argument, NULL, 'f'},
 			{"help", no_argument, NULL, '?'},
@@ -52,6 +83,30 @@ int main(int argc, char *argv[])
 	/* Store command line arguments and perform some preliminary validation */
 	while(-1 != (opt = getopt_long_only(argc, argv, optString, longOpts, &longIndex))) {
 		switch(opt) {
+			
+			case 'a':
+				/* Attributes */
+								
+				/* first attribute argument is required */
+				if (-1 != (attrid = IsValidAttribute(optarg))) {
+					attribute_flags[attrid] = 1;
+				} else {
+					Fail("invalid attribute: %s\n", optarg);
+				}
+				
+				/* subsequent attribute arguments, if present, are optional */
+				/* if a subsequent argument doesn't look like an attribute, */
+				/* just return control to getopt to handle as another opt */
+				while (optind < argc) {
+					if (-1 != (attrid = IsValidAttribute(argv[optind]))) {
+						attribute_flags[attrid] = 1;
+						optind++;
+					} else {
+						break;
+					}
+				}
+				
+				break;
 			
 			case 's':
 				/* Start */
@@ -176,24 +231,42 @@ int main(int argc, char *argv[])
 	}
 	
 	/* Positional arguments */
-	pos_argv = argv + optind;
-	pos_argc = argc - optind;
-	
-	/* Determine output path */
-	if (NULL == cfg.shpPath) {
-		if (1 == pos_argc) {
-			cfg.shpPath = pos_argv[0];
-		} else {
-			Fail("no output shapefile specified\n");
-		}
-	} else if (0 != pos_argc) {
-		Fail("output shapefile already specified: %s\n", cfg.shpPath);
-	}
+	argv += optind;
+	argc -= optind;
 	
 	/* If an end time is specified, use that instead of steps to constrain output */
 	if (NULL != cfg.end) {
 		cfg.steps = 0;
 	}
+	
+	/* If output shpPath was not specified as an option, take the first
+	   remaining argument as shpPath and remove it from the list of remnants */
+	if (NULL == cfg.shpPath) {
+		if (argc < 1) {
+			Fail("no output shapefile specified\n");
+		}
+		cfg.shpPath = argv[0];
+		argv++;
+		argc--;
+	}
+	
+	if (argc > 0) {
+		Fail("extraneous command line argument: %s\n", argv[0]);
+	}
+	
+	/* to read remaining arguments as attributes */
+	/*for (int i = 0; i < argc; i++) {
+		if (-1 != (attrid = IsValidAttribute(argv[i]))) {
+			attribute_flags[attrid] = 1;
+		} else {
+			Fail("invalid attribute: %s\n", argv[i]);
+		}
+	}*/
+	
+	/* report which attribute flags are set */
+	/*for (int i = 0; i < ATTR_COUNT; i++) {
+		printf("attribute %s %d\n", attribute_names[i], attribute_flags[i]);
+	}*/
 	
 	StartGroundTrack();
 	
