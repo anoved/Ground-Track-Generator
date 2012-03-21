@@ -101,7 +101,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	int prevSet = 0;
 	
 	/* Initialize the feature interval */
-	interval = InitInterval(cfg.interval_units, cfg.interval_length);
+	interval = InitInterval(cfg.unit, cfg.interval);
 	
 	/* Initialize the starting timestamp; default to epoch */
 	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle);
@@ -165,8 +165,8 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		/* increment time interval */
 		time += interval;
 		
-		/* stop ground track once we've exceeded feature count or end time */
-		if ((0 != cfg.feature_count) && (feature > cfg.feature_count)) {
+		/* stop ground track once we've exceeded step count or end time */
+		if ((0 != cfg.steps) && (feature > cfg.steps)) {
 			break;
 		} else if ((NULL != cfg.end) && (time >= endtime)) {
 			break;

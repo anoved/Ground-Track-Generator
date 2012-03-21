@@ -20,9 +20,9 @@ enum output_format_type {
 struct configuration {
 	char *start;
 	char *end;
-	enum interval_unit_type interval_units;
-	double interval_length;
-	int feature_count;
+	enum interval_unit_type unit;
+	double interval;
+	int steps;
 	char *tleText;
 	char *inputTlePath;
 	char *outputShpBasepath;

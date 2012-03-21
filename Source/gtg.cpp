@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
 	cfg.end = NULL;
-	cfg.interval_units = minutes;
-	cfg.interval_length = 1.0;
-	cfg.feature_count = 100;
+	cfg.unit = minutes;
+	cfg.interval = 1.0;
+	cfg.steps = 100;
 	cfg.tleText = NULL;
 	cfg.inputTlePath = NULL;
 	cfg.outputShpBasepath = NULL;
@@ -34,18 +34,18 @@ int main(int argc, char *argv[])
 	/* Expected arguments for getopt_long */
 	static const char *optString = "s:e:u:l:c:n:t:i:o:f:v?";
 	static const struct option longOpts[] = {
-			{"start", required_argument, NULL, 's'},
 			{"end", required_argument, NULL, 'e'},
-			{"interval_unit", required_argument, NULL, 'u'},
-			{"interval_length", required_argument, NULL, 'l'},
-			{"feature_count", required_argument, NULL, 'n'},
-			{"tle", required_argument, NULL, 't'},
-			{"input", required_argument, NULL, 'i'},
-			{"output", required_argument, NULL, 'o'},
+			{"steps", required_argument, NULL, 'n'},
 			{"format", required_argument, NULL, 'f'},
-			{"version", no_argument, NULL, 'v'},
 			{"help", no_argument, NULL, '?'},
+			{"input", required_argument, NULL, 'i'},
+			{"interval", required_argument, NULL, 'l'},
+			{"unit", required_argument, NULL, 'u'},
+			{"output", required_argument, NULL, 'o'},
+			{"start", required_argument, NULL, 's'},
+			{"tle", required_argument, NULL, 't'},
 			{"verbose", no_argument, &cfg.verbose, 1},
+			{"version", no_argument, NULL, 'v'},
 			{NULL, no_argument, NULL, 0}
 	};
 	
@@ -73,13 +73,13 @@ int main(int argc, char *argv[])
 				/* Interval units */
 				/* Accepted argument values: seconds, minutes, hours, days */
 				if (0 == strcmp("seconds", optarg)) {
-					cfg.interval_units = seconds;
+					cfg.unit = seconds;
 				} else if (0 == strcmp("minutes", optarg)) {
-					cfg.interval_units = minutes;
+					cfg.unit = minutes;
 				} else if (0 == strcmp("hours", optarg)) {
-					cfg.interval_units = hours;
+					cfg.unit = hours;
 				} else if (0 == strcmp("days", optarg)) {
-					cfg.interval_units = days;
+					cfg.unit = days;
 				} else {
 					Fail("Invalid interval unit (should be one of seconds, minutes, hours, or days).\n");
 				}
@@ -88,15 +88,15 @@ int main(int argc, char *argv[])
 			case 'l':
 				/* Interval length */
 				/* Argument format: floating point number */
-				if (1 != sscanf(optarg, "%lf", &cfg.interval_length)) {
+				if (1 != sscanf(optarg, "%lf", &cfg.interval)) {
 					Fail("Invalid interval length (should be positive floating point number).\n");
 				}
 				break;
 			
 			case 'n':
-				/* Feature count */
+				/* Steps */
 				/* Argument format: integer >= 1 */
-				if (1 != sscanf(optarg, "%d", &cfg.feature_count)) {
+				if (1 != sscanf(optarg, "%d", &cfg.steps)) {
 					Fail("Invalid feature count (should be positive integer).\n");
 				}
 				break;
@@ -187,12 +187,12 @@ int main(int argc, char *argv[])
 	/* Determine whether output is constrained by end time or feature count */
 	if (NULL == cfg.end) {
 		/* If no end is specified, output the specified number of features. */
-		if (0 >= cfg.feature_count) {
+		if (0 >= cfg.steps) {
 			Fail("Feature count for line output must be a positive integer.\n");
 		}
 	} else {
 		/* If an end point IS specified, ignore feature count. */
-		cfg.feature_count = 0; 
+		cfg.steps = 0; 
 	}
 	
 	/* get dis party started */
