@@ -50,7 +50,8 @@ Tle ReadTleFromStream(std::istream *stream)
     std::string line1;
     std::string line2;
     std::string parameters;
-
+	bool got_tle = false;
+	
     while (!stream->eof())
     {
         std::string line;
@@ -125,7 +126,8 @@ Tle ReadTleFromStream(std::istream *stream)
                 if (line.length() >= Tle::GetLineLength())
                 {
                     Tle::IsValidLine(line.substr(0, Tle::GetLineLength()), 2);
-                    return Tle("", line1, line2);
+                    got_tle = true;
+                    break;
                 }
             }
             catch (TleException& e)
@@ -135,40 +137,30 @@ Tle ReadTleFromStream(std::istream *stream)
         }
     }
 	
-	/* kludgey */
-	Fail("No TLE could be found.\n");
-	return Tle("", "", "");
+	if (not got_tle) {
+		Fail("No TLE could be found.\n");
+	}
+	
+	return Tle("", line1, line2);
 }
 
 /* For loading a TLE from a file specified by a path */
 Tle ReadTleFromPath(const char* infile)
 {
-	std::ifstream file;
-	
-	file.open(infile);
-	
+	std::ifstream file(infile);
 	if (!file.is_open()) {
 		Fail("Could not open TLE file: %s\n", infile);
 	}
 	
 	Tle tle = ReadTleFromStream(&file);
-	
-	file.close();
-	
+
+	file.close();	
 	return tle;
 }
 
 /* For reading a Tle from a string such as an argument value */
 Tle ReadTleFromBuffer(const char *buffer)
 {
-	std::istringstream sb;
-	sb.str(buffer);
+	std::istringstream sb(buffer);
 	return ReadTleFromStream(&sb);
 }
-
-	//static const char *buff = "1 35683U 09041C   11356.17214994  .00000411  00000-0  77254-4 0  6826\n2 35683  98.0512 251.8127 0001492  79.4611 280.6776 14.69611889128518\n";
-	//Tle beetle = ReadTleFromBuffer(buff);
-	
-	//Tle beetle = ReadTleFromPath("mytle.txt");
-	
-	//Tle beetle = ReadTleFromStream(&std::cin);
