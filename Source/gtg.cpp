@@ -9,21 +9,6 @@
 
 struct configuration cfg;
 
-void ShowVersion(void)
-{
-	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
-	exit(EXIT_SUCCESS);
-}
-
-void ShowHelp(void)
-{
-	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
-	printf("usage: gtg [--start] [--end] [--interval_unit] [--interval_length] [--tle]\n");
-	printf("           [--feature_count] [--input] [--output] [--format] [output]\n");
-	printf("Web page: <https://github.com/anoved/Ground-Track-Generator>\n");
-	exit(EXIT_SUCCESS);
-}
-
 int main(int argc, char *argv[])
 {
 	int opt = 0;
@@ -41,6 +26,7 @@ int main(int argc, char *argv[])
 	cfg.inputTlePath = NULL;
 	cfg.outputShpBasepath = NULL;
 	cfg.format = point;
+	cfg.verbose = 0;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -59,6 +45,7 @@ int main(int argc, char *argv[])
 			{"format", required_argument, NULL, 'f'},
 			{"version", no_argument, NULL, 'v'},
 			{"help", no_argument, NULL, '?'},
+			{"verbose", no_argument, &cfg.verbose, 1},
 			{NULL, no_argument, NULL, 0}
 	};
 	
@@ -163,14 +150,21 @@ int main(int argc, char *argv[])
 				/* Version information */
 				ShowVersion();
 				break;
-			
-			case '?':
-				/* Help / Usage */
-				ShowHelp();
+				
+			case 0:
+				/* (options that just store val in flag, such as --verbose) */
+				/* (exact option indicated by longOpts[longIndex].name) */
 				break;
 			
+			case '?':
 			default:
-				Fail("Unrecognized option: %s\n", argv[optind - 1]);
+				/* Help / usage OR unrecognized options */
+				if ((0 == strcmp("help", longOpts[longIndex].name))
+						|| (0 == strcmp("-?", argv[optind - 1]))) {
+					ShowHelp();
+				} else {
+					Fail("Unrecognized option: %s (try --help)\n", argv[optind - 1]);
+				}
 				break;
 		}
 	}
