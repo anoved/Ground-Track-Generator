@@ -43,22 +43,6 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_format_type f
 	}
 }
 
-double DistanceToMeridian(double lon)
-{
-	double result;
-	
-	// for prime meridian:
-	// result = -1.0 * lon;
-	
-	if (lon < 0) {
-		result = -180 - lon;
-	} else {
-		result = 180 - lon;
-	}
-	
-	return result;
-}
-
 int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 {
 	CoordGeodetic locg(loc->ToGeodetic());
@@ -87,15 +71,8 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 		/* This line segment's endpoints are in different E/W hemispheres */		
 		if (cfg.split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
 			
-			// assumes spherical earth
 			// derived from http://geospatialmethods.org/spheres/
-			// (algorithm described at http://geospatialmethods.org/spheres/GCIntersect.html#GCIGC)
-			// convert this math to use constants and functions from SGP4++
-			
-			// for the purpose of determining whether this segment crosses the
-			// 180th or prime meridian, the radius (and shape) of the earth
-			// don't really matter. However, for 
-			
+			// assumes spherical earth
 			double EARTH_RADIUS = 6367.435; // km
 			
 			// cartesian coordinates of satellite points
@@ -116,65 +93,42 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 						
 			// cartesian coordinates g, h, w for one point where that great
 			// circle plane intersects the plane of the prime/180th meridian
-			double g = 0;
 			double h = -c1 / a1;
-			double w = sqrt(pow(EARTH_RADIUS, 2) / (pow(h, 2) + pow(g, 2) + 1));
+			double w = sqrt(pow(EARTH_RADIUS, 2) / (pow(h, 2) + 1));
 			
 			// spherical coordinates of intersection points
 			double lat1 = Util::RadiansToDegrees(asin(w / EARTH_RADIUS));
 			double lon1 = (h * w) < 0 ? 180.0 : 0.0;
 			double lat2 = Util::RadiansToDegrees(asin(-w / EARTH_RADIUS));
 			double lon2 = (-h * w) < 0 ? 180.0 : 0.0;
-						
-			double yintercept = 999;
-			
+					
+			// negative range_rate indicates satellite is approaching observer;
+			// the point that it is approaching is the point it will cross.
+			double intercept = 999; // not a valid latitude we'll encounter
 			if (Observer(lat1, lon1, 0).GetLookAngle(*loc).range_rate < 0) {
-				// crossing pt1; is it the 180th?
-				if (180 == lon1) {
-					// yes; crossing pt1, 180th - output split
-					yintercept = lat1;
-					Note("\tCrosses 180th meridian at lat1: %lf\n", yintercept);
-				} else {
-					// crossing pt1, 0 - ignore
-					Note("\tCrosses prime meridian at lat1; ignoring\n");
+				if (180.0 == lon1) {
+					intercept = lat1;
 				}
 			} else {
-				// crossing pt2; is it the 180th?
-				if (180 == lon2) {
-					// yes, crossing pt2, 180th - output split
-					yintercept = lat2;
-					Note("\tCrosses 180th meridian at lat2: %lf\n", yintercept);
-				} else {
-					// crossing pt2, 0 - ignore
-					Note("\tCrosses prime meridian at lat2; ignoring\n");
+				if (180.0 == lon2) {
+					intercept = lat2;
 				}
 			}
 			
-			if (yintercept != 999) {
-				double xv[4];
-				double yv[4];
-				int parts[2];
-				
-				parts[0] = 0;
-				xv[0] = longitude[0];
-				yv[0] = latitude[0];
-				xv[1] = longitude[0] < 0 ? -180 : 180;
-				yv[1] = yintercept;
-				
-				parts[1] = 2;
-				xv[2] = longitude[0] < 0 ? 180 : -180;
-				yv[2] = yintercept;
-				xv[3] = longitude[1];
-				yv[3] = latitude[1];
-							
-				// output split line segment shape
-				if (NULL == (obj = SHPCreateObject(shpFormat_, -1, 2, parts,
-						NULL, 4, xv, yv, NULL, NULL))) {
+			// so now after all that we know whether this segment crosses the
+			// 180th meridian. If so, split the segment into two pieces.
+			// intercept is [APPROXIMATELY] the latitude at which the great
+			// circle arc between loc and nextloc crosses the 180th meridian.
+			if (999 != intercept) {
+				int parts[2] = {0, 2};
+				double xv[4] = {longitude[0], latitude[0], longitude[0] < 0 ? -180 : 180, intercept};
+				double yv[4] = {longitude[0] < 0 ? 180 : -180, intercept, longitude[1], latitude[1]};
+				if (NULL == (obj = SHPCreateObject(SHPT_ARC, -1, 2, parts, NULL, 4, xv, yv, NULL, NULL))) {
 					Fail("cannot create split line segment\n");
 				}
-			}
+				Note("Split segment at dateline at latitude: %lf\n", intercept);
+			}			
 		}
-			
 	} else if (shpFormat_ == SHPT_ARC) {
 		Fail("line output requires two points; only one received\n");
 	}
