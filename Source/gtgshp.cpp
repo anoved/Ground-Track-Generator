@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "Observer.h"
+#include "CoordTopographic.h"
+
 #include "gtgshp.h"
 #include "gtgutil.h"
 
@@ -81,70 +84,125 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 		latitude[1] = Util::RadiansToDegrees(nextlocg.latitude);
 		longitude[1] = Util::RadiansToDegrees(nextlocg.longitude);
 
-		/* This line segment's endpoints are in different E/W hemispheres;
-	    */		
+		/* This line segment's endpoints are in different E/W hemispheres */		
 		if (cfg.split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
-
-			/* FUDGEWORK. We assume this line segment crosses the 180th
-			   meridian instead of the prime meridian simply because both
-			   endpoint longitude values are closer to 180 than 0. This may
-			   be incorrect in a variety of cases. For example, large model
-			   intervals may result in such widely spaced points that the
-			   trace skips from hemisphere to hemisphere (or orbit to orbit).
-			   
-			   Practically speaking, --format line is intended to produce
-			   smooth-looking track lines, so OK small intervals are typical.
-			   (Close to the poles, the absolute size of even small intervals
-			   may place endpoints such that this is confused. In these cases,
-			   even if it is correctly determined that the track crosses the
-			   180th meridian, the cartesian intercept interpolation may split
-			   the intercept in the wrong place. Great circles, man!)
-			   
-			   We could forget about trying to ID which meridian, and just
-			   output split segments for the 180th AND prime meridians.
-			   However, limitations of this interpolation technique still
-			   apply - and it requires the distance to the crossed meridian,
-			   meaning the problem of identifying which that is is not resolved.
-			   
-			   (Looking at polar test cases are helpful.)
-			   
-			   Bottom line, this |longitudes| > 90 test is bogus.
-			   
-			   */
-			if (fabs(longitude[0]) > 90 && fabs(longitude[1]) > 90) {
-				
-				/* naive interpolation of meridian intercept */
-				double x1 = longitude[0];
-				double y1 = latitude[0];
-				double x2 = longitude[1];
-				double y2 = latitude[1];						
-				double d1 = fabs(DistanceToMeridian(x1));
-				double d2 = fabs(DistanceToMeridian(x2));
-				double dy = y2 - y1;
-				double dx = d1 + d2;
-				double m  = dy / dx;
-				double yi = (m * DistanceToMeridian(x1)) + y1;
-				
-				/* all vertices of multipart segments go in the same xy arrays;
-				   a separate "part start" array points to the start of each */
+			
+			// assumes spherical earth
+			// derived from http://geospatialmethods.org/spheres/
+			// convert this math to use constants and functions from SGP4++
+			
+			double EARTH_RADIUS = 6367.435; // km
+			
+			// gc1: great circle for satellite points
+			double radlon0 = Util::DegreesToRadians(longitude[0]);
+			double radlat0 = Util::DegreesToRadians(latitude[0]);
+			double radlon1 = Util::DegreesToRadians(longitude[1]);
+			double radlat1 = Util::DegreesToRadians(latitude[1]);
+			double x0 = EARTH_RADIUS * cos(radlon0) * cos(radlat0);
+			double y0 = EARTH_RADIUS * sin(radlon0) * cos(radlat0);
+			double z0 = EARTH_RADIUS * sin(radlat0);
+			double x1 = EARTH_RADIUS * cos(radlon1) * cos(radlat1);
+			double y1 = EARTH_RADIUS * sin(radlon1) * cos(radlat1);
+			double z1 = EARTH_RADIUS * sin(radlat1);
+			
+			// gc2: great circle for meridian points
+			// using lat 20 lon 0 lat -20 lon 0 as points
+			double radlon2 = Util::DegreesToRadians(0.0);
+			double radlat2 = Util::DegreesToRadians(20.0);
+			double radlon3 = Util::DegreesToRadians(0.0);
+			double radlat3 = Util::DegreesToRadians(-20.0);
+			double x2 = EARTH_RADIUS * cos(radlon2) * cos(radlat2);
+			double y2 = EARTH_RADIUS * sin(radlon2) * cos(radlat2);
+			double z2 = EARTH_RADIUS * sin(radlat2);
+			double x3 = EARTH_RADIUS * cos(radlon3) * cos(radlat3);
+			double y3 = EARTH_RADIUS * sin(radlon3) * cos(radlat3);
+			double z3 = EARTH_RADIUS * sin(radlat3);
+			
+			// gc1 plane equation constants
+			double a1 = (y0 * z1) - (y1 * z0);
+			double b1 = (x1 * z0) - (x0 * z1);
+			double c1 = (x0 * y1) - (x1 * y0);
+			
+			// gc2 plane equation constants
+			double a2 = (y2 * z3) - (y3 * z2);
+			double b2 = (x3 * z2) - (x2 * z3);
+			double c2 = (x2 * y3) - (x3 * y2);
+			
+			// g, h, w intersection point...
+			double numerator = ((a2 * c1) - (c2 * a1));
+			double denominator = ((b2 * a1) - (a2 * b1));
+			double g = numerator / denominator;
+			
+			numerator = ((-g * b1) - c1);
+			double h = numerator / a1;
+			
+			numerator = pow(EARTH_RADIUS, 2);
+			denominator = pow(h, 2) + pow(g, 2) + 1;
+			double w = sqrt(numerator / denominator);
+			
+			// cartesian coordinates of intersection points
+			double h1 = h * w;
+			double g1 = g * w;
+			double w1 = w;
+			double h2 = -h * w;
+			double g2 = -g * w;
+			double w2 = -w;
+			
+			// spherical coordinates of intersection points
+			double lat1 = Util::RadiansToDegrees(asin(w1 / EARTH_RADIUS));
+			double lon1 = Util::RadiansToDegrees(atan2(g1, h1));
+			double lat2 = Util::RadiansToDegrees(asin(w2 / EARTH_RADIUS));
+			double lon2 = Util::RadiansToDegrees(atan2(g2, h2));		
+					
+			// where the approachrate < 0 is the meridian that is being approached.
+			Note("\tSegment great circle intersects 0/180 meridian great circle at:\n");
+			Note("\tlat1: %lf, lon1: %lf\n", lat1, lon1);
+			Note("\tlat2: %lf, lon2: %lf\n", lat2, lon2);
+			
+			double yintercept = 999;
+			
+			if (Observer(lat1, lon1, 0).GetLookAngle(*loc).range_rate < 0) {
+				// crossing pt1; is it the 180th?
+				if (180 == fabs(lon1)) {
+					// yes; crossing pt1, 180th - output split
+					yintercept = lat1;
+					Note("\tCrosses 180th meridian at lat1: %lf\n", yintercept);
+				} else {
+					// crossing pt1, 0 - ignore
+					Note("\tCrosses prime meridian at lat1; ignoring\n");
+				}
+			} else {
+				// crossing pt2; is it the 180th?
+				if (180 == fabs(lon2)) {
+					// yes, crossing pt2, 180th - output split
+					yintercept = lat2;
+					Note("\tCrosses 180th meridian at lat2: %lf\n", yintercept);
+				} else {
+					// crossing pt2, 0 - ignore
+					Note("\tCrosses prime meridian at lat2; ignoring\n");
+				}
+			}
+			
+			if (yintercept != 999) {
 				double xv[4];
 				double yv[4];
-				int partindices[2];
+				int parts[2];
 				
-				partindices[0] = 0;
-				xv[0] = x1;
-				yv[0] = y1;			
-				xv[1] = x1 < 0 ? -180 : 180;
-				yv[1] = yi;
+				parts[0] = 0;
+				xv[0] = longitude[0];
+				yv[0] = latitude[0];
+				xv[1] = longitude[0] < 0 ? -180 : 180;
+				yv[1] = yintercept;
 				
-				partindices[1] = 2;
-				xv[2] = x1 < 0 ? 180 : -180;
-				yv[2] = yi;
-				xv[3] = x2;
-				yv[3] = y2;
-	
-				Note("180th meridian latitude intercept: %lf\n", yi);
-				if (NULL == (obj = SHPCreateObject(shpFormat_, -1, 2, partindices, NULL, 4, xv, yv, NULL, NULL))) {
+				parts[1] = 2;
+				xv[2] = longitude[0] < 0 ? 180 : -180;
+				yv[2] = yintercept;
+				xv[3] = longitude[1];
+				yv[3] = latitude[1];
+							
+				// output split line segment shape
+				if (NULL == (obj = SHPCreateObject(shpFormat_, -1, 2, parts,
+						NULL, 4, xv, yv, NULL, NULL))) {
 					Fail("cannot create split line segment\n");
 				}
 			}
@@ -170,7 +228,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	DBFWriteDoubleAttribute(dbf_, index, 0, altitude);
 	DBFWriteDoubleAttribute(dbf_, index, 1, velocity);
 
-	Note("Lat: %lf, Lon: %lf, Alt: %lf, Vel: %lf\n", latitude[0], longitude[0], altitude, velocity);
+	Note("Lat: %lf, Lon: %lf, Alt: %lf, VelMag: %lf, Vel: %s\n", latitude[0], longitude[0], altitude, velocity, loc->GetVelocity().ToString().c_str());
 	
 	return index;
 }
