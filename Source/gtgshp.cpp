@@ -89,11 +89,16 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			
 			// assumes spherical earth
 			// derived from http://geospatialmethods.org/spheres/
+			// (algorithm described at http://geospatialmethods.org/spheres/GCIntersect.html#GCIGC)
 			// convert this math to use constants and functions from SGP4++
+			
+			// for the purpose of determining whether this segment crosses the
+			// 180th or prime meridian, the radius (and shape) of the earth
+			// don't really matter. However, for 
 			
 			double EARTH_RADIUS = 6367.435; // km
 			
-			// gc1: great circle for satellite points
+			// cartesian coordinates of satellite points
 			double radlon0 = Util::DegreesToRadians(longitude[0]);
 			double radlat0 = Util::DegreesToRadians(latitude[0]);
 			double radlon1 = Util::DegreesToRadians(longitude[1]);
@@ -105,29 +110,16 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			double y1 = EARTH_RADIUS * sin(radlon1) * cos(radlat1);
 			double z1 = EARTH_RADIUS * sin(radlat1);
 			
-			// gc2: great circle for meridian points
-			// using lat 20 lon 0 lat -20 lon 0 as points
-			double radlon2 = Util::DegreesToRadians(0.0);
-			double radlat2 = Util::DegreesToRadians(20.0);
-			double radlon3 = Util::DegreesToRadians(0.0);
-			double radlat3 = Util::DegreesToRadians(-20.0);
-			double x2 = EARTH_RADIUS * cos(radlon2) * cos(radlat2);
-			double y2 = EARTH_RADIUS * sin(radlon2) * cos(radlat2);
-			double z2 = EARTH_RADIUS * sin(radlat2);
-			double x3 = EARTH_RADIUS * cos(radlon3) * cos(radlat3);
-			double y3 = EARTH_RADIUS * sin(radlon3) * cos(radlat3);
-			double z3 = EARTH_RADIUS * sin(radlat3);
-			
-			// gc1 plane equation constants
+			// coefficients of great circle plane defined by satellite points
 			double a1 = (y0 * z1) - (y1 * z0);
 			double b1 = (x1 * z0) - (x0 * z1);
 			double c1 = (x0 * y1) - (x1 * y0);
-			
-			// gc2 plane equation constants
-			double a2 = (y2 * z3) - (y3 * z2);
-			double b2 = (x3 * z2) - (x2 * z3);
-			double c2 = (x2 * y3) - (x3 * y2);
-			
+						
+			// coefficients of great circle plane for prime/180th meridian
+			double a2 = 0.0;
+			double b2 = 1.0;
+			double c2 = 0.0;
+						
 			// g, h, w intersection point...
 			double numerator = ((a2 * c1) - (c2 * a1));
 			double denominator = ((b2 * a1) - (a2 * b1));
