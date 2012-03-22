@@ -116,20 +116,21 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			double c1 = (x0 * y1) - (x1 * y0);
 						
 			// coefficients of great circle plane for prime/180th meridian
-			double a2 = 0.0;
-			double b2 = 1.0;
-			double c2 = 0.0;
+			//double a2 = 0.0;
+			//double b2 = 1.0;
+			//double c2 = 0.0;
 						
 			// g, h, w intersection point...
-			double numerator = ((a2 * c1) - (c2 * a1));
-			double denominator = ((b2 * a1) - (a2 * b1));
-			double g = numerator / denominator;
+			//double numerator = 0; // ((a2 * c1) - (c2 * a1));
+			//double denominator = a1; // ((b2 * a1) - (a2 * b1));
+			double g = 0; // numerator / denominator;
 			
-			numerator = ((-g * b1) - c1);
-			double h = numerator / a1;
+			// numerator = ((-g * b1) - c1);
+			// numerator = -c1; // since g is 0
+			double h = -c1 / a1; // numerator / a1;
 			
-			numerator = pow(EARTH_RADIUS, 2);
-			denominator = pow(h, 2) + pow(g, 2) + 1;
+			double numerator = pow(EARTH_RADIUS, 2);
+			double denominator = pow(h, 2) + pow(g, 2) + 1;
 			double w = sqrt(numerator / denominator);
 			
 			// cartesian coordinates of intersection points
