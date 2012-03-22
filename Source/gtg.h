@@ -28,6 +28,7 @@ struct configuration {
 	char *shpPath;
 	enum output_format_type format;
 	int verbose;
+	int split;
 };
 
 extern struct configuration cfg;

@@ -95,7 +95,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 		latitude[1] = Util::RadiansToDegrees(nextlocg.latitude);
 		longitude[1] = Util::RadiansToDegrees(nextlocg.longitude);
 		
-		if ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0)) {
+		if (cfg.split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
 			// crosses a meridian.
 			// we really only care about the prime antimeridian (±180˚ longitude)
 
