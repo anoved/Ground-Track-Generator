@@ -116,9 +116,22 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			// intercept is [APPROXIMATELY] the latitude at which the great
 			// circle arc between loc and nextloc crosses the 180th meridian.
 			if (999 != intercept) {
-				int parts[2] = {0, 2};
-				double xv[4] = {longitude[0], latitude[0], longitude[0] < 0 ? -180 : 180, intercept};
-				double yv[4] = {longitude[0] < 0 ? 180 : -180, intercept, longitude[1], latitude[1]};
+				int parts[2];
+				double xv[4];
+				double yv[4];
+				
+				parts[0] = 0;
+				xv[0] = longitude[0];
+				yv[0] = latitude[0];
+				xv[1] = longitude[0] < 0 ? -180 : 180;
+				yv[1] = intercept;
+				
+				parts[1] = 2;
+				xv[2] = longitude[0] < 0 ? 180 : -180;
+				yv[2] = intercept;
+				xv[3] = longitude[1];
+				yv[3] = latitude[1];
+				
 				if (NULL == (obj = SHPCreateObject(SHPT_ARC, -1, 2, parts, NULL, 4, xv, yv, NULL, NULL))) {
 					Fail("cannot create split line segment\n");
 				}
