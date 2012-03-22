@@ -2,6 +2,7 @@
 #define _GTGSHP_H_
 
 #include "Eci.h"
+#include "CoordGeodetic.h"
 #include "gtg.h"
 #include "shapefil.h"
 
@@ -19,6 +20,8 @@ public:
 	void close(void);
 
 private:
+	
+	void outputAttributes(int index, Eci *loc, CoordGeodetic *geo);
 	
 	int shpFormat_;
 	SHPHandle shp_;

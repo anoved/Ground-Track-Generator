@@ -52,10 +52,6 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	int index;
 	int pointc = 1;
 	
-	/* attributes */
-	double altitude = locg.altitude;
-	double velocity = loc->GetVelocity().GetMagnitude();
-	
 	/* loc is used for points and line segment start */
 	latitude[0] = Util::RadiansToDegrees(locg.latitude);
 	longitude[0] = Util::RadiansToDegrees(locg.longitude);
@@ -145,13 +141,19 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	/* placeholder attribute output */
-	DBFWriteDoubleAttribute(dbf_, index, 0, altitude);
-	DBFWriteDoubleAttribute(dbf_, index, 1, velocity);
+	outputAttributes(index, loc, &locg);
 
-	Note("Lat: %lf, Lon: %lf, Alt: %lf, VelMag: %lf, Vel: %s\n", latitude[0], longitude[0], altitude, velocity, loc->GetVelocity().ToString().c_str());
+	Note("Lat: %lf, Lon: %lf\n", latitude[0], longitude[0]);
 	
 	return index;
+}
+
+void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
+{
+	double altitude = geo->altitude;
+	double velocity = loc->GetVelocity().GetMagnitude();
+	DBFWriteDoubleAttribute(dbf_, index, 0, altitude);
+	DBFWriteDoubleAttribute(dbf_, index, 1, velocity);
 }
 
 void ShapefileWriter::close(void)
