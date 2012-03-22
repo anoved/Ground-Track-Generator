@@ -6,6 +6,7 @@
 #include "gtg.h"
 #include "gtgutil.h"
 #include "gtgtrace.h"
+
 #include "gtgshp.h"
 
 struct configuration cfg;
@@ -14,12 +15,8 @@ int main(int argc, char *argv[])
 {
 	int opt = 0;
 	int longIndex = 0;
-	int attrid = -1;
 	
-	/* no attributes output by default */
-	for (int i = 0; i < ATTR_COUNT; i++) {
-		attribute_flags[i] = 0;
-	}
+	SetDefaultAttributes();
 	
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
@@ -38,8 +35,8 @@ int main(int argc, char *argv[])
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	static const char *optString = "a:d:e:f:?i:l:o:s:n:t:u:v";
-	static const struct option longOpts[] = {
+	const char *optString = "a:d:e:f:?i:l:o:s:n:t:u:v";
+	const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
 			{"features", required_argument, NULL, 'f'},
@@ -68,11 +65,9 @@ int main(int argc, char *argv[])
 			
 			case 'a':
 				/* Attributes */
-								
+							
 				/* first attribute argument is required */
-				if (-1 != (attrid = IsValidAttribute(optarg))) {
-					attribute_flags[attrid] = 1;
-				} else {
+				if (not EnableAttribute(optarg)) {
 					Fail("invalid attribute: %s\n", optarg);
 				}
 				
@@ -80,8 +75,7 @@ int main(int argc, char *argv[])
 				/* if a subsequent argument doesn't look like an attribute, */
 				/* just return control to getopt to handle as another opt */
 				while (optind < argc) {
-					if (-1 != (attrid = IsValidAttribute(argv[optind]))) {
-						attribute_flags[attrid] = 1;
+					if (EnableAttribute(argv[optind])) {
 						optind++;
 					} else {
 						break;
@@ -238,18 +232,11 @@ int main(int argc, char *argv[])
 	
 	/* to read remaining arguments as attributes */
 	/*for (int i = 0; i < argc; i++) {
-		if (-1 != (attrid = IsValidAttribute(argv[i]))) {
-			attribute_flags[attrid] = 1;
-		} else {
+		if (not EnableAttribute(argv[i])) {
 			Fail("invalid attribute: %s\n", argv[i]);
 		}
 	}*/
-	
-	/* report which attribute flags are set */
-	/*for (int i = 0; i < ATTR_COUNT; i++) {
-		printf("attribute %s %d\n", attribute_names[i], attribute_flags[i]);
-	}*/
-	
+		
 	StartGroundTrack();
 	
 	return EXIT_SUCCESS;

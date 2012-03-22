@@ -6,18 +6,9 @@
 #include "gtg.h"
 #include "shapefil.h"
 
-/* used to parse attributes specified on command line and as dbf field titles */
-enum attribute_ids {
-	ATTR_ALTITUDE = 0,
-	ATTR_VELOCITY,
-	ATTR_COUNT
-};
-
-extern const char *attribute_names[];
-extern int attribute_flags[];
-extern int attribute_field[];
-
+void SetDefaultAttributes(void);
 int IsValidAttribute(const char *s);
+bool EnableAttribute(const char *desc);
 
 class ShapefileWriter
 {

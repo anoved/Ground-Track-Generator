@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "Observer.h"
 #include "CoordTopographic.h"
@@ -7,10 +8,22 @@
 #include "gtgshp.h"
 #include "gtgutil.h"
 
-/* must be defined in same order as attribute_ids */
-const char *attribute_names[] = {
-		"altitude",
-		"velocity"};
+/* used to parse attributes specified on command line and as dbf field titles */
+enum attribute_ids {
+	ATTR_ALTITUDE = 0,
+	ATTR_VELOCITY,
+	ATTR_COUNT
+};
+
+struct attribute_options {
+	const char *name;
+	DBFFieldType type;
+	int width;
+	int decimals;
+} attribute_options[] = {
+		{"altitude", FTDouble, 12, 6},
+		{"velocity", FTDouble, 12, 6}
+};
 
 /* each element is set to true if the corresponding attribute should be output */
 int attribute_flags[ATTR_COUNT];
@@ -18,15 +31,33 @@ int attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
+void SetDefaultAttributes(void) {
+	for (int attr = 0; attr < ATTR_COUNT; attr++) {
+		attribute_flags[attr] = 0;
+		attribute_field[attr] = -1;
+	}
+}
+
 /* returns index of attribute, if valid, or -1 if not */
 int IsValidAttribute(const char *s)
 {
 	for (int i = 0; i < ATTR_COUNT; i++) {
-		if (0 == strcmp(s, attribute_names[i])) {
+		if (0 == strcmp(s, attribute_options[i].name)) {
 			return i;
 		}
 	}
 	return -1;
+}
+
+/* returns true if attribute was enabled; false if not (invalid name) */
+bool EnableAttribute(const char *desc)
+{
+	int attrid = -1;
+	if (-1 != (attrid = IsValidAttribute(desc))) {
+		attribute_flags[attrid] = 1;
+		return true;
+	}
+	return false;
 }
 
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features)
@@ -55,27 +86,19 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	initAttributes();
 }
 
-// expects attribute_flags and attribute_name arrays to be set up.
-// if field type and precision was configured in an array, we could do this iteratively
-// (most fields will likely be FTDoubles - but some could be integers or strings (like timestamps)
 void ShapefileWriter::initAttributes(void)
 {
-	int attrid;
-	
-	if (attribute_flags[ATTR_ALTITUDE]) {
-		attrid = DBFAddField(dbf_, attribute_names[ATTR_ALTITUDE], FTDouble, 12, 6);
-		if (-1 == attrid) {
-			Fail("cannot create attribute field: %s\n", attribute_names[ATTR_ALTITUDE]);
+	int field;
+	for (int attr = 0; attr < ATTR_COUNT; attr++) {
+		if (attribute_flags[attr]) {
+			field = DBFAddField(dbf_, attribute_options[attr].name, 
+					attribute_options[attr].type, attribute_options[attr].width,
+					attribute_options[attr].decimals);
+			if (-1 == field) {
+				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
+			}
+			attribute_field[attr] = field;
 		}
-		attribute_field[ATTR_ALTITUDE] = attrid;
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY]) {
-		attrid = DBFAddField(dbf_, attribute_names[ATTR_VELOCITY], FTDouble, 12, 6);
-		if (-1 == attrid) {
-			Fail("cannot create attribute field: %s\n", attribute_names[ATTR_VELOCITY]);
-		}
-		attribute_field[ATTR_VELOCITY] = attrid;
 	}
 }
 
@@ -199,12 +222,12 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {
-	if (attribute_flags[ATTR_ALTITUDE]) {
+	if (1 == attribute_flags[ATTR_ALTITUDE]) {
 		double altitude = geo->altitude;
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE], altitude);
 	}
 	
-	if (attribute_flags[ATTR_VELOCITY]) {
+	if (1 == attribute_flags[ATTR_VELOCITY]) {
 		double velocity = loc->GetVelocity().GetMagnitude();	
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY], velocity);
 	}
