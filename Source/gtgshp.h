@@ -8,7 +8,7 @@
 class ShapefileWriter
 {
 public:
-	ShapefileWriter(const char *basepath, enum output_format_type format);
+	ShapefileWriter(const char *basepath, enum output_feature_type features);
 	
 	~ShapefileWriter()
 	{

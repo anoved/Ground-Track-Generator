@@ -12,7 +12,7 @@ enum interval_unit_type {
 	days
 };
 
-enum output_format_type {
+enum output_feature_type {
 	point,
 	line
 };
@@ -26,7 +26,7 @@ struct configuration {
 	char *tleText;
 	char *tlePath;
 	char *shpPath;
-	enum output_format_type format;
+	enum output_feature_type features;
 	int verbose;
 	int split;
 };

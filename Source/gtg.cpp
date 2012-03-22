@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	cfg.tleText = NULL;
 	cfg.tlePath = NULL;
 	cfg.shpPath = NULL;
-	cfg.format = point;
+	cfg.features = point;
 	cfg.verbose = 0;
 	cfg.split = 0;
 	
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 	static const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
-			{"format", required_argument, NULL, 'f'},
+			{"features", required_argument, NULL, 'f'},
 			{"help", no_argument, NULL, '?'},
 			{"input", required_argument, NULL, 'i'},
 			{"interval", required_argument, NULL, 'l'},
@@ -203,14 +203,14 @@ int main(int argc, char *argv[])
 				break;
 			
 			case 'f':
-				/* Output format */
+				/* Feature type */
 				/* Accepted argument values: point, line */
 				if (0 == strcmp("point", optarg)) {
-					cfg.format = point;
+					cfg.features = point;
 				} else if (0 == strcmp("line", optarg)) {
-					cfg.format = line;
+					cfg.features = line;
 				} else {
-					Fail("invalid format: %s (should be point or line)\n", optarg);
+					Fail("invalid feature type: %s (should be point or line)\n", optarg);
 				}
 				break;
 			

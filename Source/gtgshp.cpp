@@ -7,11 +7,11 @@
 #include "gtgshp.h"
 #include "gtgutil.h"
 
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_format_type format)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features)
 {
 	int fieldID;
 	
-	switch (format) {
+	switch (features) {
 		case point:
 			shpFormat_ = SHPT_POINT;
 			break;

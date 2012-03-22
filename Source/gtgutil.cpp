@@ -44,12 +44,18 @@ void ShowHelp(void)
 	printf("\t\tDefault: epoch (TLE reference date)\n");
 	printf("\t--end now | epoch | YYYY-MM-DD HH:MM:SS.SSSSSS UTC | S\n");
 	printf("\t\tIf specified, overrides --steps.\n");
-	printf("\t--format point | line\n");
+	printf("\t--features point | line\n");
 	printf("\t\tDefault: point\n");
+	printf("\t--split\n");
+	printf("\t\tIf generating line features, split segments that cross 180th meridian.\n");
 	printf("\t--tle TEXT | --input PATH\n");
 	printf("\t\tTLE read from TEXT value, PATH file, or otherwise stdin.\n");
 	printf("\t--output BASEPATH\n");
 	printf("\t\tIf not specified, BASEPATH be provided as OUTPUT argument.\n");
+	printf("\t--verbose\n");
+	printf("\t\tPrint diagnostic status messages.\n");
+	printf("\t--help\n");
+	printf("\t\tShow this help text.\n");
 	printf("Web page: <https://github.com/anoved/Ground-Track-Generator>\n");
 	exit(EXIT_SUCCESS);
 }

@@ -125,7 +125,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
-	ShapefileWriter shout(cfg.shpPath, cfg.format);
+	ShapefileWriter shout(cfg.shpPath, cfg.features);
 	
 	while (1) {
 		
@@ -140,7 +140,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 			break;
 		}
 		
-		if (line == cfg.format) {
+		if (line == cfg.features) {
 			if (prevSet) {
 				shout.output(&prevEci, &eci);
 				step++;
