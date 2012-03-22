@@ -103,12 +103,12 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			double radlat0 = Util::DegreesToRadians(latitude[0]);
 			double radlon1 = Util::DegreesToRadians(longitude[1]);
 			double radlat1 = Util::DegreesToRadians(latitude[1]);
-			double x0 = EARTH_RADIUS * cos(radlon0) * cos(radlat0);
-			double y0 = EARTH_RADIUS * sin(radlon0) * cos(radlat0);
-			double z0 = EARTH_RADIUS * sin(radlat0);
-			double x1 = EARTH_RADIUS * cos(radlon1) * cos(radlat1);
-			double y1 = EARTH_RADIUS * sin(radlon1) * cos(radlat1);
-			double z1 = EARTH_RADIUS * sin(radlat1);
+			double x0 = cos(radlon0) * cos(radlat0);
+			double y0 = sin(radlon0) * cos(radlat0);
+			double z0 = sin(radlat0);
+			double x1 = cos(radlon1) * cos(radlat1);
+			double y1 = sin(radlon1) * cos(radlat1);
+			double z1 = sin(radlat1);
 			
 			// coefficients of great circle plane defined by satellite points
 			double a1 = (y0 * z1) - (y1 * z0);
