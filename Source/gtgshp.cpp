@@ -7,10 +7,30 @@
 #include "gtgshp.h"
 #include "gtgutil.h"
 
+/* must be defined in same order as attribute_ids */
+const char *attribute_names[] = {
+		"altitude",
+		"velocity"};
+
+/* each element is set to true if the corresponding attribute should be output */
+int attribute_flags[ATTR_COUNT];
+
+/* the index of the corresponding field in the output attribute table */
+int attribute_field[ATTR_COUNT];
+
+/* returns index of attribute, if valid, or -1 if not */
+int IsValidAttribute(const char *s)
+{
+	for (int i = 0; i < ATTR_COUNT; i++) {
+		if (0 == strcmp(s, attribute_names[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features)
 {
-	int fieldID;
-	
 	switch (features) {
 		case point:
 			shpFormat_ = SHPT_POINT;
@@ -32,14 +52,30 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 		Fail("cannot create shapefile attribute table: %s\n", basepath);
 	}
 	
-	/* eventually the attribute table will be user configurable */
-	fieldID = DBFAddField(dbf_, "ALTITUDE", FTDouble, 12, 6);
-	if (-1 == fieldID) {
-		Fail("cannot add ALTITUDE field to attribute table\n");
+	initAttributes();
+}
+
+// expects attribute_flags and attribute_name arrays to be set up.
+// if field type and precision was configured in an array, we could do this iteratively
+// (most fields will likely be FTDoubles - but some could be integers or strings (like timestamps)
+void ShapefileWriter::initAttributes(void)
+{
+	int attrid;
+	
+	if (attribute_flags[ATTR_ALTITUDE]) {
+		attrid = DBFAddField(dbf_, attribute_names[ATTR_ALTITUDE], FTDouble, 12, 6);
+		if (-1 == attrid) {
+			Fail("cannot create attribute field: %s\n", attribute_names[ATTR_ALTITUDE]);
+		}
+		attribute_field[ATTR_ALTITUDE] = attrid;
 	}
-	fieldID = DBFAddField(dbf_, "VELOCITY", FTDouble, 12, 6);
-	if (-1 == fieldID) {
-		Fail("cannot add VELOCITY field to attribute table\n");
+	
+	if (attribute_flags[ATTR_VELOCITY]) {
+		attrid = DBFAddField(dbf_, attribute_names[ATTR_VELOCITY], FTDouble, 12, 6);
+		if (-1 == attrid) {
+			Fail("cannot create attribute field: %s\n", attribute_names[ATTR_VELOCITY]);
+		}
+		attribute_field[ATTR_VELOCITY] = attrid;
 	}
 }
 
@@ -163,10 +199,15 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {
-	double altitude = geo->altitude;
-	double velocity = loc->GetVelocity().GetMagnitude();
-	DBFWriteDoubleAttribute(dbf_, index, 0, altitude);
-	DBFWriteDoubleAttribute(dbf_, index, 1, velocity);
+	if (attribute_flags[ATTR_ALTITUDE]) {
+		double altitude = geo->altitude;
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE], altitude);
+	}
+	
+	if (attribute_flags[ATTR_VELOCITY]) {
+		double velocity = loc->GetVelocity().GetMagnitude();	
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY], velocity);
+	}
 }
 
 void ShapefileWriter::close(void)

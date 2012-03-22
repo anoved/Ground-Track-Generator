@@ -6,34 +6,9 @@
 #include "gtg.h"
 #include "gtgutil.h"
 #include "gtgtrace.h"
+#include "gtgshp.h"
 
 struct configuration cfg;
-
-/* used to parse attributes specified on command line and as dbf field titles */
-enum attribute_ids {
-	ATTR_ALTITUDE = 0,
-	ATTR_VELOCITY,
-	ATTR_COUNT
-};
-
-/* must be defined in same order as attribute_ids */
-const char *attribute_names[] = {
-		"altitude",
-		"velocity"};
-
-/* each element is set to true if the corresponding attribute should be output */
-int attribute_flags[ATTR_COUNT];
-
-/* returns index of attribute, if valid, or -1 if not */
-int IsValidAttribute(const char *s)
-{
-	for (int i = 0; i < ATTR_COUNT; i++) {
-		if (0 == strcmp(s, attribute_names[i])) {
-			return i;
-		}
-	}
-	return -1;
-}
 
 int main(int argc, char *argv[])
 {
