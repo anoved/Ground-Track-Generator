@@ -112,51 +112,25 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 			
 			// coefficients of great circle plane defined by satellite points
 			double a1 = (y0 * z1) - (y1 * z0);
-			double b1 = (x1 * z0) - (x0 * z1);
 			double c1 = (x0 * y1) - (x1 * y0);
 						
-			// coefficients of great circle plane for prime/180th meridian
-			//double a2 = 0.0;
-			//double b2 = 1.0;
-			//double c2 = 0.0;
-						
-			// g, h, w intersection point...
-			//double numerator = 0; // ((a2 * c1) - (c2 * a1));
-			//double denominator = a1; // ((b2 * a1) - (a2 * b1));
-			double g = 0; // numerator / denominator;
-			
-			// numerator = ((-g * b1) - c1);
-			// numerator = -c1; // since g is 0
-			double h = -c1 / a1; // numerator / a1;
-			
-			double numerator = pow(EARTH_RADIUS, 2);
-			double denominator = pow(h, 2) + pow(g, 2) + 1;
-			double w = sqrt(numerator / denominator);
-			
-			// cartesian coordinates of intersection points
-			double h1 = h * w;
-			double g1 = g * w;
-			double w1 = w;
-			double h2 = -h * w;
-			double g2 = -g * w;
-			double w2 = -w;
+			// cartesian coordinates g, h, w for one point where that great
+			// circle plane intersects the plane of the prime/180th meridian
+			double g = 0;
+			double h = -c1 / a1;
+			double w = sqrt(pow(EARTH_RADIUS, 2) / (pow(h, 2) + pow(g, 2) + 1));
 			
 			// spherical coordinates of intersection points
-			double lat1 = Util::RadiansToDegrees(asin(w1 / EARTH_RADIUS));
-			double lon1 = Util::RadiansToDegrees(atan2(g1, h1));
-			double lat2 = Util::RadiansToDegrees(asin(w2 / EARTH_RADIUS));
-			double lon2 = Util::RadiansToDegrees(atan2(g2, h2));		
-					
-			// where the approachrate < 0 is the meridian that is being approached.
-			Note("\tSegment great circle intersects 0/180 meridian great circle at:\n");
-			Note("\tlat1: %lf, lon1: %lf\n", lat1, lon1);
-			Note("\tlat2: %lf, lon2: %lf\n", lat2, lon2);
-			
+			double lat1 = Util::RadiansToDegrees(asin(w / EARTH_RADIUS));
+			double lon1 = (h * w) < 0 ? 180.0 : 0.0;
+			double lat2 = Util::RadiansToDegrees(asin(-w / EARTH_RADIUS));
+			double lon2 = (-h * w) < 0 ? 180.0 : 0.0;
+						
 			double yintercept = 999;
 			
 			if (Observer(lat1, lon1, 0).GetLookAngle(*loc).range_rate < 0) {
 				// crossing pt1; is it the 180th?
-				if (180 == fabs(lon1)) {
+				if (180 == lon1) {
 					// yes; crossing pt1, 180th - output split
 					yintercept = lat1;
 					Note("\tCrosses 180th meridian at lat1: %lf\n", yintercept);
@@ -166,7 +140,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 				}
 			} else {
 				// crossing pt2; is it the 180th?
-				if (180 == fabs(lon2)) {
+				if (180 == lon2) {
 					// yes, crossing pt2, 180th - output split
 					yintercept = lat2;
 					Note("\tCrosses 180th meridian at lat2: %lf\n", yintercept);
