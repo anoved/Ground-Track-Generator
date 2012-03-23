@@ -4,6 +4,9 @@
 #include <string.h>
 #include <queue>
 
+#include "Tle.h"
+#include "Julian.h"
+
 #include "gtg.h"
 #include "gtgtle.h"
 #include "gtgutil.h"
@@ -15,6 +18,7 @@ std::queue<Tle> tles;
 
 int main(int argc, char *argv[])
 {
+	Julian now;
 	int opt = 0;
 	int longIndex = 0;
 	bool has_observer = false;
@@ -273,7 +277,7 @@ int main(int argc, char *argv[])
 
 	/* output a trace for each TLE */
 	while (!tles.empty()) {
-		InitGroundTrace(tles.front());
+		InitGroundTrace(tles.front(), now);
 		tles.pop();
 	}
 	

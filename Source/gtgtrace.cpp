@@ -88,10 +88,9 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 	return interval;
 }
 
-void GenerateGroundTrack(Tle& tle, SGP4 model)
+void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 {
 	int step = 0;
-	Julian now; // this needs to be defined earlier to keep multi-output in sync
 	Julian time, endtime;
 	Timespan interval;
 	Eci eci(now, 0, 0, 0);
@@ -183,11 +182,11 @@ void GenerateGroundTrack(Tle& tle, SGP4 model)
 	shout.close();
 }
 
-void InitGroundTrace(Tle& tle)
+void InitGroundTrace(Tle& tle, Julian& now)
 {
 	try {
 		SGP4 model(tle);
-		GenerateGroundTrack(tle, model);
+		GenerateGroundTrack(tle, model, now);
 	} catch (SatelliteException &e) {
 		Fail("cannot initialize satellite model: %s\n", e.what());
 	}
