@@ -30,15 +30,14 @@ struct attribute_options {
 };
 
 /* each element is set to true if the corresponding attribute should be output */
-int attribute_flags[ATTR_COUNT];
+bool attribute_flags[ATTR_COUNT];
 
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
-void SetDefaultAttributes(void) {
+void FlagAllAttributes(bool flag_value) {
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		attribute_flags[attr] = 0;
-		attribute_field[attr] = -1;
+		attribute_flags[attr] = flag_value;
 	}
 }
 
@@ -58,10 +57,49 @@ bool EnableAttribute(const char *desc)
 {
 	int attrid = -1;
 	if (-1 != (attrid = IsValidAttribute(desc))) {
-		attribute_flags[attrid] = 1;
+		attribute_flags[attrid] = true;
 		return true;
 	}
 	return false;
+}
+
+void ShapefileWriter::initAttributes(void)
+{
+	int field;
+	for (int attr = 0; attr < ATTR_COUNT; attr++) {
+		if (attribute_flags[attr]) {
+			field = DBFAddField(dbf_, attribute_options[attr].name, 
+					attribute_options[attr].type, attribute_options[attr].width,
+					attribute_options[attr].decimals);
+			if (-1 == field) {
+				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
+			}
+			attribute_field[attr] = field;
+		}
+	}
+}
+
+void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
+{
+	if (attribute_flags[ATTR_ALTITUDE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE],
+				geo->altitude);
+	}
+	
+	if (attribute_flags[ATTR_VELOCITY]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY],
+				loc->GetVelocity().GetMagnitude());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUTC]) {
+		DBFWriteStringAttribute(dbf_, index, attribute_field[ATTR_TIMEUTC],
+				loc->GetDate().ToString().c_str());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUNIX]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_TIMEUNIX],
+				(double)(loc->GetDate().ToTime()));
+	}
 }
 
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features)
@@ -88,22 +126,6 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	}
 	
 	initAttributes();
-}
-
-void ShapefileWriter::initAttributes(void)
-{
-	int field;
-	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		if (attribute_flags[attr]) {
-			field = DBFAddField(dbf_, attribute_options[attr].name, 
-					attribute_options[attr].type, attribute_options[attr].width,
-					attribute_options[attr].decimals);
-			if (-1 == field) {
-				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
-			}
-			attribute_field[attr] = field;
-		}
-	}
 }
 
 int ShapefileWriter::output(Eci *loc, Eci *nextloc)
@@ -222,29 +244,6 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 	Note("Lat: %lf, Lon: %lf\n", latitude[0], longitude[0]);
 	
 	return index;
-}
-
-void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
-{
-	if (attribute_flags[ATTR_ALTITUDE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE],
-				geo->altitude);
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY],
-				loc->GetVelocity().GetMagnitude());
-	}
-	
-	if (attribute_flags[ATTR_TIMEUTC]) {
-		DBFWriteStringAttribute(dbf_, index, attribute_field[ATTR_TIMEUTC],
-				loc->GetDate().ToString().c_str());
-	}
-	
-	if (attribute_flags[ATTR_TIMEUNIX]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_TIMEUNIX],
-				(double)(loc->GetDate().ToTime()));
-	}
 }
 
 void ShapefileWriter::close(void)

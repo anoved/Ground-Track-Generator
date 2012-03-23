@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 	int opt = 0;
 	int longIndex = 0;
 	
-	SetDefaultAttributes();
+	/* All attributes turned off by default */
+	FlagAllAttributes(false);
 	
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
@@ -65,23 +66,26 @@ int main(int argc, char *argv[])
 			
 			case 'a':
 				/* Attributes */
-							
-				/* first attribute argument is required */
-				if (not EnableAttribute(optarg)) {
-					Fail("invalid attribute: %s\n", optarg);
-				}
+				if (0 == strcmp("all", optarg)) {
+					FlagAllAttributes(true);
+				} else {
 				
-				/* subsequent attribute arguments, if present, are optional */
-				/* if a subsequent argument doesn't look like an attribute, */
-				/* just return control to getopt to handle as another opt */
-				while (optind < argc) {
-					if (EnableAttribute(argv[optind])) {
-						optind++;
-					} else {
-						break;
+					/* first attribute argument is required */
+					if (not EnableAttribute(optarg)) {
+						Fail("invalid attribute: %s\n", optarg);
 					}
-				}
-				
+					
+					/* subsequent attribute arguments, if present, are optional */
+					/* if a subsequent argument doesn't look like an attribute, */
+					/* just return control to getopt to handle as another opt */
+					while (optind < argc) {
+						if (EnableAttribute(argv[optind])) {
+							optind++;
+						} else {
+							break;
+						}
+					}
+				}				
 				break;
 			
 			case 's':

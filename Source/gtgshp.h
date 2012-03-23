@@ -6,8 +6,7 @@
 #include "gtg.h"
 #include "shapefil.h"
 
-void SetDefaultAttributes(void);
-int IsValidAttribute(const char *s);
+void FlagAllAttributes(bool flag_value);
 bool EnableAttribute(const char *desc);
 
 class ShapefileWriter
