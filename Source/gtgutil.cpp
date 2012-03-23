@@ -48,6 +48,10 @@ void ShowHelp(void)
 	printf("\t\tDefault: point\n");
 	printf("\t--split/-d\n");
 	printf("\t\tIf generating line features, split segments that cross 180th meridian.\n");
+	printf("\t--observer/-g LATITUDE LONGITUDE [ALTITUDE]\n");
+	printf("\t\tLocation of observer used to compute some attributes. Altitude in km.\n");
+	printf("\t--attributes/-a all | standard | [ATTRIBUTE [ATTRIBUTE...]]\n");
+	printf("\t\tWhich attributes to output. standard outputs all except those requiring observer.\n");
 	printf("\t--tle/-t TEXT | --input/-i PATH\n");
 	printf("\t\tTLE read from TEXT value, PATH file, or otherwise stdin.\n");
 	printf("\t--output/-o BASEPATH\n");
