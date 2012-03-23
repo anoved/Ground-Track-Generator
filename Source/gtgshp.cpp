@@ -12,6 +12,8 @@
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {
+	DBFWriteIntegerAttribute(dbf_, index, 0, index);
+	
 	if (attribute_flags[ATTR_ALTITUDE]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE],
 				geo->altitude);
@@ -85,6 +87,11 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	dbf_ = DBFCreate(basepath);
 	if (NULL == dbf_) {
 		Fail("cannot create shapefile attribute table: %s\n", basepath);
+	}
+	
+	/* step id field. (helps ensure valid dbf if no other attrs specified) */
+	if (0 != DBFAddField(dbf_, "FID", FTInteger, 20, 0)) {
+		Fail("cannot create step index attribute field\n");
 	}
 	
 	initAttributes(dbf_);
