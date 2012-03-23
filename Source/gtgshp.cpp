@@ -117,7 +117,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 			
 			// derived from http://geospatialmethods.org/spheres/
 			// assumes spherical earth
-			double EARTH_RADIUS = 6367.435; // km
+			// kXKMPER is WGS-72 earth radius as defined in libsgp4/Globals.h
 			
 			// cartesian coordinates of satellite points
 			double radlon0 = Util::DegreesToRadians(longitude[0]);
@@ -138,12 +138,12 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 			// cartesian coordinates g, h, w for one point where that great
 			// circle plane intersects the plane of the prime/180th meridian
 			double h = -c1 / a1;
-			double w = sqrt(pow(EARTH_RADIUS, 2) / (pow(h, 2) + 1));
+			double w = sqrt((kXKMPER * kXKMPER) / (pow(h, 2) + 1));
 			
 			// spherical coordinates of intersection points
-			double lat1 = Util::RadiansToDegrees(asin(w / EARTH_RADIUS));
+			double lat1 = Util::RadiansToDegrees(asin(w / kXKMPER));
 			double lon1 = (h * w) < 0 ? 180.0 : 0.0;
-			double lat2 = Util::RadiansToDegrees(asin(-w / EARTH_RADIUS));
+			double lat2 = Util::RadiansToDegrees(asin(-w / kXKMPER));
 			double lon2 = (-h * w) < 0 ? 180.0 : 0.0;
 					
 			// negative range_rate indicates satellite is approaching observer;
