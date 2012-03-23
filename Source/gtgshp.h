@@ -6,7 +6,7 @@
 #include "gtg.h"
 #include "shapefil.h"
 
-void FlagAllAttributes(bool flag_value);
+void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
 void SetAttributeObserver(double latitude, double longitude, double altitude = 0.0);
 void CheckAttributeObserver(void);

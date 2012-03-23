@@ -102,6 +102,8 @@ int main(int argc, char *argv[])
 				/* Attributes */
 				if (0 == strcmp("all", optarg)) {
 					FlagAllAttributes(true);
+				} else if (0 == strcmp("standard", optarg)) {
+					FlagAllAttributes(true, true);
 				} else {
 				
 					/* first attribute argument is required */
@@ -238,7 +240,7 @@ int main(int argc, char *argv[])
 						|| (0 == strcmp("-?", argv[optind - 1]))) {
 					ShowHelp();
 				} else {
-					Fail("unrecognized option: %s (try --help)\n", argv[optind - 1]);
+					Fail("unrecognized or incomplete option: %s (try --help)\n", argv[optind - 1]);
 				}
 				break;
 		}

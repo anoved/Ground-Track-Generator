@@ -76,10 +76,15 @@ void CheckAttributeObserver(void)
 	}
 }
 
-void FlagAllAttributes(bool flag_value)
+void FlagAllAttributes(bool flag_value, bool except_observer_attributes)
 {
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		attribute_flags[attr] = flag_value;
+		if (except_observer_attributes &&
+				(attr >= ATTR_OBS_FIRST && attr <= ATTR_OBS_LAST)) {
+			attribute_flags[attr] = false;
+		} else {
+			attribute_flags[attr] = flag_value;
+		}
 	}
 }
 
