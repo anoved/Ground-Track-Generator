@@ -80,6 +80,7 @@ void initAttributes(DBFHandle dbf)
 	int field;
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		if (attribute_flags[attr]) {
+			printf("Initing field: %s\n", attribute_options[attr].name);
 			field = DBFAddField(dbf, attribute_options[attr].name, 
 					attribute_options[attr].type, attribute_options[attr].width,
 					attribute_options[attr].decimals);

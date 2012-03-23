@@ -23,7 +23,7 @@ struct configuration {
 	enum interval_unit_type unit;
 	double interval;
 	int steps;
-	char *shpPath;
+	char *basepath;
 	enum output_feature_type features;
 	int verbose;
 	int split;

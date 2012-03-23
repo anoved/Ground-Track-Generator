@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	cfg.unit = minutes;
 	cfg.interval = 1.0;
 	cfg.steps = 100;
-	cfg.shpPath = NULL;
+	cfg.basepath = NULL;
 	cfg.features = point;
 	cfg.verbose = 0;
 	cfg.split = 0;
@@ -191,10 +191,10 @@ int main(int argc, char *argv[])
 			case 'o':
 				/* Output file */
 				/* Argument format: path to output shapefile basename */
-				if (NULL != cfg.shpPath) {
-					Fail("output shapefile already specified: %s\n", cfg.shpPath);
+				if (NULL != cfg.basepath) {
+					Fail("output shapefile already specified: %s\n", cfg.basepath);
 				}
-				cfg.shpPath = optarg;
+				cfg.basepath = optarg;
 				break;
 			
 			case 'f':
@@ -241,13 +241,13 @@ int main(int argc, char *argv[])
 		cfg.steps = 0;
 	}
 	
-	/* If output shpPath was not specified as an option, take the first
-	   remaining argument as shpPath and remove it from the list of remnants */
-	if (NULL == cfg.shpPath) {
+	/* If output basepath was not specified as an option, take the first
+	   remaining argument as basepath and remove it from the list of remnants */
+	if (NULL == cfg.basepath) {
 		if (argc < 1) {
 			Fail("no output shapefile specified\n");
 		}
-		cfg.shpPath = argv[0];
+		cfg.basepath = argv[0];
 		argv++;
 		argc--;
 	}
@@ -272,16 +272,8 @@ int main(int argc, char *argv[])
 	}
 
 	/* output a trace for each TLE */
-	int tleid = 0; // until we can set up multiple output files, just output 1
 	while (!tles.empty()) {
-		if (tleid == 0) {
-			printf("Processing TLE index 0\n");
-			Tle& tle = tles.front();
-			InitGroundTrace(tle);
-		} else {
-			printf("Pretending to process TLE index %d\n", tleid);
-		}		
-		tleid++;
+		InitGroundTrace(tles.front());
 		tles.pop();
 	}
 	

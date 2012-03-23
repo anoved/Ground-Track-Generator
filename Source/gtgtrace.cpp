@@ -88,10 +88,10 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 	return interval;
 }
 
-void GenerateGroundTrack(Tle tle, SGP4 model)
+void GenerateGroundTrack(Tle& tle, SGP4 model)
 {
 	int step = 0;
-	Julian now;
+	Julian now; // this needs to be defined earlier to keep multi-output in sync
 	Julian time, endtime;
 	Timespan interval;
 	Eci eci(now, 0, 0, 0);
@@ -125,7 +125,15 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
-	ShapefileWriter shout(cfg.shpPath, cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt);
+	// assemble base shapefile output from directory path and tle name
+	// not robust  
+	std::string shpbase(cfg.basepath);
+	if ('/' != shpbase[shpbase.length() - 1]) {
+		shpbase += '/';
+	}
+	shpbase += tle.GetName();
+	
+	ShapefileWriter shout(shpbase.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt);
 	
 	while (1) {
 		
