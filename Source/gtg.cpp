@@ -39,12 +39,13 @@ int main(int argc, char *argv[])
 	cfg.obslat = 0;
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
+	cfg.prefix = NULL;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	const char *optString = "a:d:e:f:?i:l:g:o:s:n:t:u:v";
+	const char *optString = "a:d:e:f:?i:l:g:o:p:s:n:t:u:v";
 	const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
@@ -54,6 +55,7 @@ int main(int argc, char *argv[])
 			{"interval", required_argument, NULL, 'l'},
 			{"observer", required_argument, NULL, 'g'},
 			{"output", required_argument, NULL, 'o'},
+			{"prefix", required_argument, NULL, 'p'},
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
 			{"steps", required_argument, NULL, 'n'},
@@ -67,6 +69,11 @@ int main(int argc, char *argv[])
 	/* Store command line arguments and perform some preliminary validation */
 	while(-1 != (opt = getopt_long_only(argc, argv, optString, longOpts, &longIndex))) {
 		switch(opt) {
+			
+			case 'p':
+				/* Output prefix */
+				cfg.prefix = optarg;
+				break;
 			
 			case 'g':
 				/* Ground observer */

@@ -30,6 +30,7 @@ struct configuration {
 	double obslat;
 	double obslon;
 	double obsalt;
+	char *prefix;
 };
 
 extern struct configuration cfg;
