@@ -12,6 +12,8 @@
 enum attribute_ids {
 	ATTR_ALTITUDE = 0,
 	ATTR_VELOCITY,
+	ATTR_TIMEUTC,
+	ATTR_TIMEUNIX,
 	ATTR_COUNT
 };
 
@@ -22,7 +24,9 @@ struct attribute_options {
 	int decimals;
 } attribute_options[] = {
 		{"altitude", FTDouble, 12, 6},
-		{"velocity", FTDouble, 12, 6}
+		{"velocity", FTDouble, 12, 6},
+		{"time", FTString, 31, 0},
+		{"unixtime", FTInteger, 20, 0}
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -222,14 +226,24 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {
-	if (1 == attribute_flags[ATTR_ALTITUDE]) {
-		double altitude = geo->altitude;
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE], altitude);
+	if (attribute_flags[ATTR_ALTITUDE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE],
+				geo->altitude);
 	}
 	
-	if (1 == attribute_flags[ATTR_VELOCITY]) {
-		double velocity = loc->GetVelocity().GetMagnitude();	
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY], velocity);
+	if (attribute_flags[ATTR_VELOCITY]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY],
+				loc->GetVelocity().GetMagnitude());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUTC]) {
+		DBFWriteStringAttribute(dbf_, index, attribute_field[ATTR_TIMEUTC],
+				loc->GetDate().ToString().c_str());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUNIX]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_TIMEUNIX],
+				(double)(loc->GetDate().ToTime()));
 	}
 }
 
