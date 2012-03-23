@@ -14,19 +14,24 @@ enum attribute_ids {
 	ATTR_VELOCITY,
 	ATTR_TIMEUTC,
 	ATTR_TIMEUNIX,
+	ATTR_LATITUDE,
+	ATTR_LONGITUDE,
 	ATTR_COUNT
 };
 
+/* DBF width and decimal precision values are presently somewhat arbitrary */
 struct attribute_options {
 	const char *name;
 	DBFFieldType type;
 	int width;
 	int decimals;
 } attribute_options[] = {
-		{"altitude", FTDouble, 12, 6},
-		{"velocity", FTDouble, 12, 6},
-		{"time", FTString, 31, 0},
-		{"unixtime", FTInteger, 20, 0}
+		{"altitude", FTDouble, 20, 6},  // geodetic alt of sat (km)
+		{"velocity", FTDouble, 20, 6},  // magnitude of sat velocity (km/s)
+		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
+		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
+		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
+		{"longitude", FTDouble, 20, 6}  // geodetic lon of sat
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -99,6 +104,16 @@ void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 	if (attribute_flags[ATTR_TIMEUNIX]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_TIMEUNIX],
 				(double)(loc->GetDate().ToTime()));
+	}
+		
+	if (attribute_flags[ATTR_LATITUDE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_LATITUDE],
+				Util::RadiansToDegrees(geo->latitude));
+	}
+
+	if (attribute_flags[ATTR_LONGITUDE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_LONGITUDE],
+				Util::RadiansToDegrees(geo->longitude));
 	}
 }
 
