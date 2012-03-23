@@ -188,7 +188,7 @@ void InitSatModel(Tle tle) {
 void StartGroundTrack(void)
 {
 	if ((NULL == cfg.tleText) and (NULL == cfg.tlePath)) {
-		InitSatModel(ReadTleFromStream(&std::cin));
+		InitSatModel(ReadTleFromStream(std::cin));
 	} else if (NULL != cfg.tleText) {
 		InitSatModel(ReadTleFromBuffer(cfg.tleText));
 	} else if (NULL != cfg.tlePath) {

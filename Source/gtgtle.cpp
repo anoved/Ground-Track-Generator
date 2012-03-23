@@ -44,7 +44,7 @@ void tokenize(const std::string& str, std::vector<std::string>& tokens)
 
 
 /* For loading a TLE from a stream */
-Tle ReadTleFromStream(std::istream *stream)
+Tle ReadTleFromStream(std::istream& stream)
 {
     bool got_first_line = false;
     std::string line1;
@@ -57,10 +57,10 @@ Tle ReadTleFromStream(std::istream *stream)
 			"2 25544  51.6414 209.7068 0016865 175.1468 330.0443 15.59367837764090");
 	bool got_tle = false;
 		
-    while (!stream->eof())
+    while (!stream.eof())
     {
         std::string line;
-        std::getline(*stream, line);
+        std::getline(stream, line);
 
         Util::Trim(line);
 
@@ -157,7 +157,7 @@ Tle ReadTleFromPath(const char* infile)
 		Fail("cannot open TLE file: %s\n", infile);
 	}
 	
-	Tle tle = ReadTleFromStream(&file);
+	Tle tle = ReadTleFromStream(file);
 
 	file.close();	
 	return tle;
@@ -167,5 +167,5 @@ Tle ReadTleFromPath(const char* infile)
 Tle ReadTleFromBuffer(const char *buffer)
 {
 	std::istringstream sb(buffer);
-	return ReadTleFromStream(&sb);
+	return ReadTleFromStream(sb);
 }

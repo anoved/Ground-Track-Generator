@@ -5,7 +5,7 @@
 
 #include "Tle.h"
 
-Tle ReadTleFromStream(std::istream *stream);
+Tle ReadTleFromStream(std::istream& stream);
 Tle ReadTleFromPath(const char* infile);
 Tle ReadTleFromBuffer(const char *buffer);
 
