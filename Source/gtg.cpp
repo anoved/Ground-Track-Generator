@@ -244,18 +244,12 @@ int main(int argc, char *argv[])
 	if (NULL != cfg.end) {
 		cfg.steps = 0;
 	}
-	
-	if (argc > 0) {
-		Fail("extraneous command line argument: %s\n", argv[0]);
+		
+	/* interpret remaining command line arguments as paths to TLE files */
+	for (int i = 0; i < argc; i++) {
+		tles.push(ReadTleFromPath(argv[i]));
 	}
-	
-	/* to read remaining arguments as attributes */
-	/*for (int i = 0; i < argc; i++) {
-		if (not EnableAttribute(argv[i])) {
-			Fail("invalid attribute: %s\n", argv[i]);
-		}
-	}*/
-	
+		
 	/* some attributes require an observer station to be defined; check if so */
 	CheckAttributeObserver(has_observer);
 	

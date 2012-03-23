@@ -35,7 +35,7 @@ void ShowVersion(void)
 void ShowHelp(void)
 {
 	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
-	printf("usage: %s [OPTIONS] [OUTPUT]\n", _GTG_PROGRAM_);
+	printf("usage: %s [OPTIONS] [TLE [TLE ...]]\n", _GTG_PROGRAM_);
 	printf("Options:\n");
 	printf("\t--unit/-u days | hours | minutes | seconds\n");
 	printf("\t\tDefault: minutes\n");
@@ -56,9 +56,9 @@ void ShowHelp(void)
 	printf("\t--attributes/-a all | standard | [ATTRIBUTE [ATTRIBUTE...]]\n");
 	printf("\t\tWhich attributes to output. standard outputs all except those requiring observer.\n");
 	printf("\t--tle/-t TEXT | --input/-i PATH\n");
-	printf("\t\tTLE read from TEXT value, PATH file, or otherwise stdin.\n");
-	printf("\t--output/-o BASEPATH\n");
-	printf("\t\tIf not specified, BASEPATH be provided as OUTPUT argument.\n");
+	printf("\t\tTLE read from TEXT value or PATH file respectively.\n");
+	printf("\t--output/-o DIRECTORY\n");
+	printf("\t\tIf not specified, output is written to current working directory.\n");
 	printf("\t--verbose\n");
 	printf("\t\tPrint diagnostic status messages.\n");
 	printf("\t--help/-?\n");
