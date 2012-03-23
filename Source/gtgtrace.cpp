@@ -126,9 +126,12 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 	
 	// assemble base shapefile output from directory path and tle name
 	// not robust  
-	std::string shpbase(cfg.basepath);
-	if ('/' != shpbase[shpbase.length() - 1]) {
-		shpbase += '/';
+	std::string shpbase;
+	if (NULL != cfg.basepath) {
+		shpbase += cfg.basepath;
+		if ('/' != shpbase[shpbase.length() - 1]) {
+			shpbase += '/';
+		}
 	}
 	shpbase += tle.GetName();
 	

@@ -193,10 +193,10 @@ int main(int argc, char *argv[])
 				break;
 			
 			case 'o':
-				/* Output file */
+				/* Output directory */
 				/* Argument format: path to output shapefile basename */
 				if (NULL != cfg.basepath) {
-					Fail("output shapefile already specified: %s\n", cfg.basepath);
+					Fail("output directory already specified: %s\n", cfg.basepath);
 				}
 				cfg.basepath = optarg;
 				break;
@@ -243,17 +243,6 @@ int main(int argc, char *argv[])
 	/* If an end time is specified, use that instead of steps to constrain output */
 	if (NULL != cfg.end) {
 		cfg.steps = 0;
-	}
-	
-	/* If output basepath was not specified as an option, take the first
-	   remaining argument as basepath and remove it from the list of remnants */
-	if (NULL == cfg.basepath) {
-		if (argc < 1) {
-			Fail("no output shapefile specified\n");
-		}
-		cfg.basepath = argv[0];
-		argv++;
-		argc--;
 	}
 	
 	if (argc > 0) {
