@@ -16,12 +16,18 @@ enum attribute_ids {
 	ATTR_TIMEUNIX,
 	ATTR_LATITUDE,
 	ATTR_LONGITUDE,
-	ATTR_OBS_RANGE,
+	
+	ATTR_OBS_FIRST,
+	ATTR_OBS_RANGE = ATTR_OBS_FIRST,
 	ATTR_OBS_RATE,
 	ATTR_OBS_ELEVATION,
 	ATTR_OBS_AZIMUTH,
+	ATTR_OBS_LAST = ATTR_OBS_AZIMUTH,
+	
 	ATTR_COUNT
 };
+
+
 
 /* DBF width and decimal precision values are presently somewhat arbitrary */
 struct attribute_options {
@@ -37,10 +43,10 @@ struct attribute_options {
 		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
 		{"longitude", FTDouble, 20, 6}, // geodetic lon of sat
 		
-		{"range", FTDouble, 30, 6},     // range to observer
-		{"rate", FTDouble, 20, 6},      // range rate to observer
-		{"elevation", FTDouble, 20, 6},
-		{"azimuth", FTDouble, 20, 6}
+		{"range", FTDouble, 30, 6},     // range (km) to observer
+		{"rate", FTDouble, 20, 6},      // range rate (km/s) to observer
+		{"elevation", FTDouble, 20, 6}, // elevation of sat from obs station
+		{"azimuth", FTDouble, 20, 6}    // azimuth of sat from obs station
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -62,7 +68,7 @@ void SetAttributeObserver(double latitude, double longitude, double altitude)
 void CheckAttributeObserver(void)
 {
 	if (not observer) {
-		for (int attr = ATTR_OBS_RANGE; attr <= ATTR_OBS_AZIMUTH; attr++) {
+		for (int attr = ATTR_OBS_FIRST; attr <= ATTR_OBS_LAST; attr++) {
 			if (attribute_flags[attr]) {
 				Fail("%s attribute requires an --observer\n", attribute_options[attr].name);
 			}
@@ -70,7 +76,8 @@ void CheckAttributeObserver(void)
 	}
 }
 
-void FlagAllAttributes(bool flag_value) {
+void FlagAllAttributes(bool flag_value)
+{
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		attribute_flags[attr] = flag_value;
 	}
