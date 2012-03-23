@@ -173,25 +173,14 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 	}
 	
 	shout.close();
-	
 }
 
-void InitSatModel(Tle tle) {
+void InitGroundTrace(Tle& tle)
+{
 	try {
 		SGP4 model(tle);
 		GenerateGroundTrack(tle, model);
 	} catch (SatelliteException &e) {
 		Fail("cannot initialize satellite model: %s\n", e.what());
-	}
-}
-
-void StartGroundTrack(void)
-{
-	if ((NULL == cfg.tleText) and (NULL == cfg.tlePath)) {
-		InitSatModel(ReadTleFromStream(std::cin));
-	} else if (NULL != cfg.tleText) {
-		InitSatModel(ReadTleFromBuffer(cfg.tleText));
-	} else if (NULL != cfg.tlePath) {
-		InitSatModel(ReadTleFromPath(cfg.tlePath));
 	}
 }

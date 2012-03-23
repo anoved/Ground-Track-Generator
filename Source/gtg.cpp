@@ -2,13 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <queue>
 
 #include "gtg.h"
+#include "gtgtle.h"
 #include "gtgutil.h"
 #include "gtgtrace.h"
 #include "gtgattr.h"
 
 struct configuration cfg;
+std::queue<Tle> tles;
 
 int main(int argc, char *argv[])
 {
@@ -25,8 +28,6 @@ int main(int argc, char *argv[])
 	cfg.unit = minutes;
 	cfg.interval = 1.0;
 	cfg.steps = 100;
-	cfg.tleText = NULL;
-	cfg.tlePath = NULL;
 	cfg.shpPath = NULL;
 	cfg.features = point;
 	cfg.verbose = 0;
@@ -178,25 +179,13 @@ int main(int argc, char *argv[])
 			case 't':
 				/* TLE text */
 				/* Argument format: text to be parsed for TLE, ala runtest */
-				if (NULL != cfg.tleText) {
-					Fail("TLE text already specified\n");
-				}
-				if (NULL != cfg.tlePath) {
-					Fail("TLE file already specified: %s (cannot use --tle and --input)\n", cfg.tlePath);
-				}
-				cfg.tleText = optarg;
+				tles.push(ReadTleFromBuffer(optarg));
 				break;
 			
 			case 'i':
 				/* Input file */
 				/* Argument format: path to file to read for TLE, ala runtest */
-				if (NULL != cfg.tlePath) {
-					Fail("TLE file already specified\n");
-				}
-				if (NULL != cfg.tleText) {
-					Fail("TLE text already specified (cannot use --input and --tle)\n");
-				}
-				cfg.tlePath = optarg;
+				tles.push(ReadTleFromPath(optarg));
 				break;
 			
 			case 'o':
@@ -276,8 +265,25 @@ int main(int argc, char *argv[])
 	
 	/* some attributes require an observer station to be defined; check if so */
 	CheckAttributeObserver(has_observer);
-		
-	StartGroundTrack();
+	
+	/* if we have not received any TLEs yet, attempt to read from stdin */
+	if (tles.empty()) {
+		tles.push(ReadTleFromStream(std::cin));
+	}
+
+	/* output a trace for each TLE */
+	int tleid = 0; // until we can set up multiple output files, just output 1
+	while (!tles.empty()) {
+		if (tleid == 0) {
+			printf("Processing TLE index 0\n");
+			Tle& tle = tles.front();
+			InitGroundTrace(tle);
+		} else {
+			printf("Pretending to process TLE index %d\n", tleid);
+		}		
+		tleid++;
+		tles.pop();
+	}
 	
 	return EXIT_SUCCESS;
 }
