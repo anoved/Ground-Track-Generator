@@ -29,6 +29,9 @@ struct configuration {
 	enum output_feature_type features;
 	int verbose;
 	int split;
+	double obslat;
+	double obslon;
+	double obsalt;
 };
 
 extern struct configuration cfg;

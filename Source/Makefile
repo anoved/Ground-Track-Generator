@@ -12,7 +12,7 @@ CFLAGS = -g -Wall -fPIC
 LIB_SGP4_DIR  = ../Libraries/sgp4/libsgp4
 LIB_SHP_DIR   = ../Libraries/shapelib
 INCLUDES = -I $(LIB_SGP4_DIR) -I $(LIB_SHP_DIR)
-OBJS = gtg.o gtgtle.o gtgutil.o gtgtrace.o gtgshp.o
+OBJS = gtg.o gtgtle.o gtgutil.o gtgtrace.o gtgshp.o gtgattr.o
 
 .PHONY: default lib clean
 
@@ -34,6 +34,10 @@ gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h
 
 gtgshp.o: gtgshp.cpp gtgshp.h gtg.h gtgutil.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgshp.cpp
+
+gtgattr.o: gtgattr.cpp gtgattr.h gtg.h gtgutil.h
+	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgattr.cpp
+
 
 # Library
 

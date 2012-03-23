@@ -5,126 +5,9 @@
 #include "Observer.h"
 #include "CoordTopographic.h"
 
+#include "gtgattr.h"
 #include "gtgshp.h"
 #include "gtgutil.h"
-
-/* used to parse attributes specified on command line and as dbf field titles */
-enum attribute_ids {
-	ATTR_ALTITUDE = 0,
-	ATTR_VELOCITY,
-	ATTR_TIMEUTC,
-	ATTR_TIMEUNIX,
-	ATTR_LATITUDE,
-	ATTR_LONGITUDE,
-	
-	ATTR_OBS_FIRST,
-	ATTR_OBS_RANGE = ATTR_OBS_FIRST,
-	ATTR_OBS_RATE,
-	ATTR_OBS_ELEVATION,
-	ATTR_OBS_AZIMUTH,
-	ATTR_OBS_LAST = ATTR_OBS_AZIMUTH,
-	
-	ATTR_COUNT
-};
-
-
-
-/* DBF width and decimal precision values are presently somewhat arbitrary */
-struct attribute_options {
-	const char *name;
-	DBFFieldType type;
-	int width;
-	int decimals;
-} attribute_options[] = {
-		{"altitude", FTDouble, 20, 6},  // geodetic alt of sat (km)
-		{"velocity", FTDouble, 20, 6},  // magnitude of sat velocity (km/s)
-		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
-		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
-		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
-		{"longitude", FTDouble, 20, 6}, // geodetic lon of sat
-		
-		{"range", FTDouble, 30, 6},     // range (km) to observer
-		{"rate", FTDouble, 20, 6},      // range rate (km/s) to observer
-		{"elevation", FTDouble, 20, 6}, // elevation of sat from obs station
-		{"azimuth", FTDouble, 20, 6}    // azimuth of sat from obs station
-};
-
-/* each element is set to true if the corresponding attribute should be output */
-bool attribute_flags[ATTR_COUNT];
-
-/* the index of the corresponding field in the output attribute table */
-int attribute_field[ATTR_COUNT];
-
-/* optional observation station */
-bool observer = false;
-Observer obs(0, 0, 0);
-
-void SetAttributeObserver(double latitude, double longitude, double altitude)
-{
-	obs = Observer(latitude, longitude, altitude);
-	observer = true;
-}
-
-void CheckAttributeObserver(void)
-{
-	if (not observer) {
-		for (int attr = ATTR_OBS_FIRST; attr <= ATTR_OBS_LAST; attr++) {
-			if (attribute_flags[attr]) {
-				Fail("%s attribute requires an --observer\n", attribute_options[attr].name);
-			}
-		}
-	}
-}
-
-void FlagAllAttributes(bool flag_value, bool except_observer_attributes)
-{
-	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		if (except_observer_attributes &&
-				(attr >= ATTR_OBS_FIRST && attr <= ATTR_OBS_LAST)) {
-			attribute_flags[attr] = false;
-		} else {
-			attribute_flags[attr] = flag_value;
-		}
-	}
-}
-
-/* returns index of attribute, if valid, or -1 if not */
-int IsValidAttribute(const char *s)
-{
-	for (int i = 0; i < ATTR_COUNT; i++) {
-		if (0 == strcmp(s, attribute_options[i].name)) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-/* returns true if attribute was enabled; false if not (invalid name) */
-bool EnableAttribute(const char *desc)
-{
-	int attrid = -1;
-	if (-1 != (attrid = IsValidAttribute(desc))) {
-		attribute_flags[attrid] = true;
-		return true;
-	}
-	return false;
-}
-
-void ShapefileWriter::initAttributes(void)
-{
-	int field;
-	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		if (attribute_flags[attr]) {
-			field = DBFAddField(dbf_, attribute_options[attr].name, 
-					attribute_options[attr].type, attribute_options[attr].width,
-					attribute_options[attr].decimals);
-			if (-1 == field) {
-				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
-			}
-			attribute_field[attr] = field;
-		}
-	}
-}
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {
@@ -160,26 +43,27 @@ void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 	
 	if (attribute_flags[ATTR_OBS_RANGE]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RANGE],
-				obs.GetLookAngle(*loc).range);
+				obs_->GetLookAngle(*loc).range);
 	}
 	
 	if (attribute_flags[ATTR_OBS_RATE]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RATE],
-				obs.GetLookAngle(*loc).range_rate);
+				obs_->GetLookAngle(*loc).range_rate);
 	}
 	
 	if (attribute_flags[ATTR_OBS_ELEVATION]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_ELEVATION],
-				Util::RadiansToDegrees(obs.GetLookAngle(*loc).elevation));
+				Util::RadiansToDegrees(obs_->GetLookAngle(*loc).elevation));
 	}
 	
 	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_AZIMUTH],
-				Util::RadiansToDegrees(obs.GetLookAngle(*loc).azimuth));
+				Util::RadiansToDegrees(obs_->GetLookAngle(*loc).azimuth));
 	}
 }
 
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features,
+		double latitude, double longitude, double altitude)
 {
 	switch (features) {
 		case point:
@@ -202,10 +86,12 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 		Fail("cannot create shapefile attribute table: %s\n", basepath);
 	}
 	
-	initAttributes();
+	initAttributes(dbf_);
+	
+	obs_ = new Observer(latitude, longitude, altitude);
 }
 
-int ShapefileWriter::output(Eci *loc, Eci *nextloc)
+int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 {
 	CoordGeodetic locg(loc->ToGeodetic());
 	double latitude[2];
@@ -227,7 +113,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc)
 		longitude[1] = Util::RadiansToDegrees(nextlocg.longitude);
 
 		/* This line segment's endpoints are in different E/W hemispheres */		
-		if (cfg.split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
+		if (split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
 			
 			// derived from http://geospatialmethods.org/spheres/
 			// assumes spherical earth
@@ -327,4 +213,5 @@ void ShapefileWriter::close(void)
 {
 	SHPClose(shp_);
 	DBFClose(dbf_);
+	delete obs_;
 }

@@ -125,7 +125,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
-	ShapefileWriter shout(cfg.shpPath, cfg.features);
+	ShapefileWriter shout(cfg.shpPath, cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt);
 	
 	while (1) {
 		
@@ -142,7 +142,7 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		
 		if (line == cfg.features) {
 			if (prevSet) {
-				shout.output(&prevEci, &eci);
+				shout.output(&prevEci, &eci, cfg.split);
 				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an

@@ -6,8 +6,7 @@
 #include "gtg.h"
 #include "gtgutil.h"
 #include "gtgtrace.h"
-
-#include "gtgshp.h"
+#include "gtgattr.h"
 
 struct configuration cfg;
 
@@ -15,6 +14,7 @@ int main(int argc, char *argv[])
 {
 	int opt = 0;
 	int longIndex = 0;
+	bool has_observer = false;
 	
 	/* All attributes turned off by default */
 	FlagAllAttributes(false);
@@ -31,6 +31,9 @@ int main(int argc, char *argv[])
 	cfg.features = point;
 	cfg.verbose = 0;
 	cfg.split = 0;
+	cfg.obslat = 0;
+	cfg.obslon = 0;
+	cfg.obsalt = 0;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -62,35 +65,29 @@ int main(int argc, char *argv[])
 			
 			case 'g':
 				/* Ground observer */
-				{
-					double obslat, obslon;
-					double obsalt = 0;
-
-					/* latitude and longitude arguments are required */
-					
-					if (1 != sscanf(optarg, "%lf", &obslat)) {
-						Fail("cannot parse observer latitude: %s (should be number between -90 and 90)\n", optarg);
-					}
-					
-					if (optind >= argc) {
-						Fail("missing observer longitude\n");
-					}
-					
-					if (1 != sscanf(argv[optind], "%lf", &obslon)) {
-						Fail("cannot parse observer longitude: %s (should be number between -180 and 180)\n", argv[optind]);
-					}
-					
-					optind++;
-
-					/* a third numeric argument, altitude (km), is optional */
-					if (optind < argc) {
-						if (1 == sscanf(argv[optind], "%lf", &obsalt)) {
-							optind++;
-						} // no complaint if we can't read it; leave it for getopt
-					}
-					
-					SetAttributeObserver(obslat, obslon, obsalt);
+				/* latitude and longitude arguments are required */
+				
+				if (1 != sscanf(optarg, "%lf", &cfg.obslat)) {
+					Fail("cannot parse observer latitude: %s (should be number between -90 and 90)\n", optarg);
 				}
+				
+				if (optind >= argc) {
+					Fail("missing observer longitude\n");
+				}
+				
+				if (1 != sscanf(argv[optind], "%lf", &cfg.obslon)) {
+					Fail("cannot parse observer longitude: %s (should be number between -180 and 180)\n", argv[optind]);
+				}
+				
+				has_observer = true;
+				optind++;
+
+				/* a third numeric argument, altitude (km), is optional */
+				if (optind < argc) {
+					if (1 == sscanf(argv[optind], "%lf", &cfg.obsalt)) {
+						optind++;
+					} // no complaint if we can't read it; leave it for getopt
+				}					
 				break;
 			
 			case 'd':
@@ -278,7 +275,7 @@ int main(int argc, char *argv[])
 	}*/
 	
 	/* some attributes require an observer station to be defined; check if so */
-	CheckAttributeObserver();
+	CheckAttributeObserver(has_observer);
 		
 	StartGroundTrack();
 	
