@@ -133,10 +133,10 @@ void GenerateGroundTrack(Tle tle, SGP4 model)
 		try {
 			eci = model.FindPosition(time);
 		} catch (SatelliteException &e) {
-			Fail("satellite exception: %s\n", e.what());
+			Note("satellite exception (stopping at step %d): %s\n", step, e.what());
+			break;
 		} catch (DecayedException &e) {
-			/* A decaying orbit is OK - we just stop the trace now. */
-			Note("Satellite decayed (step %d).\n", step);
+			Note("satellite decayed (stopping at step %d).\n", step);
 			break;
 		}
 		
