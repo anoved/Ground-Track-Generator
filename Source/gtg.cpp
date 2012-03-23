@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	const char *optString = "a:d:e:f:?i:l:o:s:n:t:u:v";
+	const char *optString = "a:d:e:f:?i:l:g:o:s:n:t:u:v";
 	const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 			{"help", no_argument, NULL, '?'},
 			{"input", required_argument, NULL, 'i'},
 			{"interval", required_argument, NULL, 'l'},
+			{"observer", required_argument, NULL, 'g'},
 			{"output", required_argument, NULL, 'o'},
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
@@ -58,6 +59,39 @@ int main(int argc, char *argv[])
 	/* Store command line arguments and perform some preliminary validation */
 	while(-1 != (opt = getopt_long_only(argc, argv, optString, longOpts, &longIndex))) {
 		switch(opt) {
+			
+			case 'g':
+				/* Ground observer */
+				{
+					double obslat, obslon;
+					double obsalt = 0;
+
+					/* latitude and longitude arguments are required */
+					
+					if (1 != sscanf(optarg, "%lf", &obslat)) {
+						Fail("cannot parse observer latitude: %s (should be number between -90 and 90)\n", optarg);
+					}
+					
+					if (optind >= argc) {
+						Fail("missing observer longitude\n");
+					}
+					
+					if (1 != sscanf(argv[optind], "%lf", &obslon)) {
+						Fail("cannot parse observer longitude: %s (should be number between -180 and 180)\n", argv[optind]);
+					}
+					
+					optind++;
+
+					/* a third numeric argument, altitude (km), is optional */
+					if (optind < argc) {
+						if (1 == sscanf(argv[optind], "%lf", &obsalt)) {
+							optind++;
+						} // no complaint if we can't read it; leave it for getopt
+					}
+					
+					SetAttributeObserver(obslat, obslon, obsalt);
+				}
+				break;
 			
 			case 'd':
 				/* Split line segments that cross the 180th meridian/dateline */
@@ -240,6 +274,9 @@ int main(int argc, char *argv[])
 			Fail("invalid attribute: %s\n", argv[i]);
 		}
 	}*/
+	
+	/* some attributes require an observer station to be defined; check if so */
+	CheckAttributeObserver();
 		
 	StartGroundTrack();
 	

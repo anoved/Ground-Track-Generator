@@ -16,6 +16,10 @@ enum attribute_ids {
 	ATTR_TIMEUNIX,
 	ATTR_LATITUDE,
 	ATTR_LONGITUDE,
+	ATTR_OBS_RANGE,
+	ATTR_OBS_RATE,
+	ATTR_OBS_ELEVATION,
+	ATTR_OBS_AZIMUTH,
 	ATTR_COUNT
 };
 
@@ -31,7 +35,12 @@ struct attribute_options {
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
 		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
-		{"longitude", FTDouble, 20, 6}  // geodetic lon of sat
+		{"longitude", FTDouble, 20, 6}, // geodetic lon of sat
+		
+		{"range", FTDouble, 30, 6},     // range to observer
+		{"rate", FTDouble, 20, 6},      // range rate to observer
+		{"elevation", FTDouble, 20, 6},
+		{"azimuth", FTDouble, 20, 6}
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -39,6 +48,27 @@ bool attribute_flags[ATTR_COUNT];
 
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
+
+/* optional observation station */
+bool observer = false;
+Observer obs(0, 0, 0);
+
+void SetAttributeObserver(double latitude, double longitude, double altitude)
+{
+	obs = Observer(latitude, longitude, altitude);
+	observer = true;
+}
+
+void CheckAttributeObserver(void)
+{
+	if (not observer) {
+		for (int attr = ATTR_OBS_RANGE; attr <= ATTR_OBS_AZIMUTH; attr++) {
+			if (attribute_flags[attr]) {
+				Fail("%s attribute requires an --observer\n", attribute_options[attr].name);
+			}
+		}
+	}
+}
 
 void FlagAllAttributes(bool flag_value) {
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
@@ -114,6 +144,26 @@ void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 	if (attribute_flags[ATTR_LONGITUDE]) {
 		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_LONGITUDE],
 				Util::RadiansToDegrees(geo->longitude));
+	}
+	
+	if (attribute_flags[ATTR_OBS_RANGE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RANGE],
+				obs.GetLookAngle(*loc).range);
+	}
+	
+	if (attribute_flags[ATTR_OBS_RATE]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RATE],
+				obs.GetLookAngle(*loc).range_rate);
+	}
+	
+	if (attribute_flags[ATTR_OBS_ELEVATION]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_ELEVATION],
+				Util::RadiansToDegrees(obs.GetLookAngle(*loc).elevation));
+	}
+	
+	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
+		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_AZIMUTH],
+				Util::RadiansToDegrees(obs.GetLookAngle(*loc).azimuth));
 	}
 }
 
