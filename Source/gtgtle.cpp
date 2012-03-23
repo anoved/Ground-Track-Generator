@@ -1,15 +1,15 @@
-/* largely lifted from the runtest.cpp sample code distributed with SGP4++ */
-
-#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
 
+#include "Util.h"
+
 #include "gtgutil.h"
+
 #include "gtgtle.h"
 
-#include "Util.h"
+/* largely lifted from the runtest.cpp sample code distributed with SGP4++ */
 
 void tokenize(const std::string& str, std::vector<std::string>& tokens)
 {

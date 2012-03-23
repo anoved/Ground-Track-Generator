@@ -1,7 +1,8 @@
 #include <string.h>
 
-#include "gtgattr.h"
 #include "gtgutil.h"
+
+#include "gtgattr.h"
 
 /* DBF width and decimal precision values are presently somewhat arbitrary */
 struct attribute_options {

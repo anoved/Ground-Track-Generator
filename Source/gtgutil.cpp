@@ -1,7 +1,10 @@
-#include "gtgutil.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+
+#include "gtg.h"
+
+#include "gtgutil.h"
 
 /* Print an error message to stderr and exit with failure status. */
 void FailDetail(const char *file, int line, const char *errorString, ...) {

@@ -2,12 +2,13 @@
 #include <math.h>
 #include <string.h>
 
-#include "Observer.h"
 #include "CoordTopographic.h"
 
-#include "gtgattr.h"
-#include "gtgshp.h"
 #include "gtgutil.h"
+#include "gtgattr.h"
+#include "gtg.h"
+
+#include "gtgshp.h"
 
 void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 {

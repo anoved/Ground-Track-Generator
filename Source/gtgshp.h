@@ -4,7 +4,7 @@
 #include "Eci.h"
 #include "CoordGeodetic.h"
 #include "Observer.h"
-#include "gtg.h"
+
 #include "shapefil.h"
 
 class ShapefileWriter

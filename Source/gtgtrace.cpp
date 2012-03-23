@@ -2,17 +2,17 @@
 #include <string.h>
 #include <math.h>
 
-#include "gtgtrace.h"
+#include "SGP4.h"
+#include "Julian.h"
+#include "Timespan.h"
+#include "Tle.h"
 
 #include "gtg.h"
 #include "gtgutil.h"
 #include "gtgtle.h"
 #include "gtgshp.h"
 
-#include "SGP4.h"
-#include "Julian.h"
-#include "Timespan.h"
-#include "Tle.h"
+#include "gtgtrace.h"
 
 /*
 	InitTime
