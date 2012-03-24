@@ -148,8 +148,10 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
-	std::string p(BuildBasepath(tle.GetName()));
-	ShapefileWriter shout(p.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt, cfg.prj);
+	std::ostringstream ns;
+	ns << tle.NoradNumber();
+	ShapefileWriter shout(BuildBasepath(ns.str()).c_str(), cfg.features, cfg.obslat,
+			cfg.obslon, cfg.obsalt, cfg.prj);
 	
 	while (1) {
 		
