@@ -31,6 +31,7 @@ struct configuration {
 	double obslon;
 	double obsalt;
 	char *prefix;
+	char *suffix;
 	int prj;
 };
 

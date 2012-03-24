@@ -40,13 +40,14 @@ int main(int argc, char *argv[])
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
 	cfg.prefix = NULL;
+	cfg.suffix = NULL;
 	cfg.prj = 0;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
 
 	/* Expected arguments for getopt_long */
-	const char *optString = "a:d:e:f:?i:l:g:o:p:s:n:t:u:v";
+	const char *optString = "a:d:e:f:?i:l:g:o:p:s:n:t:u:x:v";
 	const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
 			{"steps", required_argument, NULL, 'n'},
+			{"suffix", required_argument, NULL, 'x'},
 			{"tle", required_argument, NULL, 't'},
 			{"unit", required_argument, NULL, 'u'},
 			{"verbose", no_argument, &cfg.verbose, 1},
@@ -75,6 +77,11 @@ int main(int argc, char *argv[])
 			case 'p':
 				/* Output prefix */
 				cfg.prefix = optarg;
+				break;
+			
+			case 'x':
+				/* Output suffix (not including file extension) */
+				cfg.suffix = optarg;
 				break;
 			
 			case 'g':
