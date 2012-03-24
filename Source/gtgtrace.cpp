@@ -88,6 +88,30 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 	return interval;
 }
 
+std::string BuildBasepath(const std::string& rootname)
+{
+	std::string shpbase;
+	
+	if (NULL != cfg.basepath) {
+		shpbase += cfg.basepath;
+		if ('/' != shpbase[shpbase.length() - 1]) {
+			shpbase += '/';
+		}
+	}
+	
+	if (NULL != cfg.prefix) {
+		shpbase += cfg.prefix;
+	}
+	
+	shpbase += rootname;
+	
+	if (NULL != cfg.suffix) {
+		shpbase += cfg.suffix;
+	}
+	
+	return shpbase;
+}
+
 void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 {
 	int step = 0;
@@ -124,24 +148,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 		Note("End: %s\n", endtime.ToString().c_str());
 	}
 	
-	// assemble base shapefile output from directory path and tle name
-	// not robust  
-	std::string shpbase;
-	if (NULL != cfg.basepath) {
-		shpbase += cfg.basepath;
-		if ('/' != shpbase[shpbase.length() - 1]) {
-			shpbase += '/';
-		}
-	}
-	if (NULL != cfg.prefix) {
-		shpbase += cfg.prefix;
-	}
-	shpbase += tle.GetName();
-	if (NULL != cfg.suffix) {
-		shpbase += cfg.suffix;
-	}
-	
-	ShapefileWriter shout(shpbase.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt, cfg.prj);
+	std::string p(BuildBasepath(tle.GetName()));
+	ShapefileWriter shout(p.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt, cfg.prj);
 	
 	while (1) {
 		
