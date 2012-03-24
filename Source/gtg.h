@@ -33,6 +33,7 @@ struct configuration {
 	char *prefix;
 	char *suffix;
 	int prj;
+	bool single;
 };
 
 extern struct configuration cfg;

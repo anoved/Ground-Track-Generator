@@ -92,6 +92,13 @@ std::string BuildBasepath(const std::string& rootname)
 {
 	std::string shpbase;
 	
+	/* if only one TLE was specified, we out --output as the unmodified
+	   basepath, and ignore --prefix and --suffix, and do not insert any ID num */
+	if (cfg.single) {
+		shpbase += cfg.basepath;
+		return shpbase;
+	}
+	
 	if (NULL != cfg.basepath) {
 		shpbase += cfg.basepath;
 		if ('/' != shpbase[shpbase.length() - 1]) {
@@ -150,8 +157,11 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 	
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
-	ShapefileWriter shout(BuildBasepath(ns.str()).c_str(), cfg.features, cfg.obslat,
-			cfg.obslon, cfg.obsalt, cfg.prj);
+	ShapefileWriter shout(
+			BuildBasepath(ns.str()).c_str(),
+			cfg.features,
+			cfg.obslat, cfg.obslon, cfg.obsalt,
+			cfg.prj);
 	
 	while (1) {
 		

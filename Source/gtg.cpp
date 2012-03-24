@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
 	cfg.prefix = NULL;
 	cfg.suffix = NULL;
 	cfg.prj = 0;
+	cfg.single = false;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -275,6 +276,12 @@ int main(int argc, char *argv[])
 	}
 
 	/* output a trace for each TLE */
+	if (1 == tles.size()) {
+		// special case where we treat --output as basename
+		// and do not append any id numbers or prefix/suffix
+		cfg.single = true;
+	}
+	
 	while (!tles.empty()) {
 		InitGroundTrace(tles.front(), now);
 		tles.pop();
