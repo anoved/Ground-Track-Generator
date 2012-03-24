@@ -12,7 +12,7 @@ class ShapefileWriter
 public:
 
 	ShapefileWriter(const char *basepath, enum output_feature_type features,
-			double latitude, double longitude, double altitude);
+			double latitude, double longitude, double altitude, bool create_prj);
 	
 	~ShapefileWriter()
 	{
@@ -23,7 +23,8 @@ public:
 	void close(void);
 
 private:
-
+	
+	void CreateWGS72prj(const char *basepath);
 	void outputAttributes(int index, Eci *loc, CoordGeodetic *geo);
 	
 	int shpFormat_;

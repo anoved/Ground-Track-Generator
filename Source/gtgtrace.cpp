@@ -138,7 +138,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 	}
 	shpbase += tle.GetName();
 	
-	ShapefileWriter shout(shpbase.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt);
+	ShapefileWriter shout(shpbase.c_str(), cfg.features, cfg.obslat, cfg.obslon, cfg.obsalt, cfg.prj);
 	
 	while (1) {
 		

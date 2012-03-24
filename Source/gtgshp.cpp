@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <fstream>
 
 #include "CoordTopographic.h"
 
@@ -66,7 +67,7 @@ void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
 }
 
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features,
-		double latitude, double longitude, double altitude)
+		double latitude, double longitude, double altitude, bool create_prj)
 {
 	switch (features) {
 		case point:
@@ -96,7 +97,31 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	
 	initAttributes(dbf_);
 	
+	if (create_prj) {
+		CreateWGS72prj(basepath);
+	}
+	
 	obs_ = new Observer(latitude, longitude, altitude);
+}
+
+/*
+	SGP4++ uses WGS-72 (see kXKMPER & kF in Globals.h).
+	"Revising Spacetrack Report 3" uses WGS-72 as well (see "Constants", p. 15).
+*/
+void ShapefileWriter::CreateWGS72prj(const char *basepath)
+{
+	std::string prjpath(basepath);
+	std::ofstream prjf;
+	
+	prjpath += ".prj";
+	prjf.open(prjpath.c_str());	
+	if (!prjf.is_open()) {
+		Fail("cannot create prj file: %s\n", prjpath.c_str());
+	}
+	
+	prjf << "GEOGCS[\"WGS 72\",DATUM[\"WGS_1972\",SPHEROID[\"WGS 72\",6378135,298.26]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4322\"]]" << std::endl;
+	
+	prjf.close();
 }
 
 int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)

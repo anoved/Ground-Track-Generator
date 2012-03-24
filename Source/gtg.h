@@ -31,6 +31,7 @@ struct configuration {
 	double obslon;
 	double obsalt;
 	char *prefix;
+	int prj;
 };
 
 extern struct configuration cfg;

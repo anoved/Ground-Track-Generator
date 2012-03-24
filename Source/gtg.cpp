@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
 	cfg.prefix = NULL;
+	cfg.prj = 0;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
 			{"observer", required_argument, NULL, 'g'},
 			{"output", required_argument, NULL, 'o'},
 			{"prefix", required_argument, NULL, 'p'},
+			{"prj", no_argument, &cfg.prj, 1},
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
 			{"steps", required_argument, NULL, 'n'},
