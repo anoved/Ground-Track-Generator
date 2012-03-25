@@ -124,6 +124,111 @@ void ShapefileWriter::CreateWGS72prj(const char *basepath)
 	prjf.close();
 }
 
+SHPObject* ShapefileWriter::splitSegment(
+		double lata, double lona, double latb, double lonb, Eci& loc)
+{
+	SHPObject *obj = NULL;
+	
+	/*
+		I have the geodetic coordinates for two points (0 and 1).
+		I want to find the geodetic latitude of the point where a
+		certain intervening meridian intersects the shortest line
+		between the two points.
+		
+		With a spherical earth, I can treat the arc between the two
+		points as part of a great circle, and find its intersection
+		with the meridian's great circle.
+		
+		How can I find the intersection point in the case of an
+		oblate spheroid earth?
+		
+		The generic term for the shortest
+		surface arc between the two points is a "geodesic"; on a
+		spherical earth, the geodesic between the two points is
+		simply an arc segment of a great circle. Here is some info
+		on geodesics of oblate spheroids, which may be helpful:
+		
+		http://mathworld.wolfram.com/OblateSpheroidGeodesic.html
+	*/
+	
+	// derived from http://geospatialmethods.org/spheres/
+	// assumes spherical earth
+	// kXKMPER is WGS-72 earth radius as defined in libsgp4/Globals.h
+	
+	// cartesian coordinates of satellite points
+	double radlon0 = Util::DegreesToRadians(lona);
+	double radlat0 = Util::DegreesToRadians(lata);
+	double radlon1 = Util::DegreesToRadians(lonb);
+	double radlat1 = Util::DegreesToRadians(latb);
+	double x0 = cos(radlon0) * cos(radlat0);
+	double y0 = sin(radlon0) * cos(radlat0);
+	double z0 = sin(radlat0);
+	double x1 = cos(radlon1) * cos(radlat1);
+	double y1 = sin(radlon1) * cos(radlat1);
+	double z1 = sin(radlat1);
+	
+	// coefficients of great circle plane defined by satellite points
+	double a1 = (y0 * z1) - (y1 * z0);
+	double c1 = (x0 * y1) - (x1 * y0);
+				
+	// cartesian coordinates g, h, w for one point where that great
+	// circle plane intersects the plane of the prime/180th meridian
+	double h = -c1 / a1;
+	double w = sqrt((kXKMPER * kXKMPER) / (pow(h, 2) + 1));
+	
+	// spherical coordinates of intersection points
+	double lat1 = Util::RadiansToDegrees(asin(w / kXKMPER));
+	double lon1 = (h * w) < 0 ? 180.0 : 0.0;
+	double lat2 = Util::RadiansToDegrees(asin(-w / kXKMPER));
+	double lon2 = (-h * w) < 0 ? 180.0 : 0.0;
+			
+	// negative range_rate indicates satellite is approaching observer;
+	// the point that it is approaching is the point it will cross.
+	double intercept;
+	bool intersects_180th = false;
+	if (Observer(lat1, lon1, 0).GetLookAngle(loc).range_rate < 0) {
+		if (180.0 == lon1) {
+			intersects_180th = true;
+			intercept = lat1;
+		}
+	} else {
+		if (180.0 == lon2) {
+			intersects_180th = true;
+			intercept = lat2;
+		}
+	}
+	
+	// so now after all that we know whether this segment crosses the
+	// 180th meridian. If so, split the segment into two pieces.
+	// intercept is [APPROXIMATELY] the latitude at which the great
+	// circle arc between loc and nextloc crosses the 180th meridian.
+	if (intersects_180th) {
+		int parts[2];
+		double xv[4];
+		double yv[4];
+		
+		parts[0] = 0;
+		xv[0] = lona;
+		yv[0] = lata;
+		xv[1] = lona < 0 ? -180 : 180;
+		yv[1] = intercept;
+		
+		parts[1] = 2;
+		xv[2] = lona < 0 ? 180 : -180;
+		yv[2] = intercept;
+		xv[3] = lonb;
+		yv[3] = latb;
+		
+		if (NULL == (obj = SHPCreateObject(SHPT_ARC, -1, 2, parts, NULL, 4, xv, yv, NULL, NULL))) {
+			Fail("cannot create split line segment\n");
+		}
+		
+		Note("Split segment at dateline at latitude: %lf\n", intercept);
+	}
+	
+	return obj;
+}
+
 int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 {
 	CoordGeodetic locg(loc->ToGeodetic());
@@ -147,86 +252,16 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 
 		/* This line segment's endpoints are in different E/W hemispheres */		
 		if (split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
-			
-			// derived from http://geospatialmethods.org/spheres/
-			// assumes spherical earth
-			// kXKMPER is WGS-72 earth radius as defined in libsgp4/Globals.h
-			
-			// cartesian coordinates of satellite points
-			double radlon0 = Util::DegreesToRadians(longitude[0]);
-			double radlat0 = Util::DegreesToRadians(latitude[0]);
-			double radlon1 = Util::DegreesToRadians(longitude[1]);
-			double radlat1 = Util::DegreesToRadians(latitude[1]);
-			double x0 = cos(radlon0) * cos(radlat0);
-			double y0 = sin(radlon0) * cos(radlat0);
-			double z0 = sin(radlat0);
-			double x1 = cos(radlon1) * cos(radlat1);
-			double y1 = sin(radlon1) * cos(radlat1);
-			double z1 = sin(radlat1);
-			
-			// coefficients of great circle plane defined by satellite points
-			double a1 = (y0 * z1) - (y1 * z0);
-			double c1 = (x0 * y1) - (x1 * y0);
-						
-			// cartesian coordinates g, h, w for one point where that great
-			// circle plane intersects the plane of the prime/180th meridian
-			double h = -c1 / a1;
-			double w = sqrt((kXKMPER * kXKMPER) / (pow(h, 2) + 1));
-			
-			// spherical coordinates of intersection points
-			double lat1 = Util::RadiansToDegrees(asin(w / kXKMPER));
-			double lon1 = (h * w) < 0 ? 180.0 : 0.0;
-			double lat2 = Util::RadiansToDegrees(asin(-w / kXKMPER));
-			double lon2 = (-h * w) < 0 ? 180.0 : 0.0;
-					
-			// negative range_rate indicates satellite is approaching observer;
-			// the point that it is approaching is the point it will cross.
-			double intercept = 999; // not a valid latitude we'll encounter
-			if (Observer(lat1, lon1, 0).GetLookAngle(*loc).range_rate < 0) {
-				if (180.0 == lon1) {
-					intercept = lat1;
-				}
-			} else {
-				if (180.0 == lon2) {
-					intercept = lat2;
-				}
-			}
-			
-			// so now after all that we know whether this segment crosses the
-			// 180th meridian. If so, split the segment into two pieces.
-			// intercept is [APPROXIMATELY] the latitude at which the great
-			// circle arc between loc and nextloc crosses the 180th meridian.
-			if (999 != intercept) {
-				int parts[2];
-				double xv[4];
-				double yv[4];
-				
-				parts[0] = 0;
-				xv[0] = longitude[0];
-				yv[0] = latitude[0];
-				xv[1] = longitude[0] < 0 ? -180 : 180;
-				yv[1] = intercept;
-				
-				parts[1] = 2;
-				xv[2] = longitude[0] < 0 ? 180 : -180;
-				yv[2] = intercept;
-				xv[3] = longitude[1];
-				yv[3] = latitude[1];
-				
-				if (NULL == (obj = SHPCreateObject(SHPT_ARC, -1, 2, parts, NULL, 4, xv, yv, NULL, NULL))) {
-					Fail("cannot create split line segment\n");
-				}
-				Note("Split segment at dateline at latitude: %lf\n", intercept);
-			}			
+			/* If the segment crosses the 180th meridian, splitSegment will
+			   split this line at the 180th meridian and return a SHPObject.
+			   Otherwise (if the segment crosses the prime meridian), NULL. */
+			obj = splitSegment(latitude[0], longitude[0], latitude[1], longitude[1], *loc);		
 		}
 	} else if (shpFormat_ == SHPT_ARC) {
 		Fail("line output requires two points; only one received\n");
 	}
 		
-	/* output the geometry */
 	if (NULL == obj) {
-		// in most cases we'll need to do this, but if we crossed a key meridian
-		// we'll already have a split shape object to output
 		obj = SHPCreateSimpleObject(shpFormat_, pointc, longitude, latitude, NULL);
 	}
 	if (NULL == obj) {
