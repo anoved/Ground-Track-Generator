@@ -39,19 +39,32 @@ bool attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
+Observer *attribute_observer = NULL;
+
 /*
- * Check whether any attributes that require an observer are enabled,
- * and if so, abort the program if observer_specified is false.
+ * If observer_specified, create ground attribute_observer at lat/lon/alt.
+ * Otherwise, check whether any attributes that require an observer are enabled,
+ * and if so, abort the program.
  */
-void CheckAttributeObserver(bool observer_specified)
+void InitAttributeObserver(bool observer_specified, double lat, double lon, double alt)
 {
-	if (not observer_specified) {
+	if (observer_specified) {
+		attribute_observer = new Observer(lat, lon, alt);
+	} else {
 		for (int attr = ATTR_OBS_FIRST; attr <= ATTR_OBS_LAST; attr++) {
 			if (attribute_flags[attr]) {
 				Fail("%s attribute requires an --observer\n", attribute_options[attr].name);
 			}
 		}
 	}
+}
+
+/*
+ * Deallocate attribute-related memory.
+ */
+void CleanupAttribute(void)
+{
+	delete attribute_observer;
 }
 
 /*
@@ -124,7 +137,7 @@ void initAttributes(DBFHandle dbf)
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
  */
-void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Observer &obs)
+void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 {
 	DBFWriteIntegerAttribute(dbf, index, 0, index);
 	
@@ -160,22 +173,21 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Ob
 	
 	if (attribute_flags[ATTR_OBS_RANGE]) {
 		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RANGE],
-				obs.GetLookAngle(loc).range);
+				attribute_observer->GetLookAngle(loc).range);
 	}
 	
 	if (attribute_flags[ATTR_OBS_RATE]) {
 		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RATE],
-				obs.GetLookAngle(loc).range_rate);
+				attribute_observer->GetLookAngle(loc).range_rate);
 	}
 	
 	if (attribute_flags[ATTR_OBS_ELEVATION]) {
 		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_ELEVATION],
-				Util::RadiansToDegrees(obs.GetLookAngle(loc).elevation));
+				Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation));
 	}
 	
 	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
 		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_AZIMUTH],
-				Util::RadiansToDegrees(obs.GetLookAngle(loc).azimuth));
+				Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth));
 	}
-
 }

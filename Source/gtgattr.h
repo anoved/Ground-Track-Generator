@@ -35,8 +35,9 @@ enum attribute_ids {
 
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
-void CheckAttributeObserver(bool observer_specified);
+void InitAttributeObserver(bool observer_specified, double lat = 0, double lon = 0, double alt = 0);
 void initAttributes(DBFHandle dbf);
-void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Observer &obs);
+void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo);
+void CleanupAttribute(void);
 
 #endif

@@ -19,12 +19,10 @@
 
 /*
  * Prepare to generate output. Creates shapefile (point or line type determined
- * by features argument) and attribute table at basepath. Latitude, longitude,
- * and altitude specify location of ground observer (only used if certain
- * attributes are to be output). Creates projection file if create_prj true.
+ * by features argument) and attribute table at basepath.
+ * Creates projection file if create_prj true.
  */
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features,
-		double latitude, double longitude, double altitude, bool create_prj)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj)
 {
 	switch (features) {
 		case point:
@@ -57,8 +55,6 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	if (create_prj) {
 		CreateWGS72prj(basepath);
 	}
-	
-	obs_ = new Observer(latitude, longitude, altitude);
 }
 
 /*
@@ -244,7 +240,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	outputAttributes(dbf_, index, *loc, locg, *obs_);
+	outputAttributes(dbf_, index, *loc, locg);
 
 	Note("Lat: %lf, Lon: %lf\n", latitude[0], longitude[0]);
 	
@@ -258,5 +254,4 @@ void ShapefileWriter::close(void)
 {
 	SHPClose(shp_);
 	DBFClose(dbf_);
-	delete obs_;
 }

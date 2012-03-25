@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 	}
 		
 	/* some attributes require an observer station to be defined; check if so */
-	CheckAttributeObserver(has_observer);
+	InitAttributeObserver(has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
 	
 	/* if we have not received any TLEs yet, attempt to read from stdin */
 	if (tles.empty()) {
@@ -287,6 +287,8 @@ int main(int argc, char *argv[])
 		InitGroundTrace(tles.front(), now, cfg);
 		tles.pop();
 	}
+	
+	CleanupAttribute();
 	
 	return EXIT_SUCCESS;
 }

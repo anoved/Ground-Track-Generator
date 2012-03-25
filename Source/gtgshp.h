@@ -17,8 +17,7 @@ class ShapefileWriter
 {
 public:
 
-	ShapefileWriter(const char *basepath, enum output_feature_type features,
-			double latitude, double longitude, double altitude, bool create_prj);
+	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj);
 	
 	~ShapefileWriter()
 	{
@@ -36,7 +35,6 @@ private:
 	int shpFormat_;
 	SHPHandle shp_;
 	DBFHandle dbf_;
-	Observer *obs_;
 };
 
 #endif

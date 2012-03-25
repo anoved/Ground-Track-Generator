@@ -177,11 +177,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
-	ShapefileWriter shout(
-			basepath.c_str(),
-			cfg.features,
-			cfg.obslat, cfg.obslon, cfg.obsalt,
-			cfg.prj);
+	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
 		
 	while (1) {
 		
