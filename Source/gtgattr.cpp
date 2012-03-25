@@ -50,6 +50,7 @@ void InitAttributeObserver(bool observer_specified, double lat, double lon, doub
 {
 	if (observer_specified) {
 		attribute_observer = new Observer(lat, lon, alt);
+		Note("Observer: %s\n", attribute_observer->GetLocation().ToString().c_str());
 	} else {
 		for (int attr = ATTR_OBS_FIRST; attr <= ATTR_OBS_LAST; attr++) {
 			if (attribute_flags[attr]) {
@@ -139,55 +140,66 @@ void initAttributes(DBFHandle dbf)
  */
 void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 {
+	Note("Attributes:\n\tFID: %d\n", index);
 	DBFWriteIntegerAttribute(dbf, index, 0, index);
 	
 	if (attribute_flags[ATTR_ALTITUDE]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_ALTITUDE],
-				geo.altitude);
+		double alt = geo.altitude;
+		Note("\t%s: %lf km\n", attribute_options[ATTR_ALTITUDE].name, alt);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_ALTITUDE], alt);
 	}
 	
 	if (attribute_flags[ATTR_VELOCITY]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY],
-				loc.GetVelocity().GetMagnitude());
+		double velocity = loc.GetVelocity().GetMagnitude();
+		Note("\t%s: %lf km/s\n", attribute_options[ATTR_VELOCITY].name, velocity);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY], velocity);
 	}
 	
 	if (attribute_flags[ATTR_TIMEUTC]) {
-		DBFWriteStringAttribute(dbf, index, attribute_field[ATTR_TIMEUTC],
-				loc.GetDate().ToString().c_str());
+		const char *timeutc = loc.GetDate().ToString().c_str();
+		Note("\t%s: %s\n", attribute_options[ATTR_TIMEUTC].name, timeutc);
+		DBFWriteStringAttribute(dbf, index, attribute_field[ATTR_TIMEUTC], timeutc);
 	}
 	
 	if (attribute_flags[ATTR_TIMEUNIX]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_TIMEUNIX],
-				(double)(loc.GetDate().ToTime()));
+		double unixtime = (double)(loc.GetDate().ToTime());
+		Note("\t%s: %lf seconds\n", attribute_options[ATTR_TIMEUNIX].name, unixtime);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_TIMEUNIX], unixtime);
 	}
 		
 	if (attribute_flags[ATTR_LATITUDE]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LATITUDE],
-				Util::RadiansToDegrees(geo.latitude));
+		double latitude = Util::RadiansToDegrees(geo.latitude);
+		Note("\t%s: %lf\n", attribute_options[ATTR_LATITUDE].name, latitude);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LATITUDE], latitude);
 	}
 
 	if (attribute_flags[ATTR_LONGITUDE]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LONGITUDE],
-				Util::RadiansToDegrees(geo.longitude));
+		double longitude = Util::RadiansToDegrees(geo.longitude);
+		Note("\t%s: %lf\n", attribute_options[ATTR_LONGITUDE].name, longitude);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LONGITUDE], longitude);
 	}
 	
 	if (attribute_flags[ATTR_OBS_RANGE]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RANGE],
-				attribute_observer->GetLookAngle(loc).range);
+		double range = attribute_observer->GetLookAngle(loc).range;
+		Note("\t%s: %lf km\n", attribute_options[ATTR_OBS_RANGE].name, range);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RANGE], range);
 	}
 	
 	if (attribute_flags[ATTR_OBS_RATE]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RATE],
-				attribute_observer->GetLookAngle(loc).range_rate);
+		double range_rate = attribute_observer->GetLookAngle(loc).range_rate;
+		Note("\t%s: %lf km/s\n", attribute_options[ATTR_OBS_RATE].name, range_rate);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RATE], range_rate);
 	}
 	
 	if (attribute_flags[ATTR_OBS_ELEVATION]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_ELEVATION],
-				Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation));
+		double elevation = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation);
+		Note("\t%s: %lf\n", attribute_options[ATTR_OBS_ELEVATION].name, elevation);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_ELEVATION], elevation);
 	}
 	
 	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_AZIMUTH],
-				Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth));
+		double azimuth = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth);
+		Note("\t%s: %lf\n", attribute_options[ATTR_OBS_AZIMUTH].name, azimuth);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_AZIMUTH], azimuth);
 	}
 }

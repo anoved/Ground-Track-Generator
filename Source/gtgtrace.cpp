@@ -151,10 +151,11 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	
 	/* Initialize the step interval */
 	interval = InitInterval(cfg.unit, cfg.interval);
+	Note("Step interval: %lf seconds\n", interval.GetTotalSeconds());
 	
 	/* Initialize the starting timestamp; default to epoch */
 	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle);
-	Note("Start: %s\n", time.ToString().c_str());
+	Note("Start time: %s\n", time.ToString().c_str());
 
 	/* Initialize the ending timestamp, if needed */
 	if (NULL != cfg.end) {
@@ -171,12 +172,13 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 			Fail("interval (%lf minutes) exceeds period between start time and end time (%lf minutes).\n", interval.GetTotalMinutes(), (endtime - time).GetTotalMinutes());
 		}
 			
-		Note("End: %s\n", endtime.ToString().c_str());
+		Note("End time: %s\n", endtime.ToString().c_str());
 	}
 	
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
+	Note("Output basepath: %s\n", basepath.c_str());
 	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
 		
 	while (1) {

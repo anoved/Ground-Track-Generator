@@ -186,7 +186,7 @@ SHPObject* ShapefileWriter::splitSegment(
 			Fail("cannot create split line segment\n");
 		}
 		
-		Note("Split segment at dateline at latitude: %lf\n", intercept);
+		Note("Split on 180th meridian at latitude: %lf\n", intercept);
 	}
 	
 	return obj;
@@ -207,10 +207,13 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	SHPObject *obj = NULL;
 	int index;
 	int pointc = 1;
-	
+
 	/* loc is used for points and line segment start */
 	latitude[0] = Util::RadiansToDegrees(locg.latitude);
 	longitude[0] = Util::RadiansToDegrees(locg.longitude);
+
+	Note("Latitude: %lf\n", latitude[0]);
+	Note("Longitude: %lf\n", longitude[0]);
 	
 	/* nextloc is used for line segment end, if needed */
 	if (NULL != nextloc && shpFormat_ == SHPT_ARC) {
@@ -242,8 +245,6 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	
 	outputAttributes(dbf_, index, *loc, locg);
 
-	Note("Lat: %lf, Lon: %lf\n", latitude[0], longitude[0]);
-	
 	return index;
 }
 
