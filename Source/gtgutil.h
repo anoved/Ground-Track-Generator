@@ -1,6 +1,7 @@
 #ifndef _GTGUTIL_H_
 #define _GTGUTIL_H_
 
+void SetVerbosity(bool verbose = true);
 void FailDetail(const char *file, int line, const char *errorString, ...);
 void Note(const char *noteString, ...);
 void ShowVersion(void);

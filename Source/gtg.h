@@ -17,7 +17,7 @@ enum output_feature_type {
 	line
 };
 
-struct configuration {
+typedef struct configuration {
 	char *start;
 	char *end;
 	enum interval_unit_type unit;
@@ -25,7 +25,6 @@ struct configuration {
 	int steps;
 	char *basepath;
 	enum output_feature_type features;
-	int verbose;
 	int split;
 	double obslat;
 	double obslon;
@@ -34,8 +33,6 @@ struct configuration {
 	char *suffix;
 	int prj;
 	bool single;
-};
-
-extern struct configuration cfg;
+} GTGConfiguration;
 
 #endif

@@ -6,6 +6,10 @@
 
 #include "gtgutil.h"
 
+namespace gtgutil {
+	bool verbose = false;
+}
+
 /* Print an error message to stderr and exit with failure status. */
 void FailDetail(const char *file, int line, const char *errorString, ...) {
 	va_list arglist;
@@ -16,10 +20,15 @@ void FailDetail(const char *file, int line, const char *errorString, ...) {
 	exit(EXIT_FAILURE);
 }
 
+void SetVerbosity(bool verbose)
+{
+	gtgutil::verbose = verbose;
+}
+
 /* Print a diagnostic message. We could rewrite these to a log file. */
 void Note(const char *noteString, ...) {
 	va_list arglist;
-	if (cfg.verbose) {
+	if (gtgutil::verbose) {
 		va_start(arglist, noteString);
 		vprintf(noteString, arglist);
 		va_end(arglist);

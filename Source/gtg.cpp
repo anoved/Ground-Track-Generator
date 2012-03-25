@@ -13,15 +13,14 @@
 #include "gtgtrace.h"
 #include "gtgattr.h"
 
-struct configuration cfg;
-std::queue<Tle> tles;
-
 int main(int argc, char *argv[])
 {
 	Julian now;
 	int opt = 0;
 	int longIndex = 0;
 	bool has_observer = false;
+	std::queue<Tle> tles;
+	GTGConfiguration cfg;
 	
 	/* All attributes turned off by default */
 	FlagAllAttributes(false);
@@ -34,7 +33,6 @@ int main(int argc, char *argv[])
 	cfg.steps = 100;
 	cfg.basepath = NULL;
 	cfg.features = point;
-	cfg.verbose = 0;
 	cfg.split = 0;
 	cfg.obslat = 0;
 	cfg.obslon = 0;
@@ -66,7 +64,7 @@ int main(int argc, char *argv[])
 			{"suffix", required_argument, NULL, 'x'},
 			{"tle", required_argument, NULL, 't'},
 			{"unit", required_argument, NULL, 'u'},
-			{"verbose", no_argument, &cfg.verbose, 1},
+			{"verbose", no_argument, NULL, 0},
 			{"version", no_argument, NULL, 'v'},
 			{NULL, no_argument, NULL, 0}
 	};
@@ -236,8 +234,11 @@ int main(int argc, char *argv[])
 				break;
 				
 			case 0:
-				/* (options that just store val in flag, such as --verbose) */
+				/* (options that just store val in flag, w/no short opt) */
 				/* (exact option indicated by longOpts[longIndex].name) */
+				if (0 == strcmp("verbose", longOpts[longIndex].name)) {
+					SetVerbosity(true);
+				}
 				break;
 			
 			case '?':
@@ -283,7 +284,7 @@ int main(int argc, char *argv[])
 	}
 	
 	while (!tles.empty()) {
-		InitGroundTrace(tles.front(), now);
+		InitGroundTrace(tles.front(), now, cfg);
 		tles.pop();
 	}
 	

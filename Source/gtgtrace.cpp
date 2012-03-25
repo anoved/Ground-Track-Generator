@@ -88,7 +88,7 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 	return interval;
 }
 
-std::string BuildBasepath(const std::string& rootname)
+std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& cfg)
 {
 	std::string shpbase;
 	
@@ -119,7 +119,7 @@ std::string BuildBasepath(const std::string& rootname)
 	return shpbase;
 }
 
-void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
+void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfiguration& cfg)
 {
 	int step = 0;
 	Julian time, endtime;
@@ -158,7 +158,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
 	ShapefileWriter shout(
-			BuildBasepath(ns.str()).c_str(),
+			BuildBasepath(ns.str(), cfg).c_str(),
 			cfg.features,
 			cfg.obslat, cfg.obslon, cfg.obsalt,
 			cfg.prj);
@@ -211,11 +211,11 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now)
 	shout.close();
 }
 
-void InitGroundTrace(Tle& tle, Julian& now)
+void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration &cfg)
 {
 	try {
 		SGP4 model(tle);
-		GenerateGroundTrack(tle, model, now);
+		GenerateGroundTrack(tle, model, now, cfg);
 	} catch (SatelliteException &e) {
 		Fail("cannot initialize satellite model: %s\n", e.what());
 	}
