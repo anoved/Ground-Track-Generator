@@ -11,61 +11,6 @@
 
 #include "gtgshp.h"
 
-void ShapefileWriter::outputAttributes(int index, Eci *loc, CoordGeodetic *geo)
-{
-	DBFWriteIntegerAttribute(dbf_, index, 0, index);
-	
-	if (attribute_flags[ATTR_ALTITUDE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_ALTITUDE],
-				geo->altitude);
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_VELOCITY],
-				loc->GetVelocity().GetMagnitude());
-	}
-	
-	if (attribute_flags[ATTR_TIMEUTC]) {
-		DBFWriteStringAttribute(dbf_, index, attribute_field[ATTR_TIMEUTC],
-				loc->GetDate().ToString().c_str());
-	}
-	
-	if (attribute_flags[ATTR_TIMEUNIX]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_TIMEUNIX],
-				(double)(loc->GetDate().ToTime()));
-	}
-		
-	if (attribute_flags[ATTR_LATITUDE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_LATITUDE],
-				Util::RadiansToDegrees(geo->latitude));
-	}
-
-	if (attribute_flags[ATTR_LONGITUDE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_LONGITUDE],
-				Util::RadiansToDegrees(geo->longitude));
-	}
-	
-	if (attribute_flags[ATTR_OBS_RANGE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RANGE],
-				obs_->GetLookAngle(*loc).range);
-	}
-	
-	if (attribute_flags[ATTR_OBS_RATE]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_RATE],
-				obs_->GetLookAngle(*loc).range_rate);
-	}
-	
-	if (attribute_flags[ATTR_OBS_ELEVATION]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_ELEVATION],
-				Util::RadiansToDegrees(obs_->GetLookAngle(*loc).elevation));
-	}
-	
-	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
-		DBFWriteDoubleAttribute(dbf_, index, attribute_field[ATTR_OBS_AZIMUTH],
-				Util::RadiansToDegrees(obs_->GetLookAngle(*loc).azimuth));
-	}
-}
-
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features,
 		double latitude, double longitude, double altitude, bool create_prj)
 {
@@ -270,7 +215,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	outputAttributes(index, loc, &locg);
+	outputAttributes(dbf_, index, *loc, locg, *obs_);
 
 	Note("Lat: %lf, Lon: %lf\n", latitude[0], longitude[0]);
 	

@@ -5,12 +5,14 @@
 #include "gtgattr.h"
 
 /* DBF width and decimal precision values are presently somewhat arbitrary */
-struct attribute_options {
+typedef struct attribute_options {
 	const char *name;
 	DBFFieldType type;
 	int width;
 	int decimals;
-} attribute_options[] = {
+} GTGAttributes;
+
+GTGAttributes attribute_options[] = {
 		{"altitude", FTDouble, 20, 6},  // geodetic alt of sat (km)
 		{"velocity", FTDouble, 20, 6},  // magnitude of sat velocity (km/s)
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
@@ -80,7 +82,6 @@ void initAttributes(DBFHandle dbf)
 	int field;
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		if (attribute_flags[attr]) {
-			printf("Initing field: %s\n", attribute_options[attr].name);
 			field = DBFAddField(dbf, attribute_options[attr].name, 
 					attribute_options[attr].type, attribute_options[attr].width,
 					attribute_options[attr].decimals);
@@ -90,4 +91,60 @@ void initAttributes(DBFHandle dbf)
 			attribute_field[attr] = field;
 		}
 	}
+}
+
+void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Observer &obs)
+{
+	DBFWriteIntegerAttribute(dbf, index, 0, index);
+	
+	if (attribute_flags[ATTR_ALTITUDE]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_ALTITUDE],
+				geo.altitude);
+	}
+	
+	if (attribute_flags[ATTR_VELOCITY]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY],
+				loc.GetVelocity().GetMagnitude());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUTC]) {
+		DBFWriteStringAttribute(dbf, index, attribute_field[ATTR_TIMEUTC],
+				loc.GetDate().ToString().c_str());
+	}
+	
+	if (attribute_flags[ATTR_TIMEUNIX]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_TIMEUNIX],
+				(double)(loc.GetDate().ToTime()));
+	}
+		
+	if (attribute_flags[ATTR_LATITUDE]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LATITUDE],
+				Util::RadiansToDegrees(geo.latitude));
+	}
+
+	if (attribute_flags[ATTR_LONGITUDE]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LONGITUDE],
+				Util::RadiansToDegrees(geo.longitude));
+	}
+	
+	if (attribute_flags[ATTR_OBS_RANGE]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RANGE],
+				obs.GetLookAngle(loc).range);
+	}
+	
+	if (attribute_flags[ATTR_OBS_RATE]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RATE],
+				obs.GetLookAngle(loc).range_rate);
+	}
+	
+	if (attribute_flags[ATTR_OBS_ELEVATION]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_ELEVATION],
+				Util::RadiansToDegrees(obs.GetLookAngle(loc).elevation));
+	}
+	
+	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_AZIMUTH],
+				Util::RadiansToDegrees(obs.GetLookAngle(loc).azimuth));
+	}
+
 }

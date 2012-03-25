@@ -25,7 +25,6 @@ public:
 private:
 	
 	void CreateWGS72prj(const char *basepath);
-	void outputAttributes(int index, Eci *loc, CoordGeodetic *geo);
 	SHPObject* splitSegment(double lata, double lona, double latb, double lonb, Eci& loc);
 	
 	int shpFormat_;

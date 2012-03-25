@@ -92,9 +92,10 @@ std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& c
 {
 	std::string shpbase;
 	
-	/* if only one TLE was specified, we out --output as the unmodified
-	   basepath, and ignore --prefix and --suffix, and do not insert any ID num */
-	if (cfg.single) {
+	/* if only one TLE was specified, we use --output as the unmodified
+	   basepath, and ignore --prefix and --suffix, and do not insert any ID.
+	   This only applies if --output is defined! Otherwise, use id/prefix/suffix. */
+	if (cfg.single && (cfg.basepath != NULL)) {
 		shpbase += cfg.basepath;
 		return shpbase;
 	}
@@ -157,12 +158,13 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
+	std::string basepath(BuildBasepath(ns.str(), cfg));
 	ShapefileWriter shout(
-			BuildBasepath(ns.str(), cfg).c_str(),
+			basepath.c_str(),
 			cfg.features,
 			cfg.obslat, cfg.obslon, cfg.obsalt,
 			cfg.prj);
-	
+		
 	while (1) {
 		
 		/* where is the satellite now? */

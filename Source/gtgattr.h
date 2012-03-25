@@ -3,6 +3,10 @@
 
 #include "shapefil.h"
 
+#include "Eci.h"
+#include "CoordGeodetic.h"
+#include "Observer.h"
+
 /* used to parse attributes specified on command line and as dbf field titles */
 enum attribute_ids {
 	ATTR_ALTITUDE = 0,
@@ -22,12 +26,10 @@ enum attribute_ids {
 	ATTR_COUNT
 };
 
-extern bool attribute_flags[];
-extern int attribute_field[];
-
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
 void CheckAttributeObserver(bool observer_specified);
 void initAttributes(DBFHandle dbf);
+void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Observer &obs);
 
 #endif
