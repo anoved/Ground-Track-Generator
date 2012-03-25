@@ -1,3 +1,10 @@
+/*
+ * gtgattr
+ *
+ * Handle initial option configuration of attributes and actual attribute table
+ * setup and output.
+ */
+
 #include <string.h>
 
 #include "gtgutil.h"
@@ -32,6 +39,10 @@ bool attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
+/*
+ * Check whether any attributes that require an observer are enabled,
+ * and if so, abort the program if observer_specified is false.
+ */
 void CheckAttributeObserver(bool observer_specified)
 {
 	if (not observer_specified) {
@@ -43,6 +54,11 @@ void CheckAttributeObserver(bool observer_specified)
 	}
 }
 
+/*
+ * Enable or disable all attributes, according to flag_value.
+ * If except_observer_attributes is true, attributes that require an observer
+ * are disabled regardless of flag_value.
+ */
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes)
 {
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
@@ -55,7 +71,11 @@ void FlagAllAttributes(bool flag_value, bool except_observer_attributes)
 	}
 }
 
-/* returns index of attribute, if valid, or -1 if not */
+/*
+ * Check if the specified attribute name s is recognized.
+ * If so, return the index of the corresponding attribute setup record.
+ * If not, return -1.
+ */
 int IsValidAttribute(const char *s)
 {
 	for (int i = 0; i < ATTR_COUNT; i++) {
@@ -66,7 +86,10 @@ int IsValidAttribute(const char *s)
 	return -1;
 }
 
-/* returns true if attribute was enabled; false if not (invalid name) */
+/*
+ * Enable output of attribute named by desc.
+ * Returns false if the attribute name was not recognized; otherwise true.
+ */
 bool EnableAttribute(const char *desc)
 {
 	int attrid = -1;
@@ -77,6 +100,10 @@ bool EnableAttribute(const char *desc)
 	return false;
 }
 
+/*
+ * Create output attribute table fields for each attribute that is enabled.
+ * Remember the actual index of each attribute table field.
+ */
 void initAttributes(DBFHandle dbf)
 {
 	int field;
@@ -93,6 +120,10 @@ void initAttributes(DBFHandle dbf)
 	}
 }
 
+/*
+ * Output an attribute record (at position index) for the specified loc.
+ * Only output enabled attributes.
+ */
 void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, Observer &obs)
 {
 	DBFWriteIntegerAttribute(dbf, index, 0, index);

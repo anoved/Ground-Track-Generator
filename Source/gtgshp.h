@@ -1,3 +1,9 @@
+/*
+ * gtgshp
+ *
+ * Manage output to shapefile.
+ */
+
 #ifndef _GTGSHP_H_
 #define _GTGSHP_H_
 

@@ -1,3 +1,10 @@
+/*
+ * gtgattr
+ *
+ * Handle initial option configuration of attributes and actual attribute table
+ * setup and output.
+ */
+
 #ifndef _GTGATTR_H_
 #define _GTGATTR_H_
 

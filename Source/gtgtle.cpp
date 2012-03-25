@@ -1,3 +1,10 @@
+/*
+ * gtgtle
+ *
+ * Parses two-line element sets of data used to compute satellite position and
+ * velocity according to the SGP4 model. http://celestrak.com/columns/v04n03/
+ */
+
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -9,8 +16,10 @@
 
 #include "gtgtle.h"
 
-/* largely lifted from the runtest.cpp sample code distributed with SGP4++ */
-
+/*
+ * Used by ReadTleFromStream for parsing two-line element set lines.
+ * (Cribbed directly from the SGP4++ runtest.cpp example code.)
+ */
 void tokenize(const std::string& str, std::vector<std::string>& tokens)
 {
     const std::string& delimiters = " ";
@@ -43,7 +52,10 @@ void tokenize(const std::string& str, std::vector<std::string>& tokens)
 }
 
 
-/* For loading a TLE from a stream */
+/*
+ * Load a two-line element set from an input stream, such as stdin.
+ * Also used by ReadTleFromBuffer and ReadTleFromPath.
+ */
 Tle ReadTleFromStream(std::istream& stream)
 {
     bool got_first_line = false;
@@ -149,12 +161,14 @@ Tle ReadTleFromStream(std::istream& stream)
 	return tle;
 }
 
-/* For loading a TLE from a file specified by a path */
-Tle ReadTleFromPath(const char* infile)
+/*
+ * Load a two-line element set from a file identified by path.
+ */
+Tle ReadTleFromPath(const char* path)
 {
-	std::ifstream file(infile);
+	std::ifstream file(path);
 	if (!file.is_open()) {
-		Fail("cannot open TLE file: %s\n", infile);
+		Fail("cannot open TLE file: %s\n", path);
 	}
 	
 	Tle tle = ReadTleFromStream(file);
@@ -163,7 +177,9 @@ Tle ReadTleFromPath(const char* infile)
 	return tle;
 }
 
-/* For reading a Tle from a string such as an argument value */
+/*
+ * Load a two-line element set from a string buffer.
+ */
 Tle ReadTleFromBuffer(const char *buffer)
 {
 	std::istringstream sb(buffer);

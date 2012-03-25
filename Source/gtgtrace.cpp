@@ -1,3 +1,10 @@
+/*
+ * gtgtrace
+ *
+ * Performs the core loop of the program: propagating satellite position
+ * forward for the specified number of steps from the specified start time.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -88,6 +95,13 @@ Timespan InitInterval(enum interval_unit_type units, double interval_length)
 	return interval;
 }
 
+/*
+ * Construct the output filename, minus shapefile file extensions.
+ * The general format is: <basepath>/<prefix>rootname<suffix>
+ *
+ * If this is the only output file and basepath is specified,
+ * the format is simply basepath and other elements are ignored.
+ */
 std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& cfg)
 {
 	std::string shpbase;
@@ -120,6 +134,10 @@ std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& c
 	return shpbase;
 }
 
+/*
+ * Do some initialization that may be specific to this track (output start time,
+ * name, etc.) and do the main orbit propagation loop, outputting at each step.
+ */
 void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfiguration& cfg)
 {
 	int step = 0;
@@ -213,6 +231,10 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	shout.close();
 }
 
+/*
+ * Create an SGP4 model for the specified satellite two-line element set
+ * and start generating its ground track.
+ */
 void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration &cfg)
 {
 	try {

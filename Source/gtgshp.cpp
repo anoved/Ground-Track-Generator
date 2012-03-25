@@ -1,3 +1,9 @@
+/*
+ * gtgshp
+ *
+ * Manage output to shapefile.
+ */
+
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -11,6 +17,12 @@
 
 #include "gtgshp.h"
 
+/*
+ * Prepare to generate output. Creates shapefile (point or line type determined
+ * by features argument) and attribute table at basepath. Latitude, longitude,
+ * and altitude specify location of ground observer (only used if certain
+ * attributes are to be output). Creates projection file if create_prj true.
+ */
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features,
 		double latitude, double longitude, double altitude, bool create_prj)
 {
@@ -50,9 +62,11 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 }
 
 /*
-	SGP4++ uses WGS-72 (see kXKMPER & kF in Globals.h).
-	"Revising Spacetrack Report 3" uses WGS-72 as well (see "Constants", p. 15).
-*/
+ * Output a "Well Known Text" .prj file explicitly stating geodetic system.
+ * SGP4++ uses WGS-72 (see kXKMPER & kF in Globals.h).
+ * "Revising Spacetrack Report 3" defaults to WGS-72 (see "Constants", p. 15).
+ * WGS-72 in various formats: http://spatialreference.org/ref/epsg/4322/
+ */
 void ShapefileWriter::CreateWGS72prj(const char *basepath)
 {
 	std::string prjpath(basepath);
@@ -69,6 +83,14 @@ void ShapefileWriter::CreateWGS72prj(const char *basepath)
 	prjf.close();
 }
 
+/*
+ * Given two points (a and b) that are in different hemispheres, return a
+ * feature consisting of two line segments split at the 180th meridian IFF
+ * the satellite path from a to b crosses it, as determined by approach rate.
+ * (Otherwise, if the path crosses the 0 prime meridian, return NULL.)
+ * The split point is not computed with the same precision as trace points!
+ * Splitting line segments is intended as a cosmetic display convenience.
+ */
 SHPObject* ShapefileWriter::splitSegment(
 		double lata, double lona, double latb, double lonb, Eci& loc)
 {
@@ -174,6 +196,13 @@ SHPObject* ShapefileWriter::splitSegment(
 	return obj;
 }
 
+/*
+ * Write the ground trace coordinates of the given satellite loc to output.
+ * If specified, nextloc specifies location of satellite at next trace step -
+ * used here only if outputting line features for the segment endpoint. If split
+ * is true, then line features that cross the dateline will be split into east
+ * and west hemisphere segments. Attributes for loc are also output.
+ */
 int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 {
 	CoordGeodetic locg(loc->ToGeodetic());
@@ -222,6 +251,9 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	return index;
 }
 
+/*
+ * Conclude output by closing shapefile and cleaning up.
+ */
 void ShapefileWriter::close(void)
 {
 	SHPClose(shp_);

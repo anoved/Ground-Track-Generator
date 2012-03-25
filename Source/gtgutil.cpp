@@ -1,3 +1,9 @@
+/*
+ * gtgutil
+ *
+ * Provides utility functions for displaying error, status, and help messages.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -10,7 +16,10 @@ namespace gtgutil {
 	bool verbose = false;
 }
 
-/* Print an error message to stderr and exit with failure status. */
+/*
+ * Print an error message to stderr and exit with failure status.
+ * Message may include format specifiers with additional variable arguments.
+ */
 void FailDetail(const char *file, int line, const char *errorString, ...) {
 	va_list arglist;
 	va_start(arglist, errorString);
@@ -20,12 +29,18 @@ void FailDetail(const char *file, int line, const char *errorString, ...) {
 	exit(EXIT_FAILURE);
 }
 
+/*
+ * Toggle verbose mode.
+ */
 void SetVerbosity(bool verbose)
 {
 	gtgutil::verbose = verbose;
 }
 
-/* Print a diagnostic message. We could rewrite these to a log file. */
+/*
+ * Print a diagnostic message to stdout (if verbose mode is enabled).
+ * Message may include format specifiers with additional variable arguments.
+ */
 void Note(const char *noteString, ...) {
 	va_list arglist;
 	if (gtgutil::verbose) {
@@ -35,12 +50,18 @@ void Note(const char *noteString, ...) {
 	}
 }
 
+/*
+ * Display program name and version and quit successfully.
+ */
 void ShowVersion(void)
 {
 	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);
 	exit(EXIT_SUCCESS);
 }
 
+/*
+ * Display a concise usage message and quit successfully.
+ */
 void ShowHelp(void)
 {
 	printf("%s %s\n", _GTG_NAME_, _GTG_VERSION_);

@@ -1,3 +1,9 @@
+/*
+ * gtgutil
+ *
+ * Provides utility functions for displaying error, status, and help messages.
+ */
+
 #ifndef _GTGUTIL_H_
 #define _GTGUTIL_H_
 
