@@ -198,13 +198,13 @@ int main(int argc, char *argv[])
 			case 't':
 				/* TLE text */
 				/* Argument format: text to be parsed for TLE, ala runtest */
-				tles.push(ReadTleFromBuffer(optarg));
+				ReadTlesFromBuffer(optarg, tles);
 				break;
 			
 			case 'i':
 				/* Input file */
-				/* Argument format: path to file to read for TLE, ala runtest */
-				tles.push(ReadTleFromPath(optarg));
+				/* Argument format: path to file to read for TLE, ala runtest */\
+				ReadTlesFromPath(optarg, tles);
 				break;
 			
 			case 'o':
@@ -262,27 +262,27 @@ int main(int argc, char *argv[])
 	if (NULL != cfg.end) {
 		cfg.steps = 0;
 	}
-		
-	/* interpret remaining command line arguments as paths to TLE files */
-	for (int i = 0; i < argc; i++) {
-		tles.push(ReadTleFromPath(argv[i]));
-	}
-		
+
 	/* some attributes require an observer station to be defined; check if so */
 	InitAttributeObserver(has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
-	
-	/* if we have not received any TLEs yet, attempt to read from stdin */
-	if (tles.empty()) {
-		tles.push(ReadTleFromStream(std::cin));
+
+	/* interpret remaining command line arguments as paths to TLE files */
+	for (int i = 0; i < argc; i++) {
+		ReadTlesFromPath(argv[i], tles);
 	}
 
-	/* output a trace for each TLE */
+	/* if we have not received any TLEs yet, attempt to read from stdin */
+	if (tles.empty()) {
+		ReadTlesFromStream(std::cin, tles);
+	}
+		
 	if (1 == tles.size()) {
 		// special case where we treat --output as basename
 		// and do not append any id numbers or prefix/suffix
 		cfg.single = true;
 	}
 	
+	/* output a trace for each TLE */
 	while (!tles.empty()) {
 		InitGroundTrace(tles.front(), now, cfg);
 		tles.pop();

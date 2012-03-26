@@ -9,11 +9,12 @@
 #define _GTGTLE_H_
 
 #include <iostream>
+#include <queue>
 
 #include "Tle.h"
 
-Tle ReadTleFromStream(std::istream& stream);
-Tle ReadTleFromPath(const char* path);
-Tle ReadTleFromBuffer(const char *buffer);
+bool ReadTlesFromStream(std::istream& stream, std::queue<Tle>& tles);
+bool ReadTlesFromPath(const char *path, std::queue<Tle>& tles);
+bool ReadTlesFromBuffer(const char *buffer, std::queue<Tle>& tles);
 
 #endif
