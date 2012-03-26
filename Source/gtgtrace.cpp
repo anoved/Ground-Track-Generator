@@ -40,11 +40,37 @@
 Julian InitTime(const char *desc, Julian now, Tle tle)
 {
 	Julian time;
-
+	double offset;
+	char unit;
+	
 	if (0 == strcmp("now", desc)) {
 		time = now;
+	} else if (2 == sscanf(desc, "now%lf%c", &offset, &unit)) {
+		Timespan offset_timespan(0);
+		switch (unit) {
+			case 's': offset_timespan.AddSeconds(offset); break;
+			case 'm': offset_timespan.AddSeconds(offset * 60.0); break;
+			case 'h': offset_timespan.AddSeconds(offset * 60.0 * 60.0); break;
+			case 'd': offset_timespan.AddSeconds(offset * 60.0 * 60.0 * 24.0); break;
+			default:
+				Fail("invalid current time offset unit: %c\n", unit);
+				break;
+		}
+		time = now + offset_timespan;
 	} else if (0 == strcmp("epoch", desc)) {
 		time = tle.Epoch();
+	} else if (2 == sscanf(desc, "epoch%lf%c", &offset, &unit)) {
+		Timespan offset_timespan(0);
+		switch (unit) {
+			case 's': offset_timespan.AddSeconds(offset); break;
+			case 'm': offset_timespan.AddSeconds(offset * 60.0); break;
+			case 'h': offset_timespan.AddSeconds(offset * 60.0 * 60.0); break;
+			case 'd': offset_timespan.AddSeconds(offset * 60.0 * 60.0 * 24.0); break;
+			default:
+				Fail("invalid epoch time offset unit: %c\n", unit);
+				break;
+		}
+		time = tle.Epoch() + offset_timespan;
 	} else {
 		int year, month, day, hour, minute;
 		double second;
@@ -220,7 +246,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 		/* stop ground track once we've exceeded step count or end time */
 		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
-		} else if ((NULL != cfg.end) && (time >= endtime)) {
+		} else if ((NULL != cfg.end) && (time > endtime)) {
 			break;
 		}
 		
