@@ -149,99 +149,48 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 	Note("Attributes:\n\tFID: %d\n", index);
 	DBFWriteIntegerAttribute(dbf, index, 0, index);
 	
-	if (attribute_flags[ATTR_ALTITUDE]) {
-		double alt = geo.altitude;
-		Note("\t%s: %lf km\n", attribute_options[ATTR_ALTITUDE].name, alt);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_ALTITUDE], alt);
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY]) {
-		double velocity = loc.GetVelocity().GetMagnitude();
-		Note("\t%s: %lf km/s\n", attribute_options[ATTR_VELOCITY].name, velocity);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY], velocity);
-	}
-	
-	if (attribute_flags[ATTR_TIMEUTC]) {
-		const char *timeutc = loc.GetDate().ToString().c_str();
-		Note("\t%s: %s\n", attribute_options[ATTR_TIMEUTC].name, timeutc);
-		DBFWriteStringAttribute(dbf, index, attribute_field[ATTR_TIMEUTC], timeutc);
-	}
-	
-	if (attribute_flags[ATTR_TIMEUNIX]) {
-		double unixtime = (double)(loc.GetDate().ToTime());
-		Note("\t%s: %lf seconds\n", attribute_options[ATTR_TIMEUNIX].name, unixtime);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_TIMEUNIX], unixtime);
-	}
+	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		
-	if (attribute_flags[ATTR_LATITUDE]) {
-		double latitude = Util::RadiansToDegrees(geo.latitude);
-		Note("\t%s: %lf\n", attribute_options[ATTR_LATITUDE].name, latitude);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LATITUDE], latitude);
-	}
-
-	if (attribute_flags[ATTR_LONGITUDE]) {
-		double longitude = Util::RadiansToDegrees(geo.longitude);
-		Note("\t%s: %lf\n", attribute_options[ATTR_LONGITUDE].name, longitude);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LONGITUDE], longitude);
-	}
-	
-	if (attribute_flags[ATTR_POSITION_X]) {
-		double positionx = loc.GetPosition().x;
-		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_X].name, positionx);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_X], positionx);
-	}
-
-	if (attribute_flags[ATTR_POSITION_Y]) {
-		double positiony = loc.GetPosition().y;
-		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_Y].name, positiony);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_Y], positiony);
-	}
-	
-	if (attribute_flags[ATTR_POSITION_Z]) {
-		double positionz = loc.GetPosition().z;
-		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_Z].name, positionz);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_Z], positionz);
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY_X]) {
-		double velocityx = loc.GetVelocity().x;
-		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_X].name, velocityx);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_X], velocityx);
-	}
-
-	if (attribute_flags[ATTR_VELOCITY_Y]) {
-		double velocityy = loc.GetVelocity().y;
-		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_Y].name, velocityy);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_Y], velocityy);
-	}
-	
-	if (attribute_flags[ATTR_VELOCITY_Z]) {
-		double velocityz = loc.GetVelocity().z;
-		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_Z].name, velocityz);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_Z], velocityz);
-	}
-	
-	if (attribute_flags[ATTR_OBS_RANGE]) {
-		double range = attribute_observer->GetLookAngle(loc).range;
-		Note("\t%s: %lf km\n", attribute_options[ATTR_OBS_RANGE].name, range);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RANGE], range);
-	}
-	
-	if (attribute_flags[ATTR_OBS_RATE]) {
-		double range_rate = attribute_observer->GetLookAngle(loc).range_rate;
-		Note("\t%s: %lf km/s\n", attribute_options[ATTR_OBS_RATE].name, range_rate);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_RATE], range_rate);
-	}
-	
-	if (attribute_flags[ATTR_OBS_ELEVATION]) {
-		double elevation = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation);
-		Note("\t%s: %lf\n", attribute_options[ATTR_OBS_ELEVATION].name, elevation);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_ELEVATION], elevation);
-	}
-	
-	if (attribute_flags[ATTR_OBS_AZIMUTH]) {
-		double azimuth = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth);
-		Note("\t%s: %lf\n", attribute_options[ATTR_OBS_AZIMUTH].name, azimuth);
-		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_OBS_AZIMUTH], azimuth);
+		/* skip disabled attributes */
+		if (!attribute_flags[attr]) {
+			continue;
+		}
+		
+		/* handle string and numeric attributes differently */
+		if (FTString == attribute_options[attr].type) {
+			const char *s;
+			switch (attr) {
+				case ATTR_TIMEUTC: s = loc.GetDate().ToString().c_str(); break;
+				default:
+					Fail("unhandled string attribute id: %d\n", attr);
+					break;
+			}
+			Note("\t%s: %s\n", attribute_options[attr].name, s);
+			DBFWriteStringAttribute(dbf, index, attribute_field[attr], s);
+		} else {
+			double n;
+			switch (attr) {
+				case ATTR_ALTITUDE:      n = geo.altitude; break;
+				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
+				case ATTR_TIMEUNIX:      n = (double)(loc.GetDate().ToTime()); break;
+				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;
+				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
+				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
+				case ATTR_POSITION_Y:    n = loc.GetPosition().y; break;
+				case ATTR_POSITION_Z:    n = loc.GetPosition().z; break;
+				case ATTR_VELOCITY_X:    n = loc.GetVelocity().x; break;
+				case ATTR_VELOCITY_Y:    n = loc.GetVelocity().y; break;
+				case ATTR_VELOCITY_Z:    n = loc.GetVelocity().z; break;
+				case ATTR_OBS_RANGE:     n = attribute_observer->GetLookAngle(loc).range; break;
+				case ATTR_OBS_RATE:      n = attribute_observer->GetLookAngle(loc).range_rate; break;
+				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation); break;
+				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth); break;
+				default:
+					Fail("unhandled numeric attribute id: %d\n", attr);
+					break;
+			}
+			Note("\t%s: %lf\n", attribute_options[attr].name, n);
+			DBFWriteDoubleAttribute(dbf, index, attribute_field[attr], n);
+		}
 	}
 }
