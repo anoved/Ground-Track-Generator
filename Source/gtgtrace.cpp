@@ -31,13 +31,13 @@
 				YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 				S - UNIX time (seconds since 1970-01-01 00:00:00)
 		now, reference date to use if "now" time is specified
-		tle, orbital elements to use if orbit "epoch" is specified
+		epoch, reference date to use if orbit "epoch" is specified
 	
 	Returns:
 		A Julian date object initialized to time requested by desc
 		Aborts if desc cannot be parsed.
 */
-Julian InitTime(const char *desc, Julian now, Tle tle)
+Julian InitTime(const char *desc, const Julian& now, const Julian& epoch)
 {
 	Julian time;
 	double offset;
@@ -58,7 +58,7 @@ Julian InitTime(const char *desc, Julian now, Tle tle)
 		}
 		time = now + offset_timespan;
 	} else if (0 == strcmp("epoch", desc)) {
-		time = tle.Epoch();
+		time = epoch;
 	} else if (2 == sscanf(desc, "epoch%lf%c", &offset, &unit)) {
 		Timespan offset_timespan(0);
 		switch (unit) {
@@ -70,7 +70,7 @@ Julian InitTime(const char *desc, Julian now, Tle tle)
 				Fail("invalid epoch time offset unit: %c\n", unit);
 				break;
 		}
-		time = tle.Epoch() + offset_timespan;
+		time = epoch + offset_timespan;
 	} else {
 		int year, month, day, hour, minute;
 		double second;
@@ -180,13 +180,13 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	Note("Step interval: %lf seconds\n", interval.GetTotalSeconds());
 	
 	/* Initialize the starting timestamp; default to epoch */
-	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle);
+	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle.Epoch());
 	Note("Start time: %s\n", time.ToString().c_str());
 
 	/* Initialize the ending timestamp, if needed */
 	if (NULL != cfg.end) {
 		
-		endtime = InitTime(cfg.end, now, tle);
+		endtime = InitTime(cfg.end, now, tle.Epoch());
 		
 		/* Sanity check 1 */
 		if (time >= endtime) {
