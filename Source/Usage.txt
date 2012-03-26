@@ -14,6 +14,12 @@ OPTIONS:
             longitude - Geodetic longitude of satellite position.
             altitude  - Altitude of satellite in km.
             velocity  - Magnitude of satellite velocity in km/s.
+            xposition - Earth Centered Inertial (ECI) x position in km.
+            yposition - Satellite ECI y position in km.
+            zposition - Satellite ECI z position in km.
+            xvelocity - Satellite ECI x velocity in km/s.
+            yvelocity - Satellite ECI y velocity in km/s.
+            zvelocity - Satellite ECI z velocity in km/s.
             range     - Range to satellite from observer in km.
             rate      - Rate of satellite range from observer in km/s.
             elevation - Elevation to satellite from observer.

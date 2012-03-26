@@ -26,6 +26,12 @@ GTGAttributes attribute_options[] = {
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
 		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
 		{"longitude", FTDouble, 20, 6}, // geodetic lon of sat
+		{"xposition", FTDouble, 20, 6}, // ECI x (km)
+		{"yposition", FTDouble, 20, 6}, // ECI y (km)
+		{"zposition", FTDouble, 20, 6}, // ECI z (km)
+		{"xvelocity", FTDouble, 20, 6}, // ECI x velocity (km/s)
+		{"yvelocity", FTDouble, 20, 6}, // ECI y velocity (km/s)
+		{"zvelocity", FTDouble, 20, 6}, // ECI z velocity (km/s)
 		
 		{"range", FTDouble, 30, 6},     // range (km) to observer
 		{"rate", FTDouble, 20, 6},      // range rate (km/s) to observer
@@ -177,6 +183,42 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 		double longitude = Util::RadiansToDegrees(geo.longitude);
 		Note("\t%s: %lf\n", attribute_options[ATTR_LONGITUDE].name, longitude);
 		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_LONGITUDE], longitude);
+	}
+	
+	if (attribute_flags[ATTR_POSITION_X]) {
+		double positionx = loc.GetPosition().x;
+		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_X].name, positionx);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_X], positionx);
+	}
+
+	if (attribute_flags[ATTR_POSITION_Y]) {
+		double positiony = loc.GetPosition().y;
+		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_Y].name, positiony);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_Y], positiony);
+	}
+	
+	if (attribute_flags[ATTR_POSITION_Z]) {
+		double positionz = loc.GetPosition().z;
+		Note("\t%s: %lf\n", attribute_options[ATTR_POSITION_Z].name, positionz);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_POSITION_Z], positionz);
+	}
+	
+	if (attribute_flags[ATTR_VELOCITY_X]) {
+		double velocityx = loc.GetVelocity().x;
+		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_X].name, velocityx);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_X], velocityx);
+	}
+
+	if (attribute_flags[ATTR_VELOCITY_Y]) {
+		double velocityy = loc.GetVelocity().y;
+		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_Y].name, velocityy);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_Y], velocityy);
+	}
+	
+	if (attribute_flags[ATTR_VELOCITY_Z]) {
+		double velocityz = loc.GetVelocity().z;
+		Note("\t%s: %lf\n", attribute_options[ATTR_VELOCITY_Z].name, velocityz);
+		DBFWriteDoubleAttribute(dbf, index, attribute_field[ATTR_VELOCITY_Z], velocityz);
 	}
 	
 	if (attribute_flags[ATTR_OBS_RANGE]) {

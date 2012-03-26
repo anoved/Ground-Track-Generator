@@ -80,6 +80,12 @@ void ShowHelp(void)
 	printf("            longitude - Geodetic longitude of satellite position.\n");
 	printf("            altitude  - Altitude of satellite in km.\n");
 	printf("            velocity  - Magnitude of satellite velocity in km/s.\n");
+	printf("            xposition - Earth Centered Inertial (ECI) x position in km.\n");
+	printf("            yposition - Satellite ECI y position in km.\n");
+	printf("            zposition - Satellite ECI z position in km.\n");
+	printf("            xvelocity - Satellite ECI x velocity in km/s.\n");
+	printf("            yvelocity - Satellite ECI y velocity in km/s.\n");
+	printf("            zvelocity - Satellite ECI z velocity in km/s.\n");
 	printf("            range     - Range to satellite from observer in km.\n");
 	printf("            rate      - Rate of satellite range from observer in km/s.\n");
 	printf("            elevation - Elevation to satellite from observer.\n");
