@@ -10,6 +10,7 @@ OPTIONS:
         Alternatively, list one or more of the following ATTRIBUTE names:
             time      - Step timestamp in YYYY-MM-DD HH:MM:SS.SSSSSS UTC
             unixtime  - Step timestamp in seconds since 0:0:0 UTC 1 Jan 1970.
+            mfe       - Relative timestamp in minutes from epoch.
             latitude  - Geodetic latitude of satellite position.
             longitude - Geodetic longitude of satellite position.
             altitude  - Altitude of satellite in km.
@@ -29,11 +30,9 @@ OPTIONS:
         Write a .prj file specifying the geodetic reference system of coordinate
         output (WGS-72) to the same base path as the output shapefile.
     
-    --unit/-u seconds | minutes | hours | days
-        Unit of step interval duration. Defaults to minutes.
-    
     --interval/-l DURATION
-        Step interval duration. Defaults to 1.0.
+        Step interval. Duration format is a number followed by s, m, h, or d,
+        indicating the unit (seconds, minutes, hours, or days, respectively).
         
     --steps/-n STEPS
         Number of steps to output. Defaults to 100. Ignored if --end is given.
@@ -41,10 +40,12 @@ OPTIONS:
     --start/-s now | epoch | TIME | UNIXTIME
         Timestamp for first step of output. Subsequent steps are output at
         uniform intervals specified by --interval and --unit.
-            now       - Current time.
-            epoch     - Default. Use TLE reference time.
-            TIME      - Time in exact "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
-            UNIXTIME  - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+            now[OFFSET]   - Current time, with optional offset.
+            epoch[OFFSET] - Default. TLE reference time, with optional offset.
+            TIME          - Time in "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
+            UNIXTIME      - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+    	OFFSET format is a number followed by s, m, h, or d, indicating the
+    	offset unit (seconds, minutes, hours, or days, respectively).
     
     --end/e now | epoch | TIME | UNIXTIME
         If specified, trace is output from --start to --end time. If not

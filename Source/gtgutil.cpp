@@ -76,6 +76,7 @@ void ShowHelp(void)
 	printf("        Alternatively, list one or more of the following ATTRIBUTE names:\n");
 	printf("            time      - Step timestamp in YYYY-MM-DD HH:MM:SS.SSSSSS UTC\n");
 	printf("            unixtime  - Step timestamp in seconds since 0:0:0 UTC 1 Jan 1970.\n");
+	printf("            mfe       - Relative timestamp in minutes from epoch.\n");
 	printf("            latitude  - Geodetic latitude of satellite position.\n");
 	printf("            longitude - Geodetic longitude of satellite position.\n");
 	printf("            altitude  - Altitude of satellite in km.\n");
@@ -95,11 +96,9 @@ void ShowHelp(void)
 	printf("        Write a .prj file specifying the geodetic reference system of coordinate\n");
 	printf("        output (WGS-72) to the same base path as the output shapefile.\n");
 	printf("    \n");
-	printf("    --unit/-u seconds | minutes | hours | days\n");
-	printf("        Unit of step interval duration. Defaults to minutes.\n");
-	printf("    \n");
 	printf("    --interval/-l DURATION\n");
-	printf("        Step interval duration. Defaults to 1.0.\n");
+	printf("        Step interval. Duration format is a number followed by s, m, h, or d,\n");
+	printf("        indicating the unit (seconds, minutes, hours, or days, respectively).\n");
 	printf("        \n");
 	printf("    --steps/-n STEPS\n");
 	printf("        Number of steps to output. Defaults to 100. Ignored if --end is given.\n");
@@ -107,10 +106,12 @@ void ShowHelp(void)
 	printf("    --start/-s now | epoch | TIME | UNIXTIME\n");
 	printf("        Timestamp for first step of output. Subsequent steps are output at\n");
 	printf("        uniform intervals specified by --interval and --unit.\n");
-	printf("            now       - Current time.\n");
-	printf("            epoch     - Default. Use TLE reference time.\n");
-	printf("            TIME      - Time in exact \"YYYY-MM-DD HH:MM:SS.SSSSSS UTC\" format.\n");
-	printf("            UNIXTIME  - Time in seconds since 0:0:0 UTC 1 Jan 1970.\n");
+	printf("            now[OFFSET]   - Current time, with optional offset.\n");
+	printf("            epoch[OFFSET] - Default. TLE reference time, with optional offset.\n");
+	printf("            TIME          - Time in \"YYYY-MM-DD HH:MM:SS.SSSSSS UTC\" format.\n");
+	printf("            UNIXTIME      - Time in seconds since 0:0:0 UTC 1 Jan 1970.\n");
+	printf("    	OFFSET format is a number followed by s, m, h, or d, indicating the\n");
+	printf("    	offset unit (seconds, minutes, hours, or days, respectively).\n");
 	printf("    \n");
 	printf("    --end/e now | epoch | TIME | UNIXTIME\n");
 	printf("        If specified, trace is output from --start to --end time. If not\n");
@@ -184,7 +185,6 @@ void ShowHelp(void)
 	printf("    \n");
 	printf("    If a single two-line element set is loaded and no --output PATH is\n");
 	printf("    specified, the base name takes this format: <PREFIX>TLEID<SUFFIX>.\n");
-	printf("\n");
 	exit(EXIT_SUCCESS);
 }
 
