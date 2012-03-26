@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 	bool has_observer = false;
 	std::queue<Tle> tles;
 	GTGConfiguration cfg;
+	Timespan interval;
 	
 	/* All attributes turned off by default */
 	FlagAllAttributes(false);
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
 	cfg.end = NULL;
-	cfg.unit = minutes;
+	cfg.unit = 'm';
 	cfg.interval = 1.0;
 	cfg.steps = 100;
 	cfg.basepath = NULL;
@@ -63,7 +64,6 @@ int main(int argc, char *argv[])
 			{"steps", required_argument, NULL, 'n'},
 			{"suffix", required_argument, NULL, 'x'},
 			{"tle", required_argument, NULL, 't'},
-			{"unit", required_argument, NULL, 'u'},
 			{"verbose", no_argument, NULL, 0},
 			{"version", no_argument, NULL, 'v'},
 			{NULL, no_argument, NULL, 0}
@@ -156,32 +156,18 @@ int main(int argc, char *argv[])
 				}
 				cfg.end = optarg;
 				break;
-			
-			case 'u':
-				/* Interval units */
-				/* Accepted argument values: seconds, minutes, hours, days */
-				if (0 == strcmp("seconds", optarg)) {
-					cfg.unit = seconds;
-				} else if (0 == strcmp("minutes", optarg)) {
-					cfg.unit = minutes;
-				} else if (0 == strcmp("hours", optarg)) {
-					cfg.unit = hours;
-				} else if (0 == strcmp("days", optarg)) {
-					cfg.unit = days;
-				} else {
-					Fail("invalid unit: %s (should be seconds, minutes, hours, or days)\n", optarg);
-				}
-				break;
-			
+						
 			case 'l':
 				/* Interval length */
-				/* Argument format: positive floating point number */
-				if (1 != sscanf(optarg, "%lf", &cfg.interval)) {
-					Fail("cannot parse interval: %s (should be positive number)\n", optarg);
+
+				if (2 != sscanf(optarg, "%lf%c", &cfg.interval, &cfg.unit)) {
+					Fail("cannot parse interval: %s\n", optarg);
 				}
-				if (cfg.interval <= 0.0) {
-					Fail("invalid interval: %s (should be positive number)\n", cfg.interval);
+				
+				if ((cfg.unit != 's') && (cfg.unit != 'm') && (cfg.unit != 'h') && (cfg.unit != 'd')) {
+					Fail("invalid interval unit: %c (should be s, m, h, or d)\n", cfg.unit);
 				}
+				
 				break;
 			
 			case 'n':
@@ -262,7 +248,16 @@ int main(int argc, char *argv[])
 	if (NULL != cfg.end) {
 		cfg.steps = 0;
 	}
-
+	
+	/* Compute step interval in whatever units were specified */
+	switch (cfg.unit) {
+		case 's': interval.AddSeconds(cfg.interval); break;
+		case 'm': interval.AddSeconds(cfg.interval * 60.0); break;
+		case 'h': interval.AddSeconds(cfg.interval * 60.0 * 60.0); break;
+		case 'd': interval.AddSeconds(cfg.interval * 60.0 * 60.0 * 24.0); break;
+	}
+	Note("Step interval: %lf seconds\n", interval.GetTotalSeconds());
+	
 	/* some attributes require an observer station to be defined; check if so */
 	InitAttributeObserver(has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
 
@@ -284,7 +279,7 @@ int main(int argc, char *argv[])
 	
 	/* output a trace for each TLE */
 	while (!tles.empty()) {
-		InitGroundTrace(tles.front(), now, cfg);
+		InitGroundTrace(tles.front(), now, cfg, interval);
 		tles.pop();
 	}
 	

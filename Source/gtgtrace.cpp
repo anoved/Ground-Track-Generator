@@ -90,38 +90,6 @@ Julian InitTime(const char *desc, const Julian& now, const Julian& epoch)
 }
 
 /*
-	InitInterval
-	
-	Parameters:
-		units, type of unit used to specify interval length
-		interval_length, length of each interval in given units
-	
-	Return:
-		A Timespan object initialized to the specified interval
-*/
-Timespan InitInterval(enum interval_unit_type units, double interval_length)
-{
-	Timespan interval;
-	
-	switch (units) {
-		case seconds:
-			interval.AddSeconds(interval_length);
-			break;
-		case minutes:
-			interval.AddSeconds(interval_length * 60.0);
-			break;
-		case hours:
-			interval.AddSeconds(interval_length * 60.0 * 60.0);
-			break;
-		case days:
-			interval.AddSeconds(interval_length * 60 * 60 * 24);
-			break;
-	}
-	
-	return interval;
-}
-
-/*
  * Construct the output filename, minus shapefile file extensions.
  * The general format is: <basepath>/<prefix>rootname<suffix>
  *
@@ -164,21 +132,17 @@ std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& c
  * Do some initialization that may be specific to this track (output start time,
  * name, etc.) and do the main orbit propagation loop, outputting at each step.
  */
-void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfiguration& cfg)
+void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
+		const GTGConfiguration& cfg, const Timespan& interval)
 {
 	int step = 0;
 	Julian time, endtime;
-	Timespan interval;
 	Eci eci(now, 0, 0, 0);
 	
 	/* for line output mode */
 	Eci prevEci(eci);
 	int prevSet = 0;
-	
-	/* Initialize the step interval */
-	interval = InitInterval(cfg.unit, cfg.interval);
-	Note("Step interval: %lf seconds\n", interval.GetTotalSeconds());
-	
+		
 	/* Initialize the starting timestamp; default to epoch */
 	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle.Epoch());
 	Note("Start time: %s\n", time.ToString().c_str());
@@ -259,11 +223,12 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
  * Create an SGP4 model for the specified satellite two-line element set
  * and start generating its ground track.
  */
-void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration &cfg)
+void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration &cfg,
+		const Timespan& interval)
 {
 	try {
 		SGP4 model(tle);
-		GenerateGroundTrack(tle, model, now, cfg);
+		GenerateGroundTrack(tle, model, now, cfg, interval);
 	} catch (SatelliteException &e) {
 		Fail("cannot initialize satellite model: %s\n", e.what());
 	}

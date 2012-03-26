@@ -5,13 +5,6 @@
 #define _GTG_PROGRAM_ "gtg"
 #define _GTG_VERSION_ "0.1"
 
-enum interval_unit_type {
-	seconds,
-	minutes,
-	hours,
-	days
-};
-
 enum output_feature_type {
 	point,
 	line
@@ -20,7 +13,7 @@ enum output_feature_type {
 typedef struct configuration {
 	char *start;
 	char *end;
-	enum interval_unit_type unit;
+	char unit;
 	double interval;
 	int steps;
 	char *basepath;
