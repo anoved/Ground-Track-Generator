@@ -20,23 +20,23 @@ typedef struct attribute_options {
 } GTGAttributes;
 
 GTGAttributes attribute_options[] = {
-		{"altitude", FTDouble, 20, 6},  // geodetic alt of sat (km)
-		{"velocity", FTDouble, 20, 6},  // magnitude of sat velocity (km/s)
+		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
+		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
-		{"latitude", FTDouble, 20, 6},  // geodetic lat of sat
-		{"longitude", FTDouble, 20, 6}, // geodetic lon of sat
-		{"xposition", FTDouble, 20, 6}, // ECI x (km)
-		{"yposition", FTDouble, 20, 6}, // ECI y (km)
-		{"zposition", FTDouble, 20, 6}, // ECI z (km)
-		{"xvelocity", FTDouble, 20, 6}, // ECI x velocity (km/s)
-		{"yvelocity", FTDouble, 20, 6}, // ECI y velocity (km/s)
-		{"zvelocity", FTDouble, 20, 6}, // ECI z velocity (km/s)
+		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
+		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
+		{"xposition", FTDouble, 20, 9}, // ECI x (km)
+		{"yposition", FTDouble, 20, 9}, // ECI y (km)
+		{"zposition", FTDouble, 20, 9}, // ECI z (km)
+		{"xvelocity", FTDouble, 20, 9}, // ECI x velocity (km/s)
+		{"yvelocity", FTDouble, 20, 9}, // ECI y velocity (km/s)
+		{"zvelocity", FTDouble, 20, 9}, // ECI z velocity (km/s)
 		
-		{"range", FTDouble, 30, 6},     // range (km) to observer
-		{"rate", FTDouble, 20, 6},      // range rate (km/s) to observer
-		{"elevation", FTDouble, 20, 6}, // elevation of sat from obs station
-		{"azimuth", FTDouble, 20, 6}    // azimuth of sat from obs station
+		{"range", FTDouble, 20, 9},     // range (km) to observer
+		{"rate", FTDouble, 20, 9},      // range rate (km/s) to observer
+		{"elevation", FTDouble, 20, 9}, // elevation of sat from obs station
+		{"azimuth", FTDouble, 20, 9}    // azimuth of sat from obs station
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -149,6 +149,10 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 	Note("Attributes:\n\tFID: %d\n", index);
 	DBFWriteIntegerAttribute(dbf, index, 0, index);
 	
+	/* (Consider pre-calculating certain values used in multiple attributes,
+	   such as loc.GetDate(), loc.GetPosition(), loc.GetVelocity(), and GetLookAngle(),
+	   to avoid redundancy in the case where multiple of them are enabled. */
+	
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		
 		/* skip disabled attributes */
@@ -167,12 +171,21 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 			}
 			Note("\t%s: %s\n", attribute_options[attr].name, s);
 			DBFWriteStringAttribute(dbf, index, attribute_field[attr], s);
-		} else {
+		} else if (FTInteger == attribute_options[attr].type) {
+			long n;
+			switch (attr) {
+				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDate().ToTime()); break;
+				default:
+					Fail("unhandled integer attribute id: %d\n", attr);
+					break;
+			}
+			Note("\t%s: %ld\n", attribute_options[attr].name, n);
+			DBFWriteIntegerAttribute(dbf, index, attribute_field[attr], n);
+		} else if (FTDouble == attribute_options[attr].type) {
 			double n;
 			switch (attr) {
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
 				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
-				case ATTR_TIMEUNIX:      n = (double)(loc.GetDate().ToTime()); break;
 				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;
 				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
 				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
@@ -186,11 +199,13 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation); break;
 				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth); break;
 				default:
-					Fail("unhandled numeric attribute id: %d\n", attr);
+					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;
 			}
-			Note("\t%s: %lf\n", attribute_options[attr].name, n);
+			Note("\t%s: %.9lf\n", attribute_options[attr].name, n);
 			DBFWriteDoubleAttribute(dbf, index, attribute_field[attr], n);
+		} else {
+			Fail("unhandled attribute type: %d\n", attribute_options[attr].type);
 		}
 	}
 }
