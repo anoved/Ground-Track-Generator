@@ -17,7 +17,7 @@ class ShapefileWriter
 {
 public:
 
-	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj);
+	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj, const Julian& epoch);
 	
 	~ShapefileWriter()
 	{

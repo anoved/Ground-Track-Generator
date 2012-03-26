@@ -205,7 +205,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now, const GTGConfigurat
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
 	Note("Output basepath: %s\n", basepath.c_str());
-	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
+	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj, tle.Epoch());
 		
 	while (1) {
 		

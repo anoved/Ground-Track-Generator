@@ -22,7 +22,7 @@
  * by features argument) and attribute table at basepath.
  * Creates projection file if create_prj true.
  */
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj, const Julian& epoch)
 {
 	switch (features) {
 		case point:
@@ -50,7 +50,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 		Fail("cannot create step index attribute field\n");
 	}
 	
-	initAttributes(dbf_);
+	initAttributes(dbf_, epoch);
 	
 	if (create_prj) {
 		CreateWGS72prj(basepath);
