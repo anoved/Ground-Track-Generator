@@ -6,7 +6,7 @@ A utility to write satellite ground tracks as GIS-compatible [shapefiles](https:
 
 ## Features
 
-Ground Track Generator can represent each step of the ground track as points or line segments. The step size is determined by a user-specified time interval. The extent of the ground track is controlled by a start time (absolute or relative to the TLE epoch) and either an end time or a step count. A variety of attributes can be output for each step, including elevation and azimuth as viewed from an optionally-specified ground observer.
+Ground Track Generator can represent each step of the ground track as points or line segments. The step size is determined by a user-specified time interval. The extent of the ground track is controlled by a start time (absolute or relative to the TLE epoch) and either an end time or a step count. A variety of attributes can be output for each step, including elevation and azimuth as viewed from an optionally-specified ground observer. Here, intervals of an orbit with positive elevation as viewed from the northeast US are symbolized with increasingly large circles:
 
 ![trace with observer attributes](https://github.com/anoved/Ground-Track-Generator/raw/master/test/elevation-trace.png)
 
