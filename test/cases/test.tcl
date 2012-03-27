@@ -1,9 +1,13 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.5
 
+set compf [open composite.txt w]
+
 set testdir [pwd]
 
 proc reformatresults {inpath outpath} {
+	
+	global compf
 	
 	# read inpath file contents
 	set f [open $inpath]
@@ -20,9 +24,13 @@ proc reformatresults {inpath outpath} {
 	set o [open $outpath w]
 	foreach line $lines {
 		foreach {fid date time utc mfe xpos ypos zpos xvel yvel zvel} $line {}
-		puts $o [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
+		set rec [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
+		
+		puts $o $rec
+		puts $compf $rec
 	}
 	
+	puts $compf ""
 	close $o
 }
 
@@ -72,13 +80,16 @@ foreach test $tests  {
 	
 	cd $id
 	
+	if {[catch {exec rm -f $id.log $id.dbf.txt $id.dbf.txt} err]} {
+		puts "$id: $err"
+	}
+		
 	if {[catch {exec ../../../gtg \
 		--input $id.tle \
 		--output $id \
 		--attributes time mfe xposition yposition zposition xvelocity yvelocity zvelocity \
 		--start $start \
 		--end $end \
-		--forceend \
 		--interval $interval \
 		--verbose > $id.log} err]} {
 		puts "$id: $err"
@@ -88,8 +99,11 @@ foreach test $tests  {
 		puts "$id: error"
 	}
 	
+	puts $compf $id
+	
 	if {[catch {reformatresults $id.dbf.txt $id.txt} err]} {
 		puts "$id: error"
 	}
 	
 }
+close $compf
