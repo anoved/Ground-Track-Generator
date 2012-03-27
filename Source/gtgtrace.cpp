@@ -140,18 +140,29 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	Eci eci(now, 0, 0, 0);
 	bool stop = false;
 	
+	double minutes;
+	double startMFE;
+	double endMFE;
+	double intervalMinutes;
+	
+	intervalMinutes = interval.GetTotalMinutes();
+	
 	/* for line output mode */
 	Eci prevEci(eci);
 	int prevSet = 0;
 		
 	/* Initialize the starting timestamp; default to epoch */
 	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle.Epoch());
+	startMFE = (time - tle.Epoch()).GetTotalMinutes();
+	
 	Note("Start time: %s\n", time.ToString().c_str());
-
+	Note("Start MFE: %.9lf\n", startMFE);
+	
 	/* Initialize the ending timestamp, if needed */
 	if (NULL != cfg.end) {
 		
 		endtime = InitTime(cfg.end, now, tle.Epoch());
+		endMFE = (endtime - tle.Epoch()).GetTotalMinutes();
 		
 		/* Sanity check 1 */
 		if (time >= endtime) {
@@ -164,19 +175,23 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		}
 			
 		Note("End time: %s\n", endtime.ToString().c_str());
+		Note("End MFE: %.9lf\n", endMFE);
 	}
 	
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
 	Note("Output basepath: %s\n", basepath.c_str());
-	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj, tle.Epoch());
-		
+	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
+	
+	minutes = startMFE;
+	
 	while (1) {
 		
 		/* where is the satellite now? */
 		try {
-			eci = model.FindPosition(time);
+			//eci = model.FindPosition(time);
+			eci = model.FindPosition(minutes);
 		} catch (SatelliteException &e) {
 			Note("satellite exception (stopping at step %d): %s\n", step, e.what());
 			break;
@@ -187,7 +202,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		
 		if (line == cfg.features) {
 			if (prevSet) {
-				shout.output(&prevEci, &eci, cfg.split);
+				shout.output(minutes, &prevEci, &eci, cfg.split);
 				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
@@ -200,23 +215,26 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 			
 		} else {
 		
-			shout.output(&eci);
+			shout.output(minutes, &eci);
 			
 			step++;
 		}
 		
 		/* increment time interval */
-		time += interval;
+		//time += interval;
+		minutes += intervalMinutes;
+		Note("new minutes: %.9lf\n", minutes);
 		
 		/* stop ground track once we've exceeded step count or end time */
 		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
-		} else if ((NULL != cfg.end) && (time >= endtime)) {
+		} else if ((NULL != cfg.end) && /*(time >= endtime)*/ (minutes > endMFE) ) {
 			if (!cfg.forceend or stop) {
 				break;
 			} else {
 				/* force output of the exact end time, then stop next time */
-				time = endtime;
+				//time = endtime;
+				minutes = endMFE;
 				stop = true;
 			}
 		}

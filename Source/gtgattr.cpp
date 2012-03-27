@@ -24,7 +24,7 @@ GTGAttributes attribute_options[] = {
 		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
-		{"mfe", FTDouble, 20, 9},       // minutes from epoch (time to TLE)
+		{"mfe", FTDouble, 20, 8},       // minutes from epoch (time to TLE)
 		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
 		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
 		{"xposition", FTDouble, 20, 8}, // ECI x (km)
@@ -47,9 +47,6 @@ bool attribute_flags[ATTR_COUNT];
 int attribute_field[ATTR_COUNT];
 
 Observer *attribute_observer = NULL;
-
-/* updated by initAttributes for each TLE processed */
-Julian attribute_epoch;
 
 /*
  * If observer_specified, create ground attribute_observer at lat/lon/alt.
@@ -128,10 +125,9 @@ bool EnableAttribute(const char *desc)
  * Create output attribute table fields for each attribute that is enabled.
  * Remember the actual index of each attribute table field.
  */
-void initAttributes(DBFHandle dbf, const Julian& epoch)
+void initAttributes(DBFHandle dbf)
 {
 	int field;
-	attribute_epoch = epoch;
 	for (int attr = 0; attr < ATTR_COUNT; attr++) {
 		if (attribute_flags[attr]) {
 			field = DBFAddField(dbf, attribute_options[attr].name, 
@@ -149,7 +145,7 @@ void initAttributes(DBFHandle dbf, const Julian& epoch)
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
  */
-void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
+void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, double mfe)
 {
 	Note("Attributes:\n\tFID: %d\n", index);
 	DBFWriteIntegerAttribute(dbf, index, 0, index);
@@ -189,7 +185,7 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo)
 		} else if (FTDouble == attribute_options[attr].type) {
 			double n;
 			switch (attr) {
-				case ATTR_TIMEMFE:       n = (loc.GetDate() - attribute_epoch).GetTotalMinutes(); break;
+				case ATTR_TIMEMFE:       n = mfe; break;
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
 				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
 				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;

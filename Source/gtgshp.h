@@ -17,13 +17,13 @@ class ShapefileWriter
 {
 public:
 
-	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj, const Julian& epoch);
+	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj);
 	
 	~ShapefileWriter()
 	{
 	}
 	
-	int output(Eci *loc, Eci *nextloc = NULL, bool split = false);
+	int output(double mfe, Eci *loc, Eci *nextloc = NULL, bool split = false);
 		
 	void close(void);
 

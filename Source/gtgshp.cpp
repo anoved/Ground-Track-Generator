@@ -22,7 +22,7 @@
  * by features argument) and attribute table at basepath.
  * Creates projection file if create_prj true.
  */
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj, const Julian& epoch)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj)
 {
 	switch (features) {
 		case point:
@@ -50,7 +50,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 		Fail("cannot create step index attribute field\n");
 	}
 	
-	initAttributes(dbf_, epoch);
+	initAttributes(dbf_);
 	
 	if (create_prj) {
 		CreateWGS72prj(basepath);
@@ -199,7 +199,7 @@ SHPObject* ShapefileWriter::splitSegment(
  * is true, then line features that cross the dateline will be split into east
  * and west hemisphere segments. Attributes for loc are also output.
  */
-int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
+int ShapefileWriter::output(double mfe, Eci *loc, Eci *nextloc, bool split)
 {
 	CoordGeodetic locg(loc->ToGeodetic());
 	double latitude[2];
@@ -243,7 +243,7 @@ int ShapefileWriter::output(Eci *loc, Eci *nextloc, bool split)
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	outputAttributes(dbf_, index, *loc, locg);
+	outputAttributes(dbf_, index, *loc, locg, mfe);
 
 	return index;
 }
