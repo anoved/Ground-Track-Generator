@@ -1,5 +1,0 @@
-Step interval: 60.000000 seconds
-Start time: 2006-06-23 20:35:47.504559 UTC
-End time: 2006-06-24 20:35:47.504559 UTC
-Output basepath: 31
-satellite exception (stopping at step 0): Error: (e <= -0.001)
