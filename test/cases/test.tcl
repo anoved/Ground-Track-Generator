@@ -72,7 +72,7 @@ foreach test $tests  {
 	
 	cd $id
 	
-	exec ../../../gtg \
+	if {[catch {exec ../../../gtg \
 		--input $id.tle \
 		--output $id \
 		--attributes time mfe xposition yposition zposition xvelocity yvelocity zvelocity \
@@ -80,12 +80,16 @@ foreach test $tests  {
 		--end $end \
 		--forceend \
 		--interval $interval \
-		--verbose > $id.log
+		--verbose > $id.log} err]} {
+		puts "$id: $err"
+	}
 	
-	exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt
+	if {[catch {exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt} err]} {
+		puts "$id: error"
+	}
 	
-	if {[catch {reformatresults $id.dbf.txt $id.txt}]} {
-		puts "Could not process $id"
+	if {[catch {reformatresults $id.dbf.txt $id.txt} err]} {
+		puts "$id: error"
 	}
 	
 }
