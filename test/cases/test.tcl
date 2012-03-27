@@ -3,6 +3,28 @@ package require Tcl 8.5
 
 set testdir [pwd]
 
+proc reformatresults {inpath outpath} {
+	
+	# read inpath file contents
+	set f [open $inpath]
+	set fc [read $f]
+	close $f
+	
+	# convert file contents to list of lines
+	set lines [split $fc \n]
+	
+	# skip header line
+	set lines [lreplace $lines 0 0]
+	
+	
+	set o [open $outpath w]
+	foreach line $lines {
+		foreach {fid date time utc mfe xpos ypos zpos xvel yvel zvel} $line {}
+		puts $o [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
+	}
+	close $o
+}
+
 # test number, start time, end time, and interval
 # based on Appendix D - Test Case Listing - of "Revisiting Spacetrack Report 3"
 set tests {
@@ -59,6 +81,10 @@ foreach test $tests  {
 		--interval $interval \
 		--verbose > $id.log
 	
-	exec /usr/local/bin/dbfdump $id.dbf > $id.txt
+	exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt
+	
+	if {[catch {reformatresults $id.dbf.txt $id.txt}]} {
+		puts "Could not process $id"
+	}
 	
 }
