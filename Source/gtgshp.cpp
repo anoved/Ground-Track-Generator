@@ -46,7 +46,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	}
 	
 	/* step id field. (helps ensure valid dbf if no other attrs specified) */
-	if (0 != DBFAddField(dbf_, "FID", FTInteger, 20, 0)) {
+	if (0 != DBFAddField(dbf_, "FID", FTInteger, 10, 0)) {
 		Fail("cannot create step index attribute field\n");
 	}
 	
