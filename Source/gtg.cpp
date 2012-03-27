@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 		case 'h': interval.AddSeconds(cfg.interval * 60.0 * 60.0); break;
 		case 'd': interval.AddSeconds(cfg.interval * 60.0 * 60.0 * 24.0); break;
 	}
-	Note("Step interval: %lf seconds\n", interval.GetTotalSeconds());
+	Note("Step interval: %.9lf seconds\n", interval.GetTotalSeconds());
 	
 	/* some attributes require an observer station to be defined; check if so */
 	InitAttributeObserver(has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
