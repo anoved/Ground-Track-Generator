@@ -7,7 +7,7 @@ proc reformatresults {inpath outpath} {
 	
 	# read inpath file contents
 	set f [open $inpath]
-	set fc [read $f]
+	set fc [read -nonewline $f]
 	close $f
 	
 	# convert file contents to list of lines
@@ -22,6 +22,7 @@ proc reformatresults {inpath outpath} {
 		foreach {fid date time utc mfe xpos ypos zpos xvel yvel zvel} $line {}
 		puts $o [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
 	}
+	
 	close $o
 }
 
@@ -56,7 +57,7 @@ set tests {
 	{26 epoch epoch+60m 5m}
 	{27 epoch epoch+440m 20m}
 	{28 epoch epoch+1440m 120m}
-	{29 epoch epoch+1440m 360m}
+	{29 epoch epoch+1440m 120m}
 	{30 epoch epoch+150m 5m}
 	{31 epoch epoch+1440m 1m}
 	{32 epoch epoch+1440m 20m}
