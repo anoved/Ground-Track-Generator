@@ -114,11 +114,15 @@ void ShowHelp(void)
 	printf("    	offset unit (seconds, minutes, hours, or days, respectively).\n");
 	printf("    \n");
 	printf("    --end/e now | epoch | TIME | UNIXTIME\n");
-	printf("        If specified, trace is output from --start to --end time. If not\n");
-	printf("        specified, trace is output for the specified number of --steps.\n");
+	printf("        If specified, trace is output from --start to no later than --end. If\n");
+	printf("        not specified, trace is output for the specified number of --steps.\n");
 	printf("        Arguments interpreted the same as --start. Must be later than that\n");
 	printf("        --start time. Interval between --start and --end must be greater than\n");
 	printf("        the step interval defined by --interval and --unit.\n");
+	printf("    \n");
+	printf("    --forceend\n");
+	printf("    	Causes a final feature to be output exactly at --end time, regardless of\n");
+	printf("    	interval. Has no effect if --end is not specified.\n");
 	printf("    \n");
 	printf("    --features/-f point | line\n");
 	printf("        Specify whether to output points (default) or line segment features for\n");

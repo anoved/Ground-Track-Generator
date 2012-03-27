@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	/* Initialize default configuration */
 	cfg.start = NULL; /* NULL start implies epoch start time */
 	cfg.end = NULL;
+	cfg.forceend = 0;
 	cfg.unit = 'm';
 	cfg.interval = 1.0;
 	cfg.steps = 100;
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
 	const struct option longOpts[] = {
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
+			{"forceend", no_argument, &cfg.forceend, 1},
 			{"features", required_argument, NULL, 'f'},
 			{"help", no_argument, NULL, '?'},
 			{"input", required_argument, NULL, 'i'},

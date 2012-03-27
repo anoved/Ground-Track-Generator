@@ -48,11 +48,15 @@ OPTIONS:
     	offset unit (seconds, minutes, hours, or days, respectively).
     
     --end/e now | epoch | TIME | UNIXTIME
-        If specified, trace is output from --start to --end time. If not
-        specified, trace is output for the specified number of --steps.
+        If specified, trace is output from --start to no later than --end. If
+        not specified, trace is output for the specified number of --steps.
         Arguments interpreted the same as --start. Must be later than that
         --start time. Interval between --start and --end must be greater than
         the step interval defined by --interval and --unit.
+    
+    --forceend
+    	Causes a final feature to be output exactly at --end time, regardless of
+    	interval. Has no effect if --end is not specified.
     
     --features/-f point | line
         Specify whether to output points (default) or line segment features for

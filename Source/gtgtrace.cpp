@@ -138,6 +138,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	int step = 0;
 	Julian time, endtime;
 	Eci eci(now, 0, 0, 0);
+	bool stop = false;
 	
 	/* for line output mode */
 	Eci prevEci(eci);
@@ -210,8 +211,14 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		/* stop ground track once we've exceeded step count or end time */
 		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
-		} else if ((NULL != cfg.end) && (time > endtime)) {
-			break;
+		} else if ((NULL != cfg.end) && (time >= endtime)) {
+			if (!cfg.forceend or stop) {
+				break;
+			} else {
+				/* force output of the exact end time, then stop next time */
+				time = endtime;
+				stop = true;
+			}
 		}
 		
 	}

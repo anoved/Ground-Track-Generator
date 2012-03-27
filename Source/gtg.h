@@ -13,6 +13,7 @@ enum output_feature_type {
 typedef struct configuration {
 	char *start;
 	char *end;
+	int forceend;
 	char unit;
 	double interval;
 	int steps;
