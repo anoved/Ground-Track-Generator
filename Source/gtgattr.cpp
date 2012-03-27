@@ -27,9 +27,9 @@ GTGAttributes attribute_options[] = {
 		{"mfe", FTDouble, 20, 9},       // minutes from epoch (time to TLE)
 		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
 		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
-		{"xposition", FTDouble, 20, 9}, // ECI x (km)
-		{"yposition", FTDouble, 20, 9}, // ECI y (km)
-		{"zposition", FTDouble, 20, 9}, // ECI z (km)
+		{"xposition", FTDouble, 20, 8}, // ECI x (km)
+		{"yposition", FTDouble, 20, 8}, // ECI y (km)
+		{"zposition", FTDouble, 20, 8}, // ECI z (km)
 		{"xvelocity", FTDouble, 20, 9}, // ECI x velocity (km/s)
 		{"yvelocity", FTDouble, 20, 9}, // ECI y velocity (km/s)
 		{"zvelocity", FTDouble, 20, 9}, // ECI z velocity (km/s)
