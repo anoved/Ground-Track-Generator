@@ -1,0 +1,64 @@
+Step interval: 21600.000000 seconds
+Start time: 1980-08-17 07:06:40.136822 UTC
+End time: 1980-08-18 07:06:40.136822 UTC
+Output basepath: 07
+Latitude: 38.031547
+Longitude: -69.201338
+Attributes:
+	FID: 0
+	time: 1980-08-17 07:06:40.136822 UTC
+	mfe: 0.000000000
+	xposition: 7473.371024914
+	yposition: 428.947483124
+	zposition: 5828.748467827
+	xvelocity: 5.107155391
+	yvelocity: 6.444680305
+	zvelocity: -0.186133297
+Latitude: -37.193586
+Longitude: -66.909909
+Attributes:
+	FID: 1
+	time: 1980-08-17 13:06:40.136822 UTC
+	mfe: 360.000000000
+	xposition: -3305.221486939
+	yposition: 32410.843233313
+	zposition: -24697.169749545
+	xvelocity: -1.301137319
+	yvelocity: -1.151315600
+	zvelocity: -0.283335823
+Latitude: -9.588193
+Longitude: 166.398997
+Attributes:
+	FID: 2
+	time: 1980-08-17 19:06:40.136822 UTC
+	mfe: 720.000000000
+	xposition: 14271.290838582
+	yposition: 24110.443090094
+	zposition: -4725.763201432
+	xvelocity: -0.320504528
+	yvelocity: 2.679841539
+	zvelocity: -2.084054355
+Latitude: -43.616419
+Longitude: 130.512156
+Attributes:
+	FID: 3
+	time: 1980-08-18 01:06:40.136822 UTC
+	mfe: 1080.000000000
+	xposition: -9990.058000094
+	yposition: 22717.342124476
+	zposition: -23616.885155533
+	xvelocity: -1.016674392
+	yvelocity: -2.290267981
+	zvelocity: 0.728923337
+Latitude: -23.179262
+Longitude: 0.356782
+Attributes:
+	FID: 4
+	time: 1980-08-18 07:06:40.136822 UTC
+	mfe: 1440.000000000
+	xposition: 9787.878362555
+	yposition: 33753.322496668
+	zposition: -15030.798746254
+	xvelocity: -1.094251553
+	yvelocity: 0.923589906
+	zvelocity: -1.522311008

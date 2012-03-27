@@ -1,0 +1,304 @@
+Step interval: 7200.000000 seconds
+Start time: 2006-06-25 13:25:05.468465 UTC
+End time: 2006-06-27 13:25:05.468465 UTC
+Output basepath: 13
+Latitude: 0.003246
+Longitude: -120.423843
+Attributes:
+	FID: 0
+	time: 2006-06-25 13:25:05.468465 UTC
+	mfe: 0.000000000
+	xposition: 14712.220232803
+	yposition: -1443.810618505
+	zposition: 0.834978880
+	xvelocity: 4.418965470
+	yvelocity: 1.629592098
+	zvelocity: 4.115531802
+Latitude: 41.117950
+Longitude: -124.720415
+Attributes:
+	FID: 1
+	time: 2006-06-25 15:25:05.468479 UTC
+	mfe: 120.000000224
+	xposition: 25418.888079296
+	yposition: 9342.603096148
+	zposition: 23611.466940552
+	xvelocity: 0.051284083
+	yvelocity: 1.213127305
+	zvelocity: 2.429004156
+Latitude: 53.486524
+Longitude: -138.265355
+Attributes:
+	FID: 2
+	time: 2006-06-25 17:25:05.468492 UTC
+	mfe: 240.000000447
+	xposition: 21619.595481658
+	yposition: 16125.249807016
+	zposition: 36396.793689891
+	xvelocity: -0.963604382
+	yvelocity: 0.685454963
+	zvelocity: 1.177181933
+Latitude: 60.583922
+Longitude: -148.512129
+Attributes:
+	FID: 3
+	time: 2006-06-25 19:25:05.468506 UTC
+	mfe: 360.000000671
+	xposition: 12721.505374685
+	yposition: 19258.961940848
+	zposition: 40898.476486466
+	xvelocity: -1.457448567
+	yvelocity: 0.179955466
+	zvelocity: 0.071502595
+Latitude: 63.483518
+Longitude: -149.092122
+Attributes:
+	FID: 4
+	time: 2006-06-25 21:25:05.468519 UTC
+	mfe: 480.000000894
+	xposition: 1272.807510708
+	yposition: 18458.419695561
+	zposition: 37044.747362531
+	xvelocity: -1.674863386
+	yvelocity: -0.436454989
+	zvelocity: -1.201041001
+Latitude: 54.404244
+Longitude: -135.039286
+Attributes:
+	FID: 5
+	time: 2006-06-25 23:25:05.468532 UTC
+	mfe: 600.000001118
+	xposition: -10058.431969720
+	yposition: 11906.607541026
+	zposition: 21739.620754409
+	xvelocity: -1.245829669
+	yvelocity: -1.543789142
+	zvelocity: -3.324449251
+Latitude: -14.809548
+Longitude: 51.440354
+Attributes:
+	FID: 6
+	time: 2006-06-26 01:25:05.468546 UTC
+	mfe: 720.000001341
+	xposition: 10924.401653259
+	yposition: -2571.924033040
+	zposition: -2956.348249257
+	xvelocity: 6.071727527
+	yvelocity: 1.349579155
+	zvelocity: 3.898430321
+Latitude: 39.257462
+Longitude: 52.949090
+Attributes:
+	FID: 7
+	time: 2006-06-26 03:25:05.468559 UTC
+	mfe: 840.000001565
+	xposition: 25332.148536143
+	yposition: 8398.911118625
+	zposition: 21783.906785822
+	xvelocity: 0.222320730
+	yvelocity: 1.272214298
+	zvelocity: 2.580527172
+Latitude: 52.548689
+Longitude: 39.433890
+Attributes:
+	FID: 8
+	time: 2006-06-26 05:25:05.468573 UTC
+	mfe: 960.000001788
+	xposition: 22317.719164651
+	yposition: 15574.820940346
+	zposition: 35495.771579518
+	xvelocity: -0.892750067
+	yvelocity: 0.737383374
+	zvelocity: 1.291738817
+Latitude: 60.028701
+Longitude: 28.585788
+Attributes:
+	FID: 9
+	time: 2006-06-26 07:25:05.468586 UTC
+	mfe: 1080.000002012
+	xposition: 13795.686587474
+	yposition: 19088.830538484
+	zposition: 40803.695866245
+	xvelocity: -1.420277675
+	yvelocity: 0.235599447
+	zvelocity: 0.185517037
+Latitude: 63.479509
+Longitude: 26.718120
+Attributes:
+	FID: 10
+	time: 2006-06-26 09:25:05.468599 UTC
+	mfe: 1200.000002235
+	xposition: 2515.171226831
+	yposition: 18746.637714481
+	zposition: 37864.580745160
+	xvelocity: -1.668016055
+	yvelocity: -0.360431472
+	zvelocity: -1.052854622
+Latitude: 56.655353
+Longitude: 39.259616
+Attributes:
+	FID: 11
+	time: 2006-06-26 11:25:05.468613 UTC
+	mfe: 1320.000002459
+	xposition: -9084.486224320
+	yposition: 12982.625883905
+	zposition: 24045.638557857
+	xvelocity: -1.378032341
+	yvelocity: -1.373184768
+	zvelocity: -3.013963895
+Latitude: -39.833213
+Longitude: -146.059654
+Attributes:
+	FID: 12
+	time: 2006-06-26 13:25:05.468626 UTC
+	mfe: 1440.000002682
+	xposition: 5647.010464291
+	yposition: -3293.905120157
+	zposition: -5425.851941524
+	xvelocity: 8.507976585
+	yvelocity: 0.414561141
+	zvelocity: 2.543323373
+Latitude: 37.194806
+Longitude: -129.440995
+Attributes:
+	FID: 13
+	time: 2006-06-26 15:25:05.468640 UTC
+	mfe: 1560.000002906
+	xposition: 25111.633794761
+	yposition: 7412.551327039
+	zposition: 19844.258294864
+	xvelocity: 0.416496240
+	yvelocity: 1.332105991
+	zvelocity: 2.739301698
+Latitude: 51.559999
+Longitude: -142.838519
+Attributes:
+	FID: 14
+	time: 2006-06-26 17:25:05.468653 UTC
+	mfe: 1680.000003129
+	xposition: 22961.474463142
+	yposition: 14985.744743895
+	zposition: 34511.092838165
+	xvelocity: -0.816711068
+	yvelocity: 0.789391094
+	zvelocity: 1.407901774
+Latitude: 59.437231
+Longitude: -154.225684
+Attributes:
+	FID: 15
+	time: 2006-06-26 19:25:05.468667 UTC
+	mfe: 1800.000003353
+	xposition: 14841.152736963
+	yposition: 18876.914457021
+	zposition: 40626.259076212
+	xvelocity: -1.380403352
+	yvelocity: 0.290228795
+	zvelocity: 0.298258089
+Latitude: 63.390509
+Longitude: -157.312364
+Attributes:
+	FID: 16
+	time: 2006-06-26 21:25:05.468680 UTC
+	mfe: 1920.000003576
+	xposition: 3750.701385334
+	yposition: 18978.579335179
+	zposition: 38578.117636757
+	xvelocity: -1.656939416
+	yvelocity: -0.287930901
+	zvelocity: -0.910825640
+Latitude: 58.425494
+Longitude: -146.279143
+Attributes:
+	FID: 17
+	time: 2006-06-26 23:25:05.468693 UTC
+	mfe: 2040.000003800
+	xposition: -8027.302530997
+	yposition: 13939.544090814
+	zposition: 26136.489832312
+	xvelocity: -1.474476036
+	yvelocity: -1.222693668
+	zvelocity: -2.737178814
+Latitude: -62.331024
+Longitude: -51.044470
+Attributes:
+	FID: 18
+	time: 2006-06-27 01:25:05.468707 UTC
+	mfe: 2160.000004023
+	xposition: -1296.954185781
+	yposition: -2813.694175216
+	zposition: -5871.096336397
+	xvelocity: 9.881929797
+	yvelocity: -1.978466282
+	zvelocity: -1.922259075
+Latitude: 34.882739
+Longitude: 48.089116
+Attributes:
+	FID: 19
+	time: 2006-06-27 03:25:05.468720 UTC
+	mfe: 2280.000004247
+	xposition: 24738.603811214
+	yposition: 6383.416794906
+	zposition: 17787.277059525
+	xvelocity: 0.639556868
+	yvelocity: 1.392554358
+	zvelocity: 2.906206264
+Latitude: 50.515529
+Longitude: 34.911859
+Attributes:
+	FID: 20
+	time: 2006-06-27 05:25:05.468734 UTC
+	mfe: 2400.000004470
+	xposition: 23546.853689682
+	yposition: 14358.156253901
+	zposition: 33441.677204128
+	xvelocity: -0.734895037
+	yvelocity: 0.841564833
+	zvelocity: 1.526009865
+Latitude: 58.810313
+Longitude: 23.046229
+Attributes:
+	FID: 21
+	time: 2006-06-27 07:25:05.468747 UTC
+	mfe: 2520.000004694
+	xposition: 15855.876586389
+	yposition: 18624.056432589
+	zposition: 40367.134321236
+	xvelocity: -1.337753563
+	yvelocity: 0.343969502
+	zvelocity: 0.410018429
+Latitude: 63.226608
+Longitude: 18.811866
+Attributes:
+	FID: 22
+	time: 2006-06-27 09:25:05.468760 UTC
+	mfe: 2640.000004917
+	xposition: 4976.448851519
+	yposition: 19156.754975916
+	zposition: 39189.685803431
+	xvelocity: -1.642084371
+	yvelocity: -0.218525123
+	zvelocity: -0.774148258
+Latitude: 59.820322
+Longitude: 28.331032
+Attributes:
+	FID: 23
+	time: 2006-06-27 11:25:05.468774 UTC
+	mfe: 2760.000005141
+	xposition: -6909.207938633
+	yposition: 14790.446734820
+	zposition: 28034.466554924
+	xvelocity: -1.545152585
+	yvelocity: -1.088119577
+	zvelocity: -2.487447315
+Latitude: -20.417466
+Longitude: 67.920623
+Attributes:
+	FID: 24
+	time: 2006-06-27 13:25:05.468465 UTC
+	mfe: 2880.000000000
+	xposition: -7331.650067069
+	yposition: -604.173234186
+	zposition: -2723.510145755
+	xvelocity: 6.168997265
+	yvelocity: -3.634011554
+	zvelocity: -5.963531682

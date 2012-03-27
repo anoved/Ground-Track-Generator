@@ -1,0 +1,4 @@
+#                       # try to check error code 3 looks like ep never goes below zero, tied close to ecc
+0 1440 20
+1 33335U 05008A   06176.46683397 -.00000205  00000-0  10000-3 0  2190
+2 33335   0.0019 286.9433 0000004  13.7918  55.6504  1.00270176  4891

@@ -1,0 +1,40 @@
+Step interval: 3600.000000 seconds
+Start time: 2006-04-23 04:52:50.805439 UTC
+End time: 2006-04-23 06:32:50.805444 UTC
+Output basepath: 19
+Latitude: 0.016124
+Longitude: 62.095638
+Attributes:
+	FID: 0
+	time: 2006-04-23 04:52:50.805439 UTC
+	mfe: 9300.000000224
+	xposition: 40968.681342671
+	yposition: -9905.991520769
+	zposition: 11.849468369
+	xvelocity: 0.722756845
+	yvelocity: 2.989645390
+	zvelocity: -0.000161261
+Latitude: 0.014743
+Longitude: 62.106198
+Attributes:
+	FID: 1
+	time: 2006-04-23 05:52:50.805426 UTC
+	mfe: 9360.000000000
+	xposition: 42135.668584813
+	yposition: 1072.991956181
+	zposition: 10.834817523
+	xvelocity: -0.078150602
+	yvelocity: 3.074772455
+	zvelocity: -0.000380063
+Latitude: 0.013253
+Longitude: 62.113069
+Attributes:
+	FID: 2
+	time: 2006-04-23 06:32:50.805444 UTC
+	mfe: 9400.000000298
+	xposition: 41304.751550372
+	yposition: 8398.277483334
+	zposition: 9.740062128
+	xvelocity: -0.612515139
+	yvelocity: 3.014117469
+	zvelocity: -0.000511575

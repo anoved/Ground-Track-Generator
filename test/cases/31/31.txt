@@ -1,0 +1,1 @@
+       FID time                                             mfe            xposition            yposition            zposition            xvelocity            yvelocity            zvelocity 
