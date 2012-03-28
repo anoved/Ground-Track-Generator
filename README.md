@@ -1,6 +1,6 @@
 # Ground Track Generator
 
-![stereographic landsat birthday trace](https://github.com/anoved/Ground-Track-Generator/raw/6683da02d60d83e204034dec255f387993e600e7/test/images/ls83.png)
+![stereographic landsat birthday trace](https://github.com/anoved/Ground-Track-Generator/raw/master/test/images/ls83.png)
 
 A utility to write satellite ground tracks as GIS-compatible [shapefiles](https://en.wikipedia.org/wiki/Shapefile). Orbits are modelled with Dan Warner's [C++ SGP4 library](http://www.danrw.com/sgp4-satellite.php), based on ["Revisiting Spacetrack Report #3"](http://www.celestrak.com/publications/AIAA/2006-6753/), by David Vallado, Paul Crawford, Richard Hujsak, and [T.S. Kelso](http://www.celestrak.com/webmaster.asp). [Two-line element](http://celestrak.com/NORAD/elements/) (TLE) sets of orbit parameters are read as input. [Shapelib 1.3.0b3](http://shapelib.maptools.org/) is used to generate the shapefiles. 
 
