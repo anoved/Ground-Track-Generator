@@ -1,39 +1,6 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.5
 
-set compf [open composite.txt w]
-
-set testdir [pwd]
-
-proc reformatresults {inpath outpath} {
-	
-	global compf
-	
-	# read inpath file contents
-	set f [open $inpath]
-	set fc [read -nonewline $f]
-	close $f
-	
-	# convert file contents to list of lines
-	set lines [split $fc \n]
-	
-	# skip header line
-	set lines [lreplace $lines 0 0]
-	
-	
-	set o [open $outpath w]
-	foreach line $lines {
-		foreach {fid date time utc mfe xpos ypos zpos xvel yvel zvel} $line {}
-		set rec [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
-		
-		puts $o $rec
-		puts $compf $rec
-	}
-	
-	puts $compf ""
-	close $o
-}
-
 # test number, start time, end time, and interval
 # based on Appendix D - Test Case Listing - of "Revisiting Spacetrack Report 3"
 set tests {
@@ -72,6 +39,45 @@ set tests {
 	{33 epoch+1844000m epoch+1845100m 5m}
 }
 
+# dumpfilePath - path to a text file created by dbfdump
+# casefilePath - path for reformatted version of dumpfile
+# testfile - file handle for cumulative test log
+proc reformatresults {dumpfilePath casefilePath testfile} {
+	
+	# read contents of attribute table dump
+	if {[catch {open $dumpfilePath} dumpfile]} {
+		error $dumpfile
+	}
+	set fc [read -nonewline $dumpfile]
+	close $dumpfile
+	
+	# convert file contents to list of lines, ignoring header line
+	set lines [lreplace [split $fc \n] 0 0]
+	
+	
+	if {[catch {open $casefilePath w} casefile]} {
+		error $casefile
+	}
+	
+	# rewrite the dumpfile contents to the casefile & cumulative testfile,
+	foreach line $lines {
+		foreach {fid date time utc mfe xpos ypos zpos xvel yvel zvel} $line {}
+		set rec [list $mfe $xpos $ypos $zpos $xvel $yvel $zvel]
+		puts $casefile $rec
+		puts $testfile $rec
+	}
+	
+	puts $testfile ""
+	close $casefile
+}
+
+if {[catch {open test-gtg.txt w} testlog]} {
+	puts stderr $testlog
+	exit 1
+}
+
+set testdir [pwd]
+
 foreach test $tests  {
 	
 	cd $testdir
@@ -80,31 +86,39 @@ foreach test $tests  {
 	
 	cd $id
 	
-	if {[catch {exec rm -f $id.log $id.dbf.txt $id.dbf.txt} err]} {
-		puts "$id: $err"
+	# clean up previous output
+	if {[catch {exec rm -f $id.shp $id.shx $id.dbf $id.log $id.dbf.txt $id.txt} err]} {
+		puts stderr "$id - cleanup error: $err"
 	}
-		
+	
+	# run this test case with gtg
+	# status messages logged to .log file
 	if {[catch {exec ../../../gtg \
 		--input $id.tle \
 		--output $id \
-		--attributes time mfe xposition yposition zposition xvelocity yvelocity zvelocity \
+		--attributes mfe time xposition yposition zposition xvelocity yvelocity zvelocity \
 		--start $start \
 		--end $end \
 		--forceend \
 		--interval $interval \
 		--verbose > $id.log} err]} {
-		puts "$id: $err"
+		puts stderr "$id - gtg error: $err"
 	}
 	
+	# convert the output .dbf attribute table to .dbf.txt text
+	# dbfdump is a shapelib utility
 	if {[catch {exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt} err]} {
-		puts "$id: error"
+		puts stderr "$id - dbfdump error: error"
 	}
 	
-	puts $compf $id
-	
-	if {[catch {reformatresults $id.dbf.txt $id.txt} err]} {
-		puts "$id: error"
+	# tidy up the .dbf.txt attribute table text dump to match plain .txt key format
+	# appends reformatted text table to cumulative test-gtg.txt as well
+	puts $testlog $id
+	if {[catch {reformatresults $id.dbf.txt $id.txt $testlog} err]} {
+		puts stderr "$id - reformat error: $err"
 	}
 	
 }
-close $compf
+
+close $testlog
+exit 0
