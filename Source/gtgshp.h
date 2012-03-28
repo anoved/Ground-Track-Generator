@@ -23,18 +23,17 @@ public:
 	{
 	}
 	
-	int output(double mfe, Eci *loc, Eci *nextloc = NULL, bool split = false);
+	int output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc = NULL, bool split = false);
 		
 	void close(void);
 
 private:
 	
 	void CreateWGS72prj(const char *basepath);
-	SHPObject* splitSegment(double lata, double lona, double latb, double lonb, Eci& loc);
+	SHPObject* splitSegment(double lata, double lona, double latb, double lonb, const Eci& loc);
 	
 	int shpFormat_;
 	SHPHandle shp_;
-	DBFHandle dbf_;
 };
 
 #endif

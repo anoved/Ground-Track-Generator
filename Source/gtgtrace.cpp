@@ -18,7 +18,7 @@
 #include "gtgutil.h"
 #include "gtgtle.h"
 #include "gtgshp.h"
-
+#include "gtgattr.h"
 #include "gtgtrace.h"
 
 /*
@@ -140,6 +140,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	int step = 0;
 	Eci eci(now, 0, 0, 0);
 	bool stop = false;
+	CoordGeodetic geo;
+	int shpindex;
 	
 	double minutes;
 	double startMFE;
@@ -181,8 +183,9 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
 	Note("Output basepath: %s\n", basepath.c_str());
-	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
-		
+	ShapefileWriter shpwriter(basepath.c_str(), cfg.features, cfg.prj);
+	AttributeWriter attrwriter(basepath.c_str());
+	
 	while (1) {
 		
 		/* where is the satellite now? */
@@ -198,7 +201,9 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		
 		if (line == cfg.features) {
 			if (prevSet) {
-				shout.output(minutes, &prevEci, &eci, cfg.split);
+				geo = prevEci.ToGeodetic();
+				shpindex = shpwriter.output(prevEci, geo, &eci, cfg.split);
+				attrwriter.output(shpindex, minutes, prevEci, geo);
 				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
@@ -210,9 +215,9 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 			prevEci = eci;
 			
 		} else {
-		
-			shout.output(minutes, &eci);
-			
+			geo = eci.ToGeodetic();
+			shpindex = shpwriter.output(eci, geo);
+			attrwriter.output(shpindex, minutes, eci, geo);
 			step++;
 		}
 		
@@ -235,7 +240,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		
 	}
 	
-	shout.close();
+	shpwriter.close();
+	attrwriter.close();
 }
 
 /*

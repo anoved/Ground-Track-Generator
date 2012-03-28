@@ -19,8 +19,7 @@
 
 /*
  * Prepare to generate output. Creates shapefile (point or line type determined
- * by features argument) and attribute table at basepath.
- * Creates projection file if create_prj true.
+ * by features argument) at basepath. Creates projection file if create_prj true.
  */
 ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj)
 {
@@ -38,20 +37,7 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	if (NULL == shp_) {
 		Fail("cannot create shapefile: %s\n", basepath);
 	}
-	
-	/* create the shapefile attribute table */
-	dbf_ = DBFCreate(basepath);
-	if (NULL == dbf_) {
-		Fail("cannot create shapefile attribute table: %s\n", basepath);
-	}
-	
-	/* step id field. (helps ensure valid dbf if no other attrs specified) */
-	if (0 != DBFAddField(dbf_, "FID", FTInteger, 10, 0)) {
-		Fail("cannot create step index attribute field\n");
-	}
-	
-	initAttributes(dbf_);
-	
+		
 	if (create_prj) {
 		CreateWGS72prj(basepath);
 	}
@@ -88,7 +74,7 @@ void ShapefileWriter::CreateWGS72prj(const char *basepath)
  * Splitting line segments is intended as a cosmetic display convenience.
  */
 SHPObject* ShapefileWriter::splitSegment(
-		double lata, double lona, double latb, double lonb, Eci& loc)
+		double lata, double lona, double latb, double lonb, const Eci& loc)
 {
 	SHPObject *obj = NULL;
 	
@@ -199,36 +185,35 @@ SHPObject* ShapefileWriter::splitSegment(
  * is true, then line features that cross the dateline will be split into east
  * and west hemisphere segments. Attributes for loc are also output.
  */
-int ShapefileWriter::output(double mfe, Eci *loc, Eci *nextloc, bool split)
+int ShapefileWriter::output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc, bool split)
 {
-	CoordGeodetic locg(loc->ToGeodetic());
 	double latitude[2];
 	double longitude[2];
 	SHPObject *obj = NULL;
 	int index;
 	int pointc = 1;
 
-	/* loc is used for points and line segment start */
-	latitude[0] = Util::RadiansToDegrees(locg.latitude);
-	longitude[0] = Util::RadiansToDegrees(locg.longitude);
+	/* geo loc is used for points and line segment start */
+	latitude[0] = Util::RadiansToDegrees(geo.latitude);
+	longitude[0] = Util::RadiansToDegrees(geo.longitude);
 
 	Note("Latitude: %lf\n", latitude[0]);
 	Note("Longitude: %lf\n", longitude[0]);
 	
 	/* nextloc is used for line segment end, if needed */
 	if (NULL != nextloc && shpFormat_ == SHPT_ARC) {
-		/* not necessary to keep nextlocg around; we use loc for all attributes */
-		CoordGeodetic nextlocg(nextloc->ToGeodetic());
+		/* not necessary to keep nextgeo around; we use loc for all attributes */
+		CoordGeodetic nextgeo(nextloc->ToGeodetic());
 		pointc = 2;
-		latitude[1] = Util::RadiansToDegrees(nextlocg.latitude);
-		longitude[1] = Util::RadiansToDegrees(nextlocg.longitude);
+		latitude[1] = Util::RadiansToDegrees(nextgeo.latitude);
+		longitude[1] = Util::RadiansToDegrees(nextgeo.longitude);
 
 		/* This line segment's endpoints are in different E/W hemispheres */		
 		if (split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
 			/* If the segment crosses the 180th meridian, splitSegment will
 			   split this line at the 180th meridian and return a SHPObject.
 			   Otherwise (if the segment crosses the prime meridian), NULL. */
-			obj = splitSegment(latitude[0], longitude[0], latitude[1], longitude[1], *loc);		
+			obj = splitSegment(latitude[0], longitude[0], latitude[1], longitude[1], loc);		
 		}
 	} else if (shpFormat_ == SHPT_ARC) {
 		Fail("line output requires two points; only one received\n");
@@ -243,8 +228,6 @@ int ShapefileWriter::output(double mfe, Eci *loc, Eci *nextloc, bool split)
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);
 	
-	outputAttributes(dbf_, index, *loc, locg, mfe);
-
 	return index;
 }
 
@@ -254,5 +237,4 @@ int ShapefileWriter::output(double mfe, Eci *loc, Eci *nextloc, bool split)
 void ShapefileWriter::close(void)
 {
 	SHPClose(shp_);
-	DBFClose(dbf_);
 }

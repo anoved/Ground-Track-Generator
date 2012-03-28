@@ -40,6 +40,24 @@ enum attribute_ids {
 	ATTR_COUNT
 };
 
+class AttributeWriter {
+public:
+	AttributeWriter(const char *basepath);
+	
+	~AttributeWriter()
+	{
+	}
+	
+	// not void really
+	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo);
+		
+	// should call from destructor?
+	void close(void);
+	
+private:
+	DBFHandle dbf_;
+};
+
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
 void InitAttributeObserver(bool observer_specified, double lat = 0, double lon = 0, double alt = 0);

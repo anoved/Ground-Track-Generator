@@ -48,6 +48,40 @@ int attribute_field[ATTR_COUNT];
 
 Observer *attribute_observer = NULL;
 
+AttributeWriter::AttributeWriter(const char *basepath)
+{
+	/* open the attribute table */
+	dbf_ = DBFCreate(basepath);
+	if (NULL == dbf_) {
+		Fail("cannot create attribute table: %s\n", basepath);
+	}
+	
+	/* create the id field */
+	if (0 != DBFAddField(dbf_, "FID", FTInteger, 10, 0)) {
+		Fail("cannot create attribute index field\n");
+	}
+	
+	/* initialize the attribute table */
+	for (int attr = 0; attr < ATTR_COUNT; attr++) {
+		if (attribute_flags[attr]) {
+			int field = DBFAddField(dbf_,
+					attribute_options[attr].name,
+					attribute_options[attr].type,
+					attribute_options[attr].width,
+					attribute_options[attr].decimals);
+			if (-1 == field) {
+				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
+			}
+			attribute_field[attr] = field;
+		}
+	}
+}
+
+void AttributeWriter::close(void)
+{
+	DBFClose(dbf_);
+}
+
 /*
  * If observer_specified, create ground attribute_observer at lat/lon/alt.
  * Otherwise, check whether any attributes that require an observer are enabled,
@@ -122,33 +156,13 @@ bool EnableAttribute(const char *desc)
 }
 
 /*
- * Create output attribute table fields for each attribute that is enabled.
- * Remember the actual index of each attribute table field.
- */
-void initAttributes(DBFHandle dbf)
-{
-	int field;
-	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		if (attribute_flags[attr]) {
-			field = DBFAddField(dbf, attribute_options[attr].name, 
-					attribute_options[attr].type, attribute_options[attr].width,
-					attribute_options[attr].decimals);
-			if (-1 == field) {
-				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
-			}
-			attribute_field[attr] = field;
-		}
-	}
-}
-
-/*
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
  */
-void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, double mfe)
+void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordGeodetic& geo)
 {
 	Note("Attributes:\n\tFID: %d\n", index);
-	DBFWriteIntegerAttribute(dbf, index, 0, index);
+	DBFWriteIntegerAttribute(dbf_, index, 0, index);
 	
 	/* (Consider pre-calculating certain values used in multiple attributes,
 	   such as loc.GetDate(), loc.GetPosition(), loc.GetVelocity(), and GetLookAngle(),
@@ -171,7 +185,7 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, do
 					break;
 			}
 			Note("\t%s: %s\n", attribute_options[attr].name, s);
-			DBFWriteStringAttribute(dbf, index, attribute_field[attr], s);
+			DBFWriteStringAttribute(dbf_, index, attribute_field[attr], s);
 		} else if (FTInteger == attribute_options[attr].type) {
 			long n;
 			switch (attr) {
@@ -181,7 +195,7 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, do
 					break;
 			}
 			Note("\t%s: %ld\n", attribute_options[attr].name, n);
-			DBFWriteIntegerAttribute(dbf, index, attribute_field[attr], n);
+			DBFWriteIntegerAttribute(dbf_, index, attribute_field[attr], n);
 		} else if (FTDouble == attribute_options[attr].type) {
 			double n;
 			switch (attr) {
@@ -205,7 +219,7 @@ void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, do
 					break;
 			}
 			Note("\t%s: %.9lf\n", attribute_options[attr].name, n);
-			DBFWriteDoubleAttribute(dbf, index, attribute_field[attr], n);
+			DBFWriteDoubleAttribute(dbf_, index, attribute_field[attr], n);
 		} else {
 			Fail("unhandled attribute type: %d\n", attribute_options[attr].type);
 		}

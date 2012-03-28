@@ -29,7 +29,7 @@ gtgtle.o: gtgtle.cpp gtgtle.h gtgutil.h
 gtgutil.o: gtgutil.cpp gtgutil.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgutil.cpp
 
-gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h
+gtgtrace.o: gtgtrace.cpp gtgtrace.h gtgutil.h gtgtle.h gtg.h gtgshp.h gtgattr.h
 	$(CPP) $(CFLAGS) $(INCLUDES) -c gtgtrace.cpp
 
 gtgshp.o: gtgshp.cpp gtgshp.h gtg.h gtgutil.h
