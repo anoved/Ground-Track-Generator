@@ -26,67 +26,69 @@
 	
 	Parameters:
 		desc, string to read time specification from. Accepts four formats:
-				now - current time
-				epoch - reference time of orbit info
+				now[OFFSET] - current time
+				epoch[OFFSET] - reference time of orbit info
+					If specified, OFFSET is number (positive or negative)
+					followed by a character indicating units - s seconds,
+					m minutes, h hours, d days.
 				YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 				S - UNIX time (seconds since 1970-01-01 00:00:00)
 		now, reference date to use if "now" time is specified
 		epoch, reference date to use if orbit "epoch" is specified
 	
 	Returns:
-		A Julian date object initialized to time requested by desc
-		Aborts if desc cannot be parsed.
+		MFE (minutes from TLE epoch) of the described time
 */
-Julian InitTime(const char *desc, const Julian& now, const Julian& epoch)
+double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 {
-	Julian time;
+	double mfe = 0;
 	double offset;
 	char unit;
 	
 	if (0 == strcmp("now", desc)) {
-		time = now;
+		mfe = (now - epoch).GetTotalMinutes();
 	} else if (2 == sscanf(desc, "now%lf%c", &offset, &unit)) {
-		Timespan offset_timespan(0);
+		/* start with mfe of "now", then apply offset to that */
+		mfe = (now - epoch).GetTotalMinutes();
 		switch (unit) {
-			case 's': offset_timespan.AddSeconds(offset); break;
-			case 'm': offset_timespan.AddSeconds(offset * 60.0); break;
-			case 'h': offset_timespan.AddSeconds(offset * 60.0 * 60.0); break;
-			case 'd': offset_timespan.AddSeconds(offset * 60.0 * 60.0 * 24.0); break;
+			case 's': mfe += offset / 60.0; break;
+			case 'm': mfe += offset; break;
+			case 'h': mfe += offset * 60.0; break;
+			case 'd': mfe += offset * 1440.0; break;
 			default:
 				Fail("invalid current time offset unit: %c\n", unit);
 				break;
 		}
-		time = now + offset_timespan;
 	} else if (0 == strcmp("epoch", desc)) {
-		time = epoch;
+		mfe = 0.0;
 	} else if (2 == sscanf(desc, "epoch%lf%c", &offset, &unit)) {
-		Timespan offset_timespan(0);
 		switch (unit) {
-			case 's': offset_timespan.AddSeconds(offset); break;
-			case 'm': offset_timespan.AddSeconds(offset * 60.0); break;
-			case 'h': offset_timespan.AddSeconds(offset * 60.0 * 60.0); break;
-			case 'd': offset_timespan.AddSeconds(offset * 60.0 * 60.0 * 24.0); break;
+			case 's': mfe = offset / 60.0; break;
+			case 'm': mfe = offset; break;
+			case 'h': mfe = offset * 60.0; break;
+			case 'd': mfe = offset * 1440.0; break;
 			default:
 				Fail("invalid epoch time offset unit: %c\n", unit);
 				break;
 		}
-		time = epoch + offset_timespan;
 	} else {
 		int year, month, day, hour, minute;
 		double second;
 		if (6 == sscanf(desc, "%4d-%2d-%2d %2d:%2d:%9lf UTC", &year, &month, &day, &hour, &minute, &second)) {
-			time = Julian(year, month, day, hour, minute, second);
+			Julian time(year, month, day, hour, minute, second);
+			mfe = (time - epoch).GetTotalMinutes();
 		} else {
 			double unixtime;
 			if (1 == sscanf(desc, "%lf", &unixtime)) {
-				time = Julian((time_t)unixtime);
+				Julian time((time_t)unixtime);
+				mfe = (time - epoch).GetTotalMinutes();
 			} else {
 				Fail("cannot parse time: %s\n", desc);
 			}
 		}
 	}
 		
-	return time;
+	return mfe;
 }
 
 /*
@@ -136,7 +138,6 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		const GTGConfiguration& cfg, const Timespan& interval)
 {
 	int step = 0;
-	Julian time, endtime;
 	Eci eci(now, 0, 0, 0);
 	bool stop = false;
 	
@@ -150,31 +151,29 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	/* for line output mode */
 	Eci prevEci(eci);
 	int prevSet = 0;
-		
-	/* Initialize the starting timestamp; default to epoch */
-	time = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle.Epoch());
-	startMFE = (time - tle.Epoch()).GetTotalMinutes();
 	
-	Note("Start time: %s\n", time.ToString().c_str());
+	/* Initialize the starting timestamp; default to epoch */
+	startMFE = InitTime(cfg.start == NULL ? "epoch" : cfg.start, now, tle.Epoch());
+	minutes = startMFE;
+		
+	Note("TLE epoch: %s\n", tle.Epoch().ToString().c_str());	
 	Note("Start MFE: %.9lf\n", startMFE);
 	
 	/* Initialize the ending timestamp, if needed */
 	if (NULL != cfg.end) {
 		
-		endtime = InitTime(cfg.end, now, tle.Epoch());
-		endMFE = (endtime - tle.Epoch()).GetTotalMinutes();
+		endMFE = InitTime(cfg.end, now, tle.Epoch());
 		
 		/* Sanity check 1 */
-		if (time >= endtime) {
-			Fail("end time (%s) not after start time (%s)\n", endtime.ToString().c_str(), time.ToString().c_str());
+		if (startMFE >= endMFE) {
+			Fail("end time (%.9lf MFE) not after start time (%.9lf MFE)\n", endMFE, startMFE);
 		}
 		
 		/* Sanity check 2 */
-		if (interval > endtime - time) {
-			Fail("interval (%lf minutes) exceeds period between start time and end time (%lf minutes).\n", interval.GetTotalMinutes(), (endtime - time).GetTotalMinutes());
+		if (intervalMinutes > endMFE - startMFE) {
+			Fail("interval (%.9lf minutes) exceeds period between start time and end time (%.9lf minutes).\n", intervalMinutes, endMFE - startMFE);
 		}
-			
-		Note("End time: %s\n", endtime.ToString().c_str());
+				
 		Note("End MFE: %.9lf\n", endMFE);
 	}
 	
@@ -183,14 +182,11 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	std::string basepath(BuildBasepath(ns.str(), cfg));
 	Note("Output basepath: %s\n", basepath.c_str());
 	ShapefileWriter shout(basepath.c_str(), cfg.features, cfg.prj);
-	
-	minutes = startMFE;
-	
+		
 	while (1) {
 		
 		/* where is the satellite now? */
 		try {
-			//eci = model.FindPosition(time);
 			eci = model.FindPosition(minutes);
 		} catch (SatelliteException &e) {
 			Note("satellite exception (stopping at step %d): %s\n", step, e.what());
@@ -221,19 +217,17 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		}
 		
 		/* increment time interval */
-		//time += interval;
 		minutes += intervalMinutes;
 		Note("new minutes: %.9lf\n", minutes);
 		
 		/* stop ground track once we've exceeded step count or end time */
 		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
-		} else if ((NULL != cfg.end) && /*(time >= endtime)*/ (minutes >= endMFE) ) {
+		} else if ((NULL != cfg.end) && (minutes >= endMFE) ) {
 			if (!cfg.forceend or stop) {
 				break;
 			} else {
 				/* force output of the exact end time, then stop next time */
-				//time = endtime;
 				minutes = endMFE;
 				stop = true;
 			}
