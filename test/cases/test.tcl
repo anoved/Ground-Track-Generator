@@ -90,6 +90,7 @@ foreach test $tests  {
 		--attributes time mfe xposition yposition zposition xvelocity yvelocity zvelocity \
 		--start $start \
 		--end $end \
+		--forceend \
 		--interval $interval \
 		--verbose > $id.log} err]} {
 		puts "$id: $err"

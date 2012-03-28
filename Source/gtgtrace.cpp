@@ -228,7 +228,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		/* stop ground track once we've exceeded step count or end time */
 		if ((0 != cfg.steps) && (step >= cfg.steps)) {
 			break;
-		} else if ((NULL != cfg.end) && /*(time >= endtime)*/ (minutes > endMFE) ) {
+		} else if ((NULL != cfg.end) && /*(time >= endtime)*/ (minutes >= endMFE) ) {
 			if (!cfg.forceend or stop) {
 				break;
 			} else {
