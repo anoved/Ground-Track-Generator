@@ -77,6 +77,11 @@ AttributeWriter::AttributeWriter(const char *basepath)
 	}
 }
 
+AttributeWriter::~AttributeWriter(void)
+{
+	close();
+}
+
 void AttributeWriter::close(void)
 {
 	DBFClose(dbf_);

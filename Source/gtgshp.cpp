@@ -43,6 +43,11 @@ ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type 
 	}
 }
 
+ShapefileWriter::~ShapefileWriter(void)
+{
+	close();
+}
+
 /*
  * Output a "Well Known Text" .prj file explicitly stating geodetic system.
  * SGP4++ uses WGS-72 (see kXKMPER & kF in Globals.h).

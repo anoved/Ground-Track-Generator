@@ -44,9 +44,7 @@ class AttributeWriter {
 public:
 	AttributeWriter(const char *basepath);
 	
-	~AttributeWriter()
-	{
-	}
+	~AttributeWriter();
 	
 	// not void really
 	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo);
