@@ -71,7 +71,16 @@ proc reformatresults {dumpfilePath casefilePath testfile} {
 	close $casefile
 }
 
-if {[catch {open test-gtg.txt w} testlog]} {
+if {$argc == 0} {
+	set gtglogPath test-gtg.txt
+} elseif {$argc == 1} {
+	set gtglogPath [lindex $argv 0]
+} else {
+	puts stderr "usage: $argv0 [logfilePath]"
+	exit 1
+}
+
+if {[catch {open $gtglogPath w} testlog]} {
 	puts stderr $testlog
 	exit 1
 }
