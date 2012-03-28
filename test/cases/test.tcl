@@ -111,20 +111,20 @@ foreach test $tests  {
 		--forceend \
 		--interval $interval \
 		--verbose > $id.log} err]} {
-		puts stderr "$id - gtg error: $err"
+		puts stderr "$id - gtg: $err"
 	}
 	
 	# convert the output .dbf attribute table to .dbf.txt text
 	# dbfdump is a shapelib utility
 	if {[catch {exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt} err]} {
-		puts stderr "$id - dbfdump error: error"
+		puts stderr "$id - dbfdump: error"
 	}
 	
 	# tidy up the .dbf.txt attribute table text dump to match plain .txt key format
 	# appends reformatted text table to cumulative test-gtg.txt as well
 	puts $testlog $id
 	if {[catch {reformatresults $id.dbf.txt $id.txt $testlog} err]} {
-		puts stderr "$id - reformat error: $err"
+		puts stderr "$id - reformat: $err"
 	}
 	
 }

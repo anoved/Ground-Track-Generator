@@ -21,3 +21,4 @@ test:
 	@echo "Running tests..."
 	@$(TCLSH) $(TEST_SCRIPT) $(TESTLOG_GTG)
 	@$(DIFF) -q $(TESTLOG_GTG) $(TESTLOG_LIB)
+	@echo "... completed tests OK."

@@ -10,6 +10,7 @@
 void SetVerbosity(bool verbose = true);
 void FailDetail(const char *file, int line, const char *errorString, ...);
 void Note(const char *noteString, ...);
+void Warn(const char *warnString, ...);
 void ShowVersion(void);
 void ShowHelp(void);
 

@@ -51,6 +51,17 @@ void Note(const char *noteString, ...) {
 }
 
 /*
+ * Print a non-fatal error message to stderr.
+ * Message may include format specifiers with additional variable arguments.
+ */
+void Warn(const char *warnString, ...) {
+	va_list arglist;
+	va_start(arglist, warnString);
+	vfprintf(stderr, warnString, arglist);
+	va_end(arglist);
+}
+
+/*
  * Display program name and version and quit successfully.
  */
 void ShowVersion(void)

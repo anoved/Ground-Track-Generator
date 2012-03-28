@@ -189,10 +189,10 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		try {
 			eci = model.FindPosition(minutes);
 		} catch (SatelliteException &e) {
-			Note("satellite exception (stopping at step %d): %s\n", step, e.what());
+			Warn("satellite exception (stopping at step %d): %s\n", step, e.what());
 			break;
 		} catch (DecayedException &e) {
-			Note("satellite decayed (stopping at step %d).\n", step);
+			Warn("satellite decayed (stopping at step %d).\n", step);
 			break;
 		}
 		
