@@ -6,9 +6,6 @@
 # Ignore test files unless explicitly added as examples
 /test
 
-# Ignore Scrap directory (contains notes, snippets, and other stale scraps)
-/Scrap
-
 # Ignore Reference directory (contains TLE/SGP4 documentation and papers)
 /Reference
 
