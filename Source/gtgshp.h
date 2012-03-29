@@ -19,7 +19,7 @@ public:
 
 	ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj);
 	
-	~ShapefileWriter();
+	~ShapefileWriter() {}
 	
 	int output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc = NULL, bool split = false);
 		

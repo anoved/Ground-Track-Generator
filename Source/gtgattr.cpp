@@ -46,9 +46,7 @@ bool attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
-Observer *attribute_observer = NULL;
-
-AttributeWriter::AttributeWriter(const char *basepath)
+AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt)
 {
 	/* open the attribute table */
 	dbf_ = DBFCreate(basepath);
@@ -75,43 +73,26 @@ AttributeWriter::AttributeWriter(const char *basepath)
 			attribute_field[attr] = field;
 		}
 	}
-}
-
-AttributeWriter::~AttributeWriter(void)
-{
-	close();
-}
-
-void AttributeWriter::close(void)
-{
-	DBFClose(dbf_);
-}
-
-/*
- * If observer_specified, create ground attribute_observer at lat/lon/alt.
- * Otherwise, check whether any attributes that require an observer are enabled,
- * and if so, abort the program.
- */
-void InitAttributeObserver(bool observer_specified, double lat, double lon, double alt)
-{
-	if (observer_specified) {
-		attribute_observer = new Observer(lat, lon, alt);
-		Note("Observer: %s\n", attribute_observer->GetLocation().ToString().c_str());
+	
+	if (has_observer) {
+		observer_ = new Observer(lat, lon, alt);
 	} else {
+		observer_ = NULL;
 		for (int attr = ATTR_OBS_FIRST; attr <= ATTR_OBS_LAST; attr++) {
 			if (attribute_flags[attr]) {
-				Fail("%s attribute requires an --observer\n", attribute_options[attr].name);
+				Fail("attribute %s requires an --observer\n", attribute_options[attr].name);
 			}
 		}
 	}
 }
 
 /*
- * Deallocate attribute-related memory.
+ * Close the DBF file (which writes it) and release the observer_ memory.
  */
-void CleanupAttribute(void)
+void AttributeWriter::close(void)
 {
-	delete attribute_observer;
+	DBFClose(dbf_);
+	delete observer_;
 }
 
 /*
@@ -215,10 +196,10 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_VELOCITY_X:    n = loc.GetVelocity().x; break;
 				case ATTR_VELOCITY_Y:    n = loc.GetVelocity().y; break;
 				case ATTR_VELOCITY_Z:    n = loc.GetVelocity().z; break;
-				case ATTR_OBS_RANGE:     n = attribute_observer->GetLookAngle(loc).range; break;
-				case ATTR_OBS_RATE:      n = attribute_observer->GetLookAngle(loc).range_rate; break;
-				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).elevation); break;
-				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(attribute_observer->GetLookAngle(loc).azimuth); break;
+				case ATTR_OBS_RANGE:     n = observer_->GetLookAngle(loc).range; break;
+				case ATTR_OBS_RATE:      n = observer_->GetLookAngle(loc).range_rate; break;
+				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).elevation); break;
+				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).azimuth); break;
 				default:
 					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;

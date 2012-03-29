@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 	Julian now;
 	int opt = 0;
 	int longIndex = 0;
-	bool has_observer = false;
 	std::queue<Tle> tles;
 	GTGConfiguration cfg;
 	Timespan interval;
@@ -36,6 +35,7 @@ int main(int argc, char *argv[])
 	cfg.basepath = NULL;
 	cfg.features = point;
 	cfg.split = 0;
+	cfg.has_observer = false;
 	cfg.obslat = 0;
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 					Fail("cannot parse observer longitude: %s (should be number between -180 and 180)\n", argv[optind]);
 				}
 				
-				has_observer = true;
+				cfg.has_observer = true;
 				optind++;
 
 				/* a third numeric argument, altitude (km), is optional */
@@ -260,9 +260,6 @@ int main(int argc, char *argv[])
 	}
 	Note("Step interval: %.9lf seconds\n", interval.GetTotalSeconds());
 	
-	/* some attributes require an observer station to be defined; check if so */
-	InitAttributeObserver(has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
-
 	/* interpret remaining command line arguments as paths to TLE files */
 	for (int i = 0; i < argc; i++) {
 		ReadTlesFromPath(argv[i], tles);
@@ -284,8 +281,6 @@ int main(int argc, char *argv[])
 		InitGroundTrace(tles.front(), now, cfg, interval);
 		tles.pop();
 	}
-	
-	CleanupAttribute();
-	
+		
 	return EXIT_SUCCESS;
 }

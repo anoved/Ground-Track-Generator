@@ -42,25 +42,20 @@ enum attribute_ids {
 
 class AttributeWriter {
 public:
-	AttributeWriter(const char *basepath);
+	AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt);
 	
-	~AttributeWriter();
+	~AttributeWriter() {}
 	
-	// not void really
 	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo);
 		
-	// should call from destructor?
 	void close(void);
 	
 private:
 	DBFHandle dbf_;
+	Observer *observer_;
 };
 
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
-void InitAttributeObserver(bool observer_specified, double lat = 0, double lon = 0, double alt = 0);
-void initAttributes(DBFHandle dbf);
-void outputAttributes(DBFHandle dbf, int index, Eci& loc, CoordGeodetic& geo, double mfe);
-void CleanupAttribute(void);
 
 #endif

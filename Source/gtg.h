@@ -20,6 +20,7 @@ typedef struct configuration {
 	char *basepath;
 	enum output_feature_type features;
 	int split;
+	bool has_observer;
 	double obslat;
 	double obslon;
 	double obsalt;

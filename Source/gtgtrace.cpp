@@ -184,7 +184,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	std::string basepath(BuildBasepath(ns.str(), cfg));
 	Note("Output basepath: %s\n", basepath.c_str());
 	ShapefileWriter shpwriter(basepath.c_str(), cfg.features, cfg.prj);
-	AttributeWriter attrwriter(basepath.c_str());
+	AttributeWriter attrwriter(basepath.c_str(),
+			cfg.has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
 	
 	while (1) {
 		
