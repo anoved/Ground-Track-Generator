@@ -10,6 +10,20 @@ Ground Track Generator can represent each step of the ground track as points or 
 
 ![trace with observer attributes](https://github.com/anoved/Ground-Track-Generator/raw/master/test/images/elevation-trace.png)
 
+## Building
+
+To compile Ground Track Generator you need two small libraries. See `Libraries/README.md` for setup details (it's a matter of downloading two zip files, dragging their contents to `Libraries`, and installing the provided Makefiles).
+
+Once that's done, the following should be sufficient to build Ground Track Generator:
+
+	make gtg
+
+To run the test cases described in `test/cases/README.md`, try:
+
+	make test
+
+Note that errors in test cases 12, 23, 26, 27, 30, 31, and 33 are an intentional part of the test suite.
+
 ## Reference
 
 If you run `gtg --help`, the program lists options it understands. At present this message is unfortunately perhaps more useful as a reference for the programmer than as a guide for users.
