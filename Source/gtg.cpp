@@ -269,6 +269,11 @@ int main(int argc, char *argv[])
 	if (tles.empty()) {
 		ReadTlesFromStream(std::cin, tles);
 	}
+	
+	/* If we still don't have any TLEs, let's alert the user to the error of their ways */
+	if (tles.empty()) {
+		Fail("no TLE data found (try --help)\n");
+	}
 		
 	if (1 == tles.size()) {
 		// special case where we treat --output as basename
