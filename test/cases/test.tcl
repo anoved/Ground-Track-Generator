@@ -1,5 +1,4 @@
 #!/usr/bin/env tclsh
-package require Tcl 8.5
 
 # test number, start time, end time, and interval
 # based on Appendix D - Test Case Listing - of "Revisiting Spacetrack Report 3"
@@ -72,13 +71,19 @@ proc reformatresults {dumpfilePath casefilePath testfile} {
 }
 
 if {$argc == 0} {
+	# if path to dbfdump is not specified on CLI, assume it is in system PATH
+	set dbfdumpPath dbfdump
 	set gtglogPath test-gtg.txt
-} elseif {$argc == 1} {
-	set gtglogPath [lindex $argv 0]
+} elseif {$argc == 2} {
+	set dbfdumpPath [lindex $argv 0]
+	set gtglogPath [lindex $argv 1]
 } else {
-	puts stderr "usage: $argv0 [logfilePath]"
+	puts stderr "usage: $argv0 [dbfdumpPath logfilePath]"
 	exit 1
 }
+
+# path to dbfdump from within each case subfolder
+set dbfdump [file join .. $dbfdumpPath]
 
 if {[catch {open $gtglogPath w} testlog]} {
 	puts stderr $testlog
@@ -116,7 +121,7 @@ foreach test $tests  {
 	
 	# convert the output .dbf attribute table to .dbf.txt text
 	# dbfdump is a shapelib utility
-	if {[catch {exec /usr/local/bin/dbfdump $id.dbf > $id.dbf.txt} err]} {
+	if {[catch {exec $dbfdump $id.dbf > $id.dbf.txt} err]} {
 		puts stderr "$id - dbfdump: error"
 	}
 	
