@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	cfg.forceend = 0;
 	cfg.unit = 'm';
 	cfg.interval = 1.0;
-	cfg.steps = 100;
+	cfg.steps = 1;
 	cfg.basepath = NULL;
 	cfg.features = point;
 	cfg.split = 0;
