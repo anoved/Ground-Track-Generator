@@ -20,11 +20,11 @@ typedef struct attribute_options {
 } GTGAttributes;
 
 GTGAttributes attribute_options[] = {
-		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
-		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
 		{"mfe", FTDouble, 20, 8},       // minutes from epoch (time to TLE)
+		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
+		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
 		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
 		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
 		{"xposition", FTDouble, 20, 8}, // ECI x (km)
