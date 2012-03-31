@@ -3,7 +3,7 @@
 
 #define _GTG_NAME_ "Ground Track Generator"
 #define _GTG_PROGRAM_ "gtg"
-#define _GTG_VERSION_ "0.1"
+#define _GTG_VERSION_ "1.0"
 
 enum output_feature_type {
 	point,

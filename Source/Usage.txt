@@ -1,6 +1,3 @@
-Ground Track Generator 0.1
-usage: gtg [OPTIONS] [TLE [TLE ...]]
-
 Ground Track Generator outputs GIS-compatible shapefiles containing point or
 line segment representations of the ground track of specified satellite orbits.
 The extent and resolution of the ground track is controlled by the TRACE OPTIONS
