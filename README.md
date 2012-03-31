@@ -69,9 +69,9 @@ Note that errors in test cases 12, 23, 26, 27, 30, 31, and 33 are an intentional
 			If specified, SUFFIX is appended to the base name identifier, unless
 			there is only one two-line element set and an --output PATH is given.
 	
-		--prj
-			Output a .prj "projection" file to explicitly specify the geodetic
-			reference system of the generated shapefile (WGS-72).
+		--noprj
+			Suppress output of .prj "projection" file, which explicitly specifies
+			the geodetic reference system of the generated shapefile (WGS-72).
 	
 		The default base name for output files is the [NORAD] satellite number
 		encoded in the second field of the first line of the two-line element set.

@@ -118,9 +118,9 @@ void ShowHelp(void)
 	printf("        If specified, SUFFIX is appended to the base name identifier, unless\n");
 	printf("        there is only one two-line element set and an --output PATH is given.\n");
 	printf("\n");
-	printf("    --prj\n");
-	printf("        Output a .prj \"projection\" file to explicitly specify the geodetic\n");
-	printf("        reference system of the generated shapefile (WGS-72).\n");
+	printf("    --noprj\n");
+	printf("        Suppress output of .prj \"projection\" file, which explicitly specifies\n");
+	printf("        the geodetic reference system of the generated shapefile (WGS-72).\n");
 	printf("\n");
 	printf("    The default base name for output files is the [NORAD] satellite number\n");
 	printf("    encoded in the second field of the first line of the two-line element set.\n");
