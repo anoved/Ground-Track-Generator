@@ -16,7 +16,7 @@ We'll start with a very simple case:
 
 	gtg --input geoeye1.tle --output example1
 
-In this case, the output consists of a single point representing the location of GeoEye-1 at the "epoch" (reference date) specified in the two-line element set. In `geoeye1.tle`, the epoch is encoded as `12091.09077403`. The first [two digits](http://www.celestrak.com/columns/v04n03/#FAQ04) specify the year, 2012, and the remaining digits specify the day of the year, 91.09077403 (at some point on March XX).
+In this case, the output consists of a single point representing the location of GeoEye-1 at the "epoch" (reference date) specified in the two-line element set. In `geoeye1.tle`, the epoch is encoded as `12091.09077403`. The first [two digits](http://www.celestrak.com/columns/v04n03/#FAQ04) specify the year, 2012, and the remaining digits specify the day of the year, 91.09077403 (some point on March 31st).
 
 Here's the point. It's over South America:
 
@@ -32,7 +32,7 @@ For clarity, we've explicitly specified the default starting time. We've also ad
 
 ![Example 2 Illustration](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/Images/2.png?raw=true)
 
-A series of 90 points has produced, starting with the same point we saw in example 1.
+A series of 90 points has been produced, starting with the same point we saw in example 1.
 
 ## 3
 
@@ -64,7 +64,7 @@ We've added the `--attributes` option to tell `gtg` that we want it to add some 
 
 ![Example 5 Illustration](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/Images/5.png?raw=true)
 
-The `FID` field is an index number. `time` is the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) timestamp of the point. `unixtime` is the number of seconds since 00:00:00 UTC, 1 January 1970 (a [common format](https://en.wikipedia.org/wiki/Unix_time) for recording event times). `mfe` is "minutes from epoch", the relative offset between the two-line element set's epoch and point's time (the orbital perturbation model is most accurate closest to 0). `altitude` is GeoEye-1's altitude in kilometers. `velocity` is actually the magnitude of the satellite's velocity relative to the ["Earth-Centered Inertial" (ECI) coordinate system](http://www.celestrak.com/columns/v02n01/), expressed in kilometers per second. `xposition`, `yposition`, and `zposition` are the ECI coordinates of the satellite in kilometers. Likewise, ` xvelocity`, `yvelocity`, and `zvelocity` are the components of the satellite's ECI velocity, in kilometers per second.
+The `FID` field is an index number. `time` is the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) timestamp of the point. `unixtime` is the number of seconds since 00:00:00 UTC, 1 January 1970 (a [common format](https://en.wikipedia.org/wiki/Unix_time) for recording event times). `mfe` is "minutes from epoch", the relative offset between the two-line element set's epoch and the point's time (the orbital perturbation model is most accurate closest to 0). `altitude` is GeoEye-1's altitude in kilometers. `velocity` is actually the magnitude of the satellite's velocity relative to the ["Earth-Centered Inertial" (ECI) coordinate system](http://www.celestrak.com/columns/v02n01/), expressed in kilometers per second. `xposition`, `yposition`, and `zposition` are the ECI coordinates of the satellite in kilometers. Likewise, ` xvelocity`, `yvelocity`, and `zvelocity` are the components of the satellite's ECI velocity, in kilometers per second.
 
 ## 6
 
@@ -76,7 +76,7 @@ In this case, we've specified an observer in the northeast US (represented by th
 
 ![Example 6 Illustration](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/Images/6.png?raw=true)
 
-In this image, the ground track points are color coded by `rate` - the GeoEye-1 is coming closer to the observer when the points are blue and getting further when the points are red. The attributes of the yellow highlighted points are selected in the attribute table. Its `azimuth` is 44.6 - very nearly to the northeast of the observer.
+In this image, the ground track points are color coded by `rate` - the satellite is coming closer to the observer when the points are blue and getting further when the points are red. The attributes of the yellow highlighted points are selected in the attribute table. Its `azimuth` is 44.6 - very nearly to the northeast of the observer.
 
 ## 7
 
