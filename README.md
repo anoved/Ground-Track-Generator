@@ -1,6 +1,6 @@
 # Ground Track Generator
 
-A utility to write satellite ground tracks as GIS-compatible [shapefiles](https://en.wikipedia.org/wiki/Shapefile). Orbits are modelled with Dan Warner's [C++ SGP4 library](http://www.danrw.com/sgp4-satellite.php), based on ["Revisiting Spacetrack Report #3"](http://www.celestrak.com/publications/AIAA/2006-6753/), by David Vallado, Paul Crawford, Richard Hujsak, and [T.S. Kelso](http://www.celestrak.com/webmaster.asp). [Two-line element](http://celestrak.com/NORAD/elements/) (TLE) sets of orbit parameters are read as input. [Shapelib 1.3.0b3](http://shapelib.maptools.org/) is used to generate the shapefiles. 
+A utility to write satellite ground tracks as GIS-compatible [shapefiles](https://en.wikipedia.org/wiki/Shapefile). Orbits are modelled with Dan Warner's [C++ SGP4 library](http://www.danrw.com/sgp4-satellite.php), based on ["Revisiting Spacetrack Report #3"](http://www.celestrak.com/publications/AIAA/2006-6753/), by David Vallado, Paul Crawford, Richard Hujsak, and T.S. Kelso. [Two-line element](http://celestrak.com/NORAD/elements/) (TLE) sets of orbit parameters are read as input. [Shapelib 1.3.0b3](http://shapelib.maptools.org/) is used to generate the shapefiles. 
 
 ## Features
 
@@ -9,6 +9,8 @@ Ground Track Generator can represent each step of the ground track as points or 
 ## Instructions and Examples
 
 Please see [`Examples/README.md`](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/README.md) for a guide to getting started with `gtg`, including screenshots, comments on command line options, and example files. This is a good place to start!
+
+![geoeye trace](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/Images/4.png?raw=true)
 
 ## Download
 
@@ -34,7 +36,9 @@ Note that errors in test cases 12, 23, 26, 27, 30, 31, and 33 are an intentional
 
 ---
 
-![geoeye trace](https://github.com/anoved/Ground-Track-Generator/blob/master/Examples/Images/4.png?raw=true)
+Feedback is encouraged - especially bug reports and suggested test cases. Ideas for new features are welcome, but I am especially interested in ensuring accuracy and learning more about how to recognize or quantify possible error conditions.
+
+---
 
 ![stereographic landsat birthday trace](https://github.com/anoved/Ground-Track-Generator/raw/master/test/images/ls83.png)
 
