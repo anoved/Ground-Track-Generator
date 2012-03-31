@@ -14,7 +14,7 @@ Please see [`Examples/README.md`](https://github.com/anoved/Ground-Track-Generat
 
 An executable copy of `gtg` for Intel Macs is available here. It is a command line program.
 
-- [gtg-mac-intel-1.0.zip](https://github.com/anoved/Ground-Track-Generator/blob/master/Builds/gtg-mac-intel-1.0.zip)
+- [gtg-mac-intel-1.0.zip](https://github.com/anoved/Ground-Track-Generator/raw/master/Builds/gtg-mac-intel-1.0.zip)
 
 For the time being, users of other platforms will need to compile `gtg` themselves. Please see the following section.
 
