@@ -30,7 +30,7 @@ TEST_CASES_DIR = $(TEST_DIR)/cases
 default: gtg
 
 gtg: $(LIB_SGP4) $(LIB_SHP) $(LIB_GTG)
-	$(CPP) $(LIB_SGP4) $(LIB_SHP) $(LIB_GTG) -o $@
+	$(CPP) $(LIB_GTG) $(LIB_SGP4) $(LIB_SHP) -o $@
 
 # Program Library
 
