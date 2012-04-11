@@ -185,7 +185,7 @@ SHPObject* ShapefileWriter::splitSegment(
  * is true, then line features that cross the dateline will be split into east
  * and west hemisphere segments. Attributes for loc are also output.
  */
-int ShapefileWriter::output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc, bool split)
+int ShapefileWriter::output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc, bool split, bool rawOutput)
 {
 	double latitude[2];
 	double longitude[2];
@@ -199,6 +199,10 @@ int ShapefileWriter::output(const Eci& loc, const CoordGeodetic& geo, Eci *nextl
 
 	Note("Latitude: %lf\n", latitude[0]);
 	Note("Longitude: %lf\n", longitude[0]);
+	
+	if (rawOutput) {
+		printf("%.9lf,%.9lf", latitude[0], longitude[0]);
+	}
 	
 	/* nextloc is used for line segment end, if needed */
 	if (NULL != nextloc && shpFormat_ == SHPT_ARC) {

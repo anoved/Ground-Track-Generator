@@ -203,8 +203,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		if (line == cfg.features) {
 			if (prevSet) {
 				geo = prevEci.ToGeodetic();
-				shpindex = shpwriter.output(prevEci, geo, &eci, cfg.split);
-				attrwriter.output(shpindex, minutes, prevEci, geo);
+				shpindex = shpwriter.output(prevEci, geo, &eci, cfg.split, cfg.raw);
+				attrwriter.output(shpindex, minutes, prevEci, geo, cfg.raw);
 				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
@@ -217,9 +217,14 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 			
 		} else {
 			geo = eci.ToGeodetic();
-			shpindex = shpwriter.output(eci, geo);
-			attrwriter.output(shpindex, minutes, eci, geo);
+			shpindex = shpwriter.output(eci, geo, NULL, false, cfg.raw);
+			attrwriter.output(shpindex, minutes, eci, geo, cfg.raw);
 			step++;
+		}
+		
+		/* finish the raw output line */
+		if (cfg.raw) {
+			printf("\n");
 		}
 		
 		/* increment time interval */

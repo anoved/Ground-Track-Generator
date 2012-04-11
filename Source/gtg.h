@@ -28,6 +28,7 @@ typedef struct configuration {
 	char *suffix;
 	int prj;
 	bool single;
+	int raw;
 } GTGConfiguration;
 
 #endif

@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 	cfg.obslat = 0;
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
+	cfg.raw = 0;
 	cfg.prefix = NULL;
 	cfg.suffix = NULL;
 	cfg.prj = 1;
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 			{"output", required_argument, NULL, 'o'},
 			{"prefix", required_argument, NULL, 'p'},
 			{"noprj", no_argument, &cfg.prj, 0},
+			{"raw", no_argument, &cfg.raw, 1},
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
 			{"steps", required_argument, NULL, 'n'},
@@ -279,6 +281,11 @@ int main(int argc, char *argv[])
 		// special case where we treat --output as basename
 		// and do not append any id numbers or prefix/suffix
 		cfg.single = true;
+	}
+	
+	/* In "raw" output mode, suppress --verbose mode */
+	if (1 == cfg.raw) {
+		SetVerbosity(false);
 	}
 	
 	/* output a trace for each TLE */

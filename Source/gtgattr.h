@@ -46,7 +46,7 @@ public:
 	
 	~AttributeWriter() {}
 	
-	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo);
+	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo, bool rawOutput = false);
 		
 	void close(void);
 	

@@ -145,7 +145,7 @@ bool EnableAttribute(const char *desc)
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
  */
-void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordGeodetic& geo)
+void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordGeodetic& geo, bool rawOutput)
 {
 	Note("Attributes:\n\tFID: %d\n", index);
 	DBFWriteIntegerAttribute(dbf_, index, 0, index);
@@ -172,6 +172,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			}
 			Note("\t%s: %s\n", attribute_options[attr].name, s);
 			DBFWriteStringAttribute(dbf_, index, attribute_field[attr], s);
+			
+			if (rawOutput) {
+				printf(",%s", s);
+			}
+			
 		} else if (FTInteger == attribute_options[attr].type) {
 			long n;
 			switch (attr) {
@@ -182,6 +187,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			}
 			Note("\t%s: %ld\n", attribute_options[attr].name, n);
 			DBFWriteIntegerAttribute(dbf_, index, attribute_field[attr], n);
+			
+			if (rawOutput) {
+				printf(",%ld", n);
+			}
+			
 		} else if (FTDouble == attribute_options[attr].type) {
 			double n;
 			switch (attr) {
@@ -206,6 +216,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			}
 			Note("\t%s: %.9lf\n", attribute_options[attr].name, n);
 			DBFWriteDoubleAttribute(dbf_, index, attribute_field[attr], n);
+			
+			if (rawOutput) {
+				printf(",%.9lf", n);
+			}
+			
 		} else {
 			Fail("unhandled attribute type: %d\n", attribute_options[attr].type);
 		}
