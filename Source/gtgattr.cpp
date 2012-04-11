@@ -47,34 +47,9 @@ bool attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
-AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt)
+AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt, bool csvMode, bool csvHeader)
 {
-	/* open the attribute table */
-	dbf_ = DBFCreate(basepath);
-	if (NULL == dbf_) {
-		Fail("cannot create attribute table: %s\n", basepath);
-	}
-	
-	/* create the id field */
-	if (0 != DBFAddField(dbf_, "FID", FTInteger, 10, 0)) {
-		Fail("cannot create attribute index field\n");
-	}
-	
-	/* initialize the attribute table */
-	for (int attr = 0; attr < ATTR_COUNT; attr++) {
-		if (attribute_flags[attr]) {
-			int field = DBFAddField(dbf_,
-					attribute_options[attr].name,
-					attribute_options[attr].type,
-					attribute_options[attr].width,
-					attribute_options[attr].decimals);
-			if (-1 == field) {
-				Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
-			}
-			attribute_field[attr] = field;
-		}
-	}
-	
+	/* First thing first - */
 	if (has_observer) {
 		observer_ = new Observer(lat, lon, alt);
 	} else {
@@ -85,6 +60,69 @@ AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double
 			}
 		}
 	}
+	
+	if (csvMode) {
+
+		/* Setup for CSV (plain text) attribute output */
+		
+		/* Just to be clear - we're not using the dbf_ in this case. */
+		dbf_ = NULL;
+		
+		/* Open the output stream specified by basepath. */
+		/* (Or, if it's NULL, just use standard output.) */
+		if (NULL != basepath) {
+			if (NULL == (csv_ = fopen(basepath, "w"))) {
+				Fail("cannot create CSV attribute table: %s\n", basepath);
+			}
+		} else {
+			csv_ = stdout;
+		}
+		
+		/* optionally print header row */
+		if (csvHeader) {
+			fprintf(csv_, "id");
+			for (int attr = 0; attr < ATTR_COUNT; attr++) {
+				if (attribute_flags[attr]) {
+					fprintf(csv_, ",%s", attribute_options[attr].name);
+				}
+			}
+			fprintf(csv_, "\n");
+		}
+		
+	} else {
+		
+		/* Setup for DBF (shapefile) attribute output */
+		
+		/* Just to be clear - we're not using the csv_ in this case. */
+		csv_ = NULL;
+		
+		/* open the attribute table */
+		dbf_ = DBFCreate(basepath);
+		if (NULL == dbf_) {
+			Fail("cannot create attribute table: %s\n", basepath);
+		}
+		
+		/* create the id field */
+		if (0 != DBFAddField(dbf_, "FID", FTInteger, 10, 0)) {
+			Fail("cannot create attribute index field\n");
+		}
+		
+		/* initialize the attribute table */
+		for (int attr = 0; attr < ATTR_COUNT; attr++) {
+			if (attribute_flags[attr]) {
+				int field = DBFAddField(dbf_,
+						attribute_options[attr].name,
+						attribute_options[attr].type,
+						attribute_options[attr].width,
+						attribute_options[attr].decimals);
+				if (-1 == field) {
+					Fail("cannot create attribute field: %s\n", attribute_options[attr].name);
+				}
+				attribute_field[attr] = field;
+			}
+		}
+	}
+		
 }
 
 /*
@@ -92,7 +130,12 @@ AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double
  */
 void AttributeWriter::close(void)
 {
-	DBFClose(dbf_);
+	if (NULL != dbf_) {
+		DBFClose(dbf_);
+	}
+	if ((NULL != csv_) && (stdout != csv_)) {
+		fclose(csv_);
+	}	
 	delete observer_;
 }
 
@@ -160,10 +203,14 @@ bool EnableAttributeByID(int id)
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
  */
-void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordGeodetic& geo, bool rawOutput)
+void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordGeodetic& geo)
 {
 	Note("Attributes:\n\tFID: %d\n", index);
-	DBFWriteIntegerAttribute(dbf_, index, 0, index);
+	if (NULL != csv_) {
+		fprintf(csv_, "%d", index);
+	} else {
+		DBFWriteIntegerAttribute(dbf_, index, 0, index);
+	}
 	
 	/* (Consider pre-calculating certain values used in multiple attributes,
 	   such as loc.GetDate(), loc.GetPosition(), loc.GetVelocity(), and GetLookAngle(),
@@ -186,10 +233,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 					break;
 			}
 			Note("\t%s: %s\n", attribute_options[attr].name, s);
-			DBFWriteStringAttribute(dbf_, index, attribute_field[attr], s);
 			
-			if (rawOutput) {
-				printf(",%s", s);
+			if (NULL != csv_) {
+				fprintf(csv_, ",%s", s);
+			} else {
+				DBFWriteStringAttribute(dbf_, index, attribute_field[attr], s);
 			}
 			
 		} else if (FTInteger == attribute_options[attr].type) {
@@ -201,10 +249,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 					break;
 			}
 			Note("\t%s: %ld\n", attribute_options[attr].name, n);
-			DBFWriteIntegerAttribute(dbf_, index, attribute_field[attr], n);
 			
-			if (rawOutput) {
-				printf(",%ld", n);
+			if (NULL != csv_) {
+				fprintf(csv_, ",%ld", n);
+			} else {
+				DBFWriteIntegerAttribute(dbf_, index, attribute_field[attr], n);
 			}
 			
 		} else if (FTDouble == attribute_options[attr].type) {
@@ -229,15 +278,22 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;
 			}
-			Note("\t%s: %.9lf\n", attribute_options[attr].name, n);
-			DBFWriteDoubleAttribute(dbf_, index, attribute_field[attr], n);
+			Note("\t%s: %.*lf\n", attribute_options[attr].name, attribute_options[attr].decimals, n);
 			
-			if (rawOutput) {
-				printf(",%.9lf", n);
+			if (NULL != csv_) {
+				/* print csv value using same precision specified in dbf */
+				fprintf(csv_, ",%.*lf", attribute_options[attr].decimals, n);
+			} else {
+				DBFWriteDoubleAttribute(dbf_, index, attribute_field[attr], n);
 			}
 			
 		} else {
 			Fail("unhandled attribute type: %d\n", attribute_options[attr].type);
 		}
+	}
+	
+	/* terminate the csv record */
+	if (NULL != csv_) {
+		fprintf(csv_, "\n");
 	}
 }

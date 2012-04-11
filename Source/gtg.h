@@ -28,7 +28,8 @@ typedef struct configuration {
 	char *suffix;
 	int prj;
 	bool single;
-	int raw;
+	bool csvMode;
+	bool csvHeader;
 } GTGConfiguration;
 
 #endif

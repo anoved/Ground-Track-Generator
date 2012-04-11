@@ -39,11 +39,12 @@ int main(int argc, char *argv[])
 	cfg.obslat = 0;
 	cfg.obslon = 0;
 	cfg.obsalt = 0;
-	cfg.raw = 0;
 	cfg.prefix = NULL;
 	cfg.suffix = NULL;
 	cfg.prj = 1;
 	cfg.single = false;
+	cfg.csvMode = false;
+	cfg.csvHeader = false;
 	
 	/* Suppress getopt_long from printing its own error/warning messages */
 	opterr = 0;
@@ -54,15 +55,16 @@ int main(int argc, char *argv[])
 			{"attributes", required_argument, NULL, 'a'},
 			{"end", required_argument, NULL, 'e'},
 			{"forceend", no_argument, &cfg.forceend, 1},
+			{"format", required_argument, NULL, 'm'},
 			{"features", required_argument, NULL, 'f'},
 			{"help", no_argument, NULL, '?'},
 			{"input", required_argument, NULL, 'i'},
 			{"interval", required_argument, NULL, 'l'},
+			{"header", no_argument, NULL, 'h'},
 			{"observer", required_argument, NULL, 'g'},
 			{"output", required_argument, NULL, 'o'},
 			{"prefix", required_argument, NULL, 'p'},
 			{"noprj", no_argument, &cfg.prj, 0},
-			{"raw", no_argument, &cfg.raw, 1},
 			{"split", no_argument, NULL, 'd'},
 			{"start", required_argument, NULL, 's'},
 			{"steps", required_argument, NULL, 'n'},
@@ -76,6 +78,29 @@ int main(int argc, char *argv[])
 	/* Store command line arguments and perform some preliminary validation */
 	while(-1 != (opt = getopt_long_only(argc, argv, optString, longOpts, &longIndex))) {
 		switch(opt) {
+			
+			case 'h':
+				/* Include CSV Header */
+				/* (Only applies with --format csv) */
+				cfg.csvHeader = true;
+				break;
+			
+			case 'm':
+				/* Output forMat */
+				if (0 == strcmp("shapefile", optarg)) {
+					/* default case */
+					cfg.csvMode = false;
+				} else if (0 == strcmp("csv", optarg)) {
+					cfg.csvMode = true;
+						
+					/* CSV output is based on attributes. Require lat/lon. */
+					EnableAttributeByID(ATTR_LATITUDE);
+					EnableAttributeByID(ATTR_LONGITUDE);
+						
+				} else {
+					Fail("invalid format: %s (should be shapefile or csv)\n", optarg);
+				}
+				break;
 			
 			case 'p':
 				/* Output prefix */
@@ -283,11 +308,12 @@ int main(int argc, char *argv[])
 		cfg.single = true;
 	}
 	
-	/* In "raw" output mode, suppress --verbose mode */
-	if (1 == cfg.raw) {
+	/* Suppress --verbose mode if outputting CSV data directly to stdout */
+	/* Consider posting a Warn()ing message to explain why this is happening */
+	if (cfg.csvMode && (NULL == cfg.basepath)) {
 		SetVerbosity(false);
 	}
-	
+		
 	/* output a trace for each TLE */
 	while (!tles.empty()) {
 		InitGroundTrace(tles.front(), now, cfg, interval);

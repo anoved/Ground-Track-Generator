@@ -141,12 +141,15 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	Eci eci(now, 0, 0, 0);
 	bool stop = false;
 	CoordGeodetic geo;
-	int shpindex;
 	
 	double minutes;
 	double startMFE;
 	double endMFE;
 	double intervalMinutes;
+	
+	ShapefileWriter *shpwriter = NULL;
+	AttributeWriter *attrwriter = NULL;
+	int shpindex = 0;
 	
 	intervalMinutes = interval.GetTotalMinutes();
 	
@@ -179,13 +182,20 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		Note("End MFE: %.9lf\n", endMFE);
 	}
 	
+
 	std::ostringstream ns;
 	ns << tle.NoradNumber();
 	std::string basepath(BuildBasepath(ns.str(), cfg));
-	Note("Output basepath: %s\n", basepath.c_str());
-	ShapefileWriter shpwriter(basepath.c_str(), cfg.features, cfg.prj);
-	AttributeWriter attrwriter(basepath.c_str(),
-			cfg.has_observer, cfg.obslat, cfg.obslon, cfg.obsalt);
+	if (!(cfg.csvMode && (cfg.basepath == NULL))) {
+		Note("Output basepath: %s\n", basepath.c_str());
+	}
+	if (!cfg.csvMode) {
+		shpwriter = new ShapefileWriter(basepath.c_str(), cfg.features, cfg.prj);
+	}
+	attrwriter = new AttributeWriter(
+				cfg.csvMode && (cfg.basepath == NULL) ? NULL : basepath.c_str(),
+				cfg.has_observer, cfg.obslat, cfg.obslon, cfg.obsalt,
+				cfg.csvMode, cfg.csvHeader);
 	
 	while (1) {
 		
@@ -203,8 +213,13 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		if (line == cfg.features) {
 			if (prevSet) {
 				geo = prevEci.ToGeodetic();
-				shpindex = shpwriter.output(prevEci, geo, &eci, cfg.split, cfg.raw);
-				attrwriter.output(shpindex, minutes, prevEci, geo, cfg.raw);
+				if (cfg.csvMode) {
+					// increment shpindex ourselves in csvMode
+					attrwriter->output(shpindex++, minutes, prevEci, geo);
+				} else {
+					shpindex = shpwriter->output(prevEci, geo, &eci, cfg.split);
+					attrwriter->output(shpindex, minutes, prevEci, geo);
+				}
 				step++;
 			} else {
 				/* prevSet is only false on the first pass, which yields an
@@ -217,14 +232,13 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 			
 		} else {
 			geo = eci.ToGeodetic();
-			shpindex = shpwriter.output(eci, geo, NULL, false, cfg.raw);
-			attrwriter.output(shpindex, minutes, eci, geo, cfg.raw);
+			if (cfg.csvMode) {
+				attrwriter->output(shpindex++, minutes, eci, geo);
+			} else {
+				shpindex = shpwriter->output(eci, geo);
+				attrwriter->output(shpindex, minutes, eci, geo);
+			}
 			step++;
-		}
-		
-		/* finish the raw output line */
-		if (cfg.raw) {
-			printf("\n");
 		}
 		
 		/* increment time interval */
@@ -245,8 +259,14 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 		
 	}
 	
-	shpwriter.close();
-	attrwriter.close();
+	if (shpwriter != NULL) {
+		shpwriter->close();
+		delete shpwriter;
+	}
+	if (attrwriter != NULL) {
+		attrwriter->close();
+		delete attrwriter;
+	}
 }
 
 /*

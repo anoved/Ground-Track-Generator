@@ -8,6 +8,8 @@
 #ifndef _GTGATTR_H_
 #define _GTGATTR_H_
 
+#include <stdio.h>
+
 #include "shapefil.h"
 
 #include "Eci.h"
@@ -19,7 +21,8 @@ enum attribute_ids {
 	ATTR_LATITUDE = 0,
 	ATTR_LONGITUDE,
 	
-	ATTR_TIMEUTC,
+	ATTR_MAIN_FIRST,
+	ATTR_TIMEUTC = ATTR_MAIN_FIRST,
 	ATTR_TIMEUNIX,
 	ATTR_TIMEMFE,
 	ATTR_ALTITUDE,
@@ -30,6 +33,7 @@ enum attribute_ids {
 	ATTR_VELOCITY_X,
 	ATTR_VELOCITY_Y,
 	ATTR_VELOCITY_Z,
+	ATTR_MAIN_LAST = ATTR_VELOCITY_Z,
 	
 	ATTR_OBS_FIRST,
 	ATTR_OBS_RANGE = ATTR_OBS_FIRST,
@@ -43,16 +47,17 @@ enum attribute_ids {
 
 class AttributeWriter {
 public:
-	AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt);
+	AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt, bool csvMode, bool csvHeader);
 	
 	~AttributeWriter() {}
 	
-	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo, bool rawOutput = false);
+	void output(int index, double minutes, const Eci& loc, const CoordGeodetic& geo);
 		
 	void close(void);
 	
 private:
 	DBFHandle dbf_;
+	FILE *csv_;
 	Observer *observer_;
 };
 

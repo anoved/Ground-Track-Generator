@@ -21,7 +21,7 @@ public:
 	
 	~ShapefileWriter() {}
 	
-	int output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc = NULL, bool split = false, bool rawOutput = false);
+	int output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc = NULL, bool split = false);
 		
 	void close(void);
 
