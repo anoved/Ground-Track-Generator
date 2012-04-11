@@ -20,13 +20,14 @@ typedef struct attribute_options {
 } GTGAttributes;
 
 GTGAttributes attribute_options[] = {
+		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
+		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
+
 		{"time", FTString, 31, 0},      // YYYY-MM-DD HH:MM:SS.SSSSSS UTC
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
 		{"mfe", FTDouble, 20, 8},       // minutes from epoch (time to TLE)
 		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
 		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
-		{"latitude", FTDouble, 20, 9},  // geodetic lat of sat
-		{"longitude", FTDouble, 20, 9}, // geodetic lon of sat
 		{"xposition", FTDouble, 20, 8}, // ECI x (km)
 		{"yposition", FTDouble, 20, 8}, // ECI y (km)
 		{"zposition", FTDouble, 20, 8}, // ECI z (km)
@@ -195,11 +196,11 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 		} else if (FTDouble == attribute_options[attr].type) {
 			double n;
 			switch (attr) {
+				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;
+				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
 				case ATTR_TIMEMFE:       n = mfe; break;
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
 				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
-				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;
-				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
 				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
 				case ATTR_POSITION_Y:    n = loc.GetPosition().y; break;
 				case ATTR_POSITION_Z:    n = loc.GetPosition().z; break;

@@ -16,13 +16,14 @@
 
 /* used to parse attributes specified on command line and as dbf field titles */
 enum attribute_ids {
-	ATTR_TIMEUTC = 0,
+	ATTR_LATITUDE = 0,
+	ATTR_LONGITUDE,
+	
+	ATTR_TIMEUTC,
 	ATTR_TIMEUNIX,
 	ATTR_TIMEMFE,
 	ATTR_ALTITUDE,
 	ATTR_VELOCITY,
-	ATTR_LATITUDE,
-	ATTR_LONGITUDE,
 	ATTR_POSITION_X,
 	ATTR_POSITION_Y,
 	ATTR_POSITION_Z,
