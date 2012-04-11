@@ -58,5 +58,6 @@ private:
 
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
 bool EnableAttribute(const char *desc);
+bool EnableAttributeByID(int id);
 
 #endif

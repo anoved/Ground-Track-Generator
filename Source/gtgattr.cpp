@@ -142,6 +142,20 @@ bool EnableAttribute(const char *desc)
 	return false;
 }
 
+
+/*
+ * Enable output of attribute identified by id.
+ * Returns false if attribute ID is out of range; otherwise true.
+ */
+bool EnableAttributeByID(int id)
+{
+	if (id >= 0 && id < ATTR_COUNT) {
+		attribute_flags[id] = true;
+		return true;
+	}
+	return false;
+}
+
 /*
  * Output an attribute record (at position index) for the specified loc.
  * Only output enabled attributes.
