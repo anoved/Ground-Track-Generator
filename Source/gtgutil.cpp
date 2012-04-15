@@ -104,6 +104,12 @@ void ShowHelp(void)
 	printf("\n");
 	printf("  OUTPUT OPTIONS:\n");
 	printf("\n");
+	printf("    --format/-m shapefile | csv\n");
+	printf("        Select output format. Shapefile is default. If csv output is selected,\n");
+	printf("        a comma-separated value is output, including id, latitude, longitude,\n");
+	printf("        and any other specified attributes. If no --output argument is provided\n");
+	printf("        in csv, data is written to standard output instead of a default file.\n");
+	printf("\n");
 	printf("    --output/-o PATH | DIRECTORY\n");
 	printf("        If a single two-line element set is loaded, specify the base PATH of the\n");
 	printf("        output (defaults to the TLE identifier described below).\n");
@@ -172,10 +178,10 @@ void ShowHelp(void)
 	printf("    --start/-s now | epoch | TIME | UNIXTIME\n");
 	printf("        Timestamp for first step of output. Subsequent steps are output at\n");
 	printf("        uniform time --intervals until --end time or --steps count is reached.\n");
-	printf("            now[OFFSET]   - Current time, with optional offset.\n");
-	printf("            epoch[OFFSET] - TLE reference time, with optional offset. Default.\n");
-	printf("            TIME          - Time in \"YYYY-MM-DD HH:MM:SS.SSSSSS UTC\" format.\n");
-	printf("            UNIXTIME      - Time in seconds since 0:0:0 UTC 1 Jan 1970.\n");
+	printf("            now[OFFSET]     - Current time, with optional offset.\n");
+	printf("            epoch[OFFSET]   - TLE reference time, with optional offset. Default.\n");
+	printf("            SECONDS[OFFSET] - Time in seconds since 0:0:0 UTC 1 Jan 1970.\n");
+	printf("            TIMESTAMP       - Time in \"YYYY-MM-DD HH:MM:SS.SSSSSS UTC\" format.\n");
 	printf("        OFFSET format is a +/- number followed by s, m, h, or d, indicating the\n");
 	printf("        offset unit (seconds, minutes, hours, or days, respectively).\n");
 	printf("\n");

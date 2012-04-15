@@ -24,6 +24,12 @@ OPTIONS:
 
   OUTPUT OPTIONS:
 
+    --format/-m shapefile | csv
+        Select output format. Shapefile is default. If csv output is selected,
+        a comma-separated value is output, including id, latitude, longitude,
+        and any other specified attributes. If no --output argument is provided
+        in csv, data is written to standard output instead of a default file.
+    
     --output/-o PATH | DIRECTORY
         If a single two-line element set is loaded, specify the base PATH of the
         output (defaults to the TLE identifier described below).
@@ -92,10 +98,10 @@ OPTIONS:
     --start/-s now | epoch | TIME | UNIXTIME
         Timestamp for first step of output. Subsequent steps are output at
         uniform time --intervals until --end time or --steps count is reached.
-            now[OFFSET]   - Current time, with optional offset.
-            epoch[OFFSET] - TLE reference time, with optional offset. Default.
-            TIME          - Time in "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
-            UNIXTIME      - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+            now[OFFSET]     - Current time, with optional offset.
+            epoch[OFFSET]   - TLE reference time, with optional offset. Default.
+            SECONDS[OFFSET] - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+            TIMESTAMP       - Time in "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
         OFFSET format is a +/- number followed by s, m, h, or d, indicating the
         offset unit (seconds, minutes, hours, or days, respectively).
 
