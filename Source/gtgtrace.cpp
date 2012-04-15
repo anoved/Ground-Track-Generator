@@ -22,6 +22,32 @@
 #include "gtgtrace.h"
 
 /*
+ * Given an offset value and a unit, calculate the offset in minutes.
+ */
+double OffsetInMinutes(double offset, char unit)
+{
+	double offsetMinutes;
+	switch (unit) {
+		case 's':
+			offsetMinutes = offset / 60.0;
+			break;
+		case 'm':
+			offsetMinutes = offset;
+			break;
+		case 'h':
+			offsetMinutes = offset * 60.0;
+			break;
+		case 'd':
+			offsetMinutes = offset * 1440.0;
+			break;
+		default:
+			Fail("invalid time offset unit: %c\n", unit);
+			break;
+	}
+	return offsetMinutes;
+}
+
+/*
 	InitTime
 	
 	Parameters:
@@ -48,29 +74,11 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 	if (0 == strcmp("now", desc)) {
 		mfe = (now - epoch).GetTotalMinutes();
 	} else if (2 == sscanf(desc, "now%lf%c", &offset, &unit)) {
-		/* start with mfe of "now", then apply offset to that */
-		mfe = (now - epoch).GetTotalMinutes();
-		switch (unit) {
-			case 's': mfe += offset / 60.0; break;
-			case 'm': mfe += offset; break;
-			case 'h': mfe += offset * 60.0; break;
-			case 'd': mfe += offset * 1440.0; break;
-			default:
-				Fail("invalid current time offset unit: %c\n", unit);
-				break;
-		}
+		mfe = (now - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
 	} else if (0 == strcmp("epoch", desc)) {
 		mfe = 0.0;
 	} else if (2 == sscanf(desc, "epoch%lf%c", &offset, &unit)) {
-		switch (unit) {
-			case 's': mfe = offset / 60.0; break;
-			case 'm': mfe = offset; break;
-			case 'h': mfe = offset * 60.0; break;
-			case 'd': mfe = offset * 1440.0; break;
-			default:
-				Fail("invalid epoch time offset unit: %c\n", unit);
-				break;
-		}
+		mfe = OffsetInMinutes(offset, unit);
 	} else {
 		int year, month, day, hour, minute;
 		double second;
@@ -81,16 +89,7 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 			double unixtime;
 			if (3 == sscanf(desc, "%lf%lf%c", &unixtime, &offset, &unit)) {
 				Julian time((time_t)unixtime);
-				mfe = (time - epoch).GetTotalMinutes();
-				switch (unit) {
-					case 's': mfe += offset / 60.0; break;
-					case 'm': mfe += offset; break;
-					case 'h': mfe += offset * 60.0; break;
-					case 'd': mfe += offset * 1440.0; break;
-					default:
-						Fail("invalid unix timestamp offset unit: %c\n", unit);
-						break;
-				}
+				mfe = (time - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
 			} else if (1 == sscanf(desc, "%lf", &unixtime)) {
 				Julian time((time_t)unixtime);
 				mfe = (time - epoch).GetTotalMinutes();
