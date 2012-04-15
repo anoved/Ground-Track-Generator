@@ -79,7 +79,19 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 			mfe = (time - epoch).GetTotalMinutes();
 		} else {
 			double unixtime;
-			if (1 == sscanf(desc, "%lf", &unixtime)) {
+			if (3 == sscanf(desc, "%lf%lf%c", &unixtime, &offset, &unit)) {
+				Julian time((time_t)unixtime);
+				mfe = (time - epoch).GetTotalMinutes();
+				switch (unit) {
+					case 's': mfe += offset / 60.0; break;
+					case 'm': mfe += offset; break;
+					case 'h': mfe += offset * 60.0; break;
+					case 'd': mfe += offset * 1440.0; break;
+					default:
+						Fail("invalid unix timestamp offset unit: %c\n", unit);
+						break;
+				}
+			} else if (1 == sscanf(desc, "%lf", &unixtime)) {
 				Julian time((time_t)unixtime);
 				mfe = (time - epoch).GetTotalMinutes();
 			} else {
