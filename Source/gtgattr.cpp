@@ -249,39 +249,38 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDate().ToTime()); break;
 				case ATTR_ILLUMINATION:
 					{
-						int shadow = 0;
+						// "Visually Observing Earth Satellites" by T.S. Kelso,
+						// 1996, http://www.celestrak.com/columns/v03n01/
+						
 						SolarPosition sun;
-						Eci sunLoc = sun.FindPosition(loc.GetDate());
-
-						// if we want the vector distance, do GetMagnitude()
-						Vector distSatEarth = loc.GetPosition();
+						Vector sunToEarthVector = sun.FindPosition(loc.GetDate()).GetPosition();
+						Vector satToEarthVector = loc.GetPosition();
+						Vector satToSunVector = satToEarthVector.Subtract(sunToEarthVector);
 						
-						//Vector distSatSun = sunLoc.GetPosition().Subtract(distSatEarth);
-						Vector distSatSun = distSatEarth.Subtract(sunLoc.GetPosition());
-															
+						// apparent width of earth radius, in radians, from satellite's perspective
 						// kXKMPER is WGS 72 equatorial earth radius, in km, from libsgp4/Globals.h
-						double semidiameterEarth = asin(kXKMPER/distSatEarth.GetMagnitude());
+						// (so this is not geodetically correct - radius depends on our position)
+						double earthSemidiameter = asin(kXKMPER/satToEarthVector.GetMagnitude());
 						
-						// 695500.0 is solar radius (very approximately)
-						// via wikiwikiwildwildpedia, SOHO measures 696342 km
-						double semidiameterSun = asin(695500.0/distSatSun.GetMagnitude());
+						// apparent width of solar radius, in radians, from satellite's perspective
+						// using 695500.0 as very approximate solar radius
+						double sunSemidiameter = asin(695500.0/satToSunVector.GetMagnitude());
 						
-						double angleEarthSun = acos((distSatEarth.Dot(distSatSun)) /
-								(distSatEarth.GetMagnitude() * distSatSun.GetMagnitude()));
-
-						if ((semidiameterEarth > semidiameterSun) &&
-								(angleEarthSun < (semidiameterEarth - semidiameterSun))) {
-							// umbral eclipse (full shadow)
-							shadow = 2;
-						} else if ((fabs(semidiameterEarth - semidiameterSun) < angleEarthSun)
-								&& (angleEarthSun < (semidiameterEarth + semidiameterSun))) {
-							// penumbral eclipse
-							shadow = 1;
-						} else {
-							shadow = 0;
+						double earthSunAngle = acos(satToEarthVector.Dot(satToSunVector) /
+								(satToEarthVector.GetMagnitude() * satToSunVector.GetMagnitude()));
+						
+						// by default, consider the satellite illuminated
+						n = ATTR_ILLUMINATION_ILLUMINATED;
+						if ((earthSemidiameter > sunSemidiameter) &&
+								(earthSunAngle < (earthSemidiameter - sunSemidiameter))) {
+							// in this case, satellite is in umbral eclipse (full shadow)
+							n = ATTR_ILLUMINATION_UMBRAL;
+						} else if ((fabs(earthSemidiameter - sunSemidiameter) < earthSunAngle)
+								&& (earthSunAngle < (earthSemidiameter + sunSemidiameter))) {
+							// in this case, satellite is in penumbral eclipse (partial shadow)
+							n = ATTR_ILLUMINATION_PENUMBRAL;
 						}
 						
-						n = shadow;
 					}
 					break;
 				default:

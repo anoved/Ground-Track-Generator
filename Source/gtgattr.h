@@ -46,6 +46,12 @@ enum attribute_ids {
 	ATTR_COUNT
 };
 
+enum attribute_illumination_type {
+	ATTR_ILLUMINATION_ILLUMINATED = 0,
+	ATTR_ILLUMINATION_PENUMBRAL,
+	ATTR_ILLUMINATION_UMBRAL
+};
+
 class AttributeWriter {
 public:
 	AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt, bool csvMode, bool csvHeader);
