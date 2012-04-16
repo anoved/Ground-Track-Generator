@@ -36,12 +36,14 @@ GTGAttributes attribute_options[] = {
 		{"xvelocity", FTDouble, 20, 9}, // ECI x velocity (km/s)
 		{"yvelocity", FTDouble, 20, 9}, // ECI y velocity (km/s)
 		{"zvelocity", FTDouble, 20, 9}, // ECI z velocity (km/s)
-		{"shadow", FTInteger, 20, 0},   // 0 illuminated, 1 penumbral, 2 umbral
+		{"shadow", FTInteger, 2, 0},   // 0 illuminated, 1 penumbral, 2 umbral
 		
 		{"range", FTDouble, 20, 9},     // range (km) to observer
 		{"rate", FTDouble, 20, 9},      // range rate (km/s) to observer
 		{"elevation", FTDouble, 20, 9}, // elevation of sat from obs station
-		{"azimuth", FTDouble, 20, 9}    // azimuth of sat from obs station
+		{"azimuth", FTDouble, 20, 9},   // azimuth of sat from obs station
+		{"solarelev", FTDouble, 20, 9}, // elevation of sun from obs station
+		{"solarazim", FTDouble, 20, 9}  // azimuth of sun from obs station
 };
 
 /* each element is set to true if the corresponding attribute should be output */
@@ -313,6 +315,18 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_OBS_RATE:      n = observer_->GetLookAngle(loc).range_rate; break;
 				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).elevation); break;
 				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).azimuth); break;
+				case ATTR_OBS_SOLARELEV:
+					{
+						SolarPosition sun;
+						n = Util::RadiansToDegrees(observer_->GetLookAngle(sun.FindPosition(loc.GetDate())).elevation);
+					}
+					break;
+				case ATTR_OBS_SOLARAZIM:
+					{
+						SolarPosition sun;
+						n = Util::RadiansToDegrees(observer_->GetLookAngle(sun.FindPosition(loc.GetDate())).azimuth);
+					}
+					break;
 				default:
 					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;
