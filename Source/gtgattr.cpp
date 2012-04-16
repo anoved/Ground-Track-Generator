@@ -7,8 +7,6 @@
 
 #include <string.h>
 
-#include "SolarPosition.h"
-
 #include "gtgutil.h"
 
 #include "gtgattr.h"
@@ -127,7 +125,8 @@ AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double
 			}
 		}
 	}
-		
+	
+	sun_ = new SolarPosition;
 }
 
 /*
@@ -142,6 +141,7 @@ void AttributeWriter::close(void)
 		fclose(csv_);
 	}	
 	delete observer_;
+	delete sun_;
 }
 
 /*
@@ -254,8 +254,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 						// "Visually Observing Earth Satellites" by T.S. Kelso,
 						// 1996, http://www.celestrak.com/columns/v03n01/
 						
-						SolarPosition sun;
-						Vector sunToEarthVector = sun.FindPosition(loc.GetDate()).GetPosition();
+						Vector sunToEarthVector = sun_->FindPosition(loc.GetDate()).GetPosition();
 						Vector satToEarthVector = loc.GetPosition();
 						Vector satToSunVector = satToEarthVector.Subtract(sunToEarthVector);
 						
@@ -315,18 +314,8 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_OBS_RATE:      n = observer_->GetLookAngle(loc).range_rate; break;
 				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).elevation); break;
 				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).azimuth); break;
-				case ATTR_OBS_SOLARELEV:
-					{
-						SolarPosition sun;
-						n = Util::RadiansToDegrees(observer_->GetLookAngle(sun.FindPosition(loc.GetDate())).elevation);
-					}
-					break;
-				case ATTR_OBS_SOLARAZIM:
-					{
-						SolarPosition sun;
-						n = Util::RadiansToDegrees(observer_->GetLookAngle(sun.FindPosition(loc.GetDate())).azimuth);
-					}
-					break;
+				case ATTR_OBS_SOLARELEV: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDate())).elevation); break;
+				case ATTR_OBS_SOLARAZIM: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDate())).azimuth); break;
 				default:
 					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;

@@ -15,6 +15,7 @@
 #include "Eci.h"
 #include "CoordGeodetic.h"
 #include "Observer.h"
+#include "SolarPosition.h"
 
 /* used to parse attributes specified on command line and as dbf field titles */
 enum attribute_ids {
@@ -68,6 +69,7 @@ private:
 	DBFHandle dbf_;
 	FILE *csv_;
 	Observer *observer_;
+	SolarPosition *sun_;
 };
 
 void FlagAllAttributes(bool flag_value, bool except_observer_attributes = false);
