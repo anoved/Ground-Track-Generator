@@ -7,6 +7,8 @@
 
 #include <string.h>
 
+#include "SolarPosition.h"
+
 #include "gtgutil.h"
 
 #include "gtgattr.h"
@@ -34,6 +36,7 @@ GTGAttributes attribute_options[] = {
 		{"xvelocity", FTDouble, 20, 9}, // ECI x velocity (km/s)
 		{"yvelocity", FTDouble, 20, 9}, // ECI y velocity (km/s)
 		{"zvelocity", FTDouble, 20, 9}, // ECI z velocity (km/s)
+		{"shadow", FTInteger, 20, 0},   // 0 illuminated, 1 penumbral, 2 umbral
 		
 		{"range", FTDouble, 20, 9},     // range (km) to observer
 		{"rate", FTDouble, 20, 9},      // range rate (km/s) to observer
@@ -244,6 +247,43 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			long n;
 			switch (attr) {
 				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDate().ToTime()); break;
+				case ATTR_ILLUMINATION:
+					{
+						int shadow = 0;
+						SolarPosition sun;
+						Eci sunLoc = sun.FindPosition(loc.GetDate());
+
+						// if we want the vector distance, do GetMagnitude()
+						Vector distSatEarth = loc.GetPosition();
+						
+						//Vector distSatSun = sunLoc.GetPosition().Subtract(distSatEarth);
+						Vector distSatSun = distSatEarth.Subtract(sunLoc.GetPosition());
+															
+						// kXKMPER is WGS 72 equatorial earth radius, in km, from libsgp4/Globals.h
+						double semidiameterEarth = asin(kXKMPER/distSatEarth.GetMagnitude());
+						
+						// 695500.0 is solar radius (very approximately)
+						// via wikiwikiwildwildpedia, SOHO measures 696342 km
+						double semidiameterSun = asin(695500.0/distSatSun.GetMagnitude());
+						
+						double angleEarthSun = acos((distSatEarth.Dot(distSatSun)) /
+								(distSatEarth.GetMagnitude() * distSatSun.GetMagnitude()));
+
+						if ((semidiameterEarth > semidiameterSun) &&
+								(angleEarthSun < (semidiameterEarth - semidiameterSun))) {
+							// umbral eclipse (full shadow)
+							shadow = 2;
+						} else if ((fabs(semidiameterEarth - semidiameterSun) < angleEarthSun)
+								&& (angleEarthSun < (semidiameterEarth + semidiameterSun))) {
+							// penumbral eclipse
+							shadow = 1;
+						} else {
+							shadow = 0;
+						}
+						
+						n = shadow;
+					}
+					break;
 				default:
 					Fail("unhandled integer attribute id: %d\n", attr);
 					break;
