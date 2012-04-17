@@ -28,13 +28,14 @@ GTGAttributes attribute_options[] = {
 		{"mfe", FTDouble, 20, 8},       // minutes from epoch (time to TLE)
 		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
 		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
+		{"heading", FTDouble, 20, 9},   // degrees clockwise from north
 		{"xposition", FTDouble, 20, 8}, // ECI x (km)
 		{"yposition", FTDouble, 20, 8}, // ECI y (km)
 		{"zposition", FTDouble, 20, 8}, // ECI z (km)
 		{"xvelocity", FTDouble, 20, 9}, // ECI x velocity (km/s)
 		{"yvelocity", FTDouble, 20, 9}, // ECI y velocity (km/s)
 		{"zvelocity", FTDouble, 20, 9}, // ECI z velocity (km/s)
-		{"shadow", FTInteger, 2, 0},   // 0 illuminated, 1 penumbral, 2 umbral
+		{"shadow", FTInteger, 2, 0},    // 0 illuminated, 1 penumbral, 2 umbral
 		
 		{"range", FTDouble, 20, 9},     // range (km) to observer
 		{"rate", FTDouble, 20, 9},      // range rate (km/s) to observer
@@ -304,6 +305,19 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_TIMEMFE:       n = mfe; break;
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
 				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
+				case ATTR_HEADING:
+					{
+						Eci motionLoc(loc.GetDate(), Vector(
+								loc.GetPosition().x + loc.GetVelocity().x,
+								loc.GetPosition().y + loc.GetVelocity().y,
+								loc.GetPosition().z + loc.GetVelocity().z));
+						
+						Observer nadir(Util::RadiansToDegrees(geo.latitude),
+								Util::RadiansToDegrees(geo.longitude), 0);
+						
+						n = Util::RadiansToDegrees(nadir.GetLookAngle(motionLoc).azimuth);
+					}
+					break;
 				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
 				case ATTR_POSITION_Y:    n = loc.GetPosition().y; break;
 				case ATTR_POSITION_Z:    n = loc.GetPosition().z; break;
