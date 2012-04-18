@@ -110,6 +110,9 @@ void ShowHelp(void)
 	printf("        and any other specified attributes. If no --output argument is provided\n");
 	printf("        in csv, data is written to standard output instead of a default file.\n");
 	printf("\n");
+	printf("    --header/-h\n");
+	printf("    	Include a header row in csv output. No effect with any other --format.\n");
+	printf("\n");
 	printf("    --output/-o PATH | DIRECTORY\n");
 	printf("        If a single two-line element set is loaded, specify the base PATH of the\n");
 	printf("        output (defaults to the TLE identifier described below).\n");

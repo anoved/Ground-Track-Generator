@@ -30,6 +30,9 @@ OPTIONS:
         and any other specified attributes. If no --output argument is provided
         in csv, data is written to standard output instead of a default file.
     
+    --header/-h
+    	Include a header row in csv output. No effect with any other --format.
+    
     --output/-o PATH | DIRECTORY
         If a single two-line element set is loaded, specify the base PATH of the
         output (defaults to the TLE identifier described below).
