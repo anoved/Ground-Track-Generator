@@ -307,15 +307,21 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
 				case ATTR_HEADING:
 					{
-						Eci motionLoc(loc.GetDate(), Vector(
-								loc.GetPosition().x + loc.GetVelocity().x,
-								loc.GetPosition().y + loc.GetVelocity().y,
-								loc.GetPosition().z + loc.GetVelocity().z));
-						
+						// offsetting position by one centimeter in the direction
+						// of current travel. taking look angle azimuth from
+						// sub-satellite ground position to this offset position
+						// as the heading. it's an approximate hack in lieue of
+						// converting ECI coordinates to ECEF->NED to get heading.
+						Vector motion = loc.GetVelocity();
+						double motionMagnitude = motion.GetMagnitude();
+						// offset from loc by a centimeter (unit motion vector in km * 0.00001)
+						Eci offsetLoc(loc.GetDate(), Vector(
+								loc.GetPosition().x + motion.x / motionMagnitude * 0.00001,
+								loc.GetPosition().y + motion.y / motionMagnitude * 0.00001,
+								loc.GetPosition().z + motion.z / motionMagnitude * 0.00001));
 						Observer nadir(Util::RadiansToDegrees(geo.latitude),
 								Util::RadiansToDegrees(geo.longitude), 0);
-						
-						n = Util::RadiansToDegrees(nadir.GetLookAngle(motionLoc).azimuth);
+						n = Util::RadiansToDegrees(nadir.GetLookAngle(offsetLoc).azimuth);
 					}
 					break;
 				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
