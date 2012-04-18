@@ -158,6 +158,7 @@ void ShowHelp(void)
 	printf("            mfe       - Relative timestamp in minutes from epoch.\n");
 	printf("            altitude  - Altitude of satellite in km.\n");
 	printf("            velocity  - Magnitude of satellite velocity in km/s.\n");
+	printf("            heading   - Direction of motion in degrees clockwise from north.\n");
 	printf("            latitude  - Geodetic latitude of satellite position.\n");
 	printf("            longitude - Geodetic longitude of satellite position.\n");
 	printf("            xposition - Earth Centered Inertial (ECI) x position in km.\n");

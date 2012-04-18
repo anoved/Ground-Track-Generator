@@ -78,6 +78,7 @@ OPTIONS:
             mfe       - Relative timestamp in minutes from epoch.
             altitude  - Altitude of satellite in km.
             velocity  - Magnitude of satellite velocity in km/s.
+            heading   - Direction of motion in degrees clockwise from north.
             latitude  - Geodetic latitude of satellite position.
             longitude - Geodetic longitude of satellite position.
             xposition - Earth Centered Inertial (ECI) x position in km.
