@@ -129,6 +129,15 @@ Here is the full text of the help message:
 	
 	  OUTPUT OPTIONS:
 	
+		--format/-m shapefile | csv
+			Select output format. Shapefile is default. If csv output is selected,
+			a comma-separated value is output, including id, latitude, longitude,
+			and any other specified attributes. If no --output argument is provided
+			in csv, data is written to standard output instead of a default file.
+		
+		--header/-h
+			Include a header row in csv output. No effect with any other --format.
+		
 		--output/-o PATH | DIRECTORY
 			If a single two-line element set is loaded, specify the base PATH of the
 			output (defaults to the TLE identifier described below).
@@ -174,6 +183,7 @@ Here is the full text of the help message:
 				mfe       - Relative timestamp in minutes from epoch.
 				altitude  - Altitude of satellite in km.
 				velocity  - Magnitude of satellite velocity in km/s.
+				heading   - Direction of motion in degrees clockwise from north.
 				latitude  - Geodetic latitude of satellite position.
 				longitude - Geodetic longitude of satellite position.
 				xposition - Earth Centered Inertial (ECI) x position in km.
@@ -197,10 +207,10 @@ Here is the full text of the help message:
 		--start/-s now | epoch | TIME | UNIXTIME
 			Timestamp for first step of output. Subsequent steps are output at
 			uniform time --intervals until --end time or --steps count is reached.
-				now[OFFSET]   - Current time, with optional offset.
-				epoch[OFFSET] - TLE reference time, with optional offset. Default.
-				TIME          - Time in "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
-				UNIXTIME      - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+				now[OFFSET]     - Current time, with optional offset.
+				epoch[OFFSET]   - TLE reference time, with optional offset. Default.
+				SECONDS[OFFSET] - Time in seconds since 0:0:0 UTC 1 Jan 1970.
+				TIMESTAMP       - Time in "YYYY-MM-DD HH:MM:SS.SSSSSS UTC" format.
 			OFFSET format is a +/- number followed by s, m, h, or d, indicating the
 			offset unit (seconds, minutes, hours, or days, respectively).
 	
@@ -243,4 +253,6 @@ Here is the full text of the help message:
 	
 		Revisiting Spacetrack Report #3 (background reference and test cases):
 		<http://www.celestrak.com/publications/AIAA/2006-6753/>
+	
+
 	
