@@ -178,52 +178,66 @@ SHPObject* ShapefileWriter::splitSegment(
 	return obj;
 }
 
-/*
+/* point output method */
+int ShapefileWriter::output(const CoordGeodetic& geo)
+{
+	double latitude;
+	double longitude;
+	SHPObject *obj = NULL;
+	int index;
+	
+	latitude = Util::RadiansToDegrees(geo.latitude);
+	longitude = Util::RadiansToDegrees(geo.longitude);
+	Note("Latitude: %lf\n", latitude);
+	Note("Longitude: %lf\n", longitude);
+	
+	obj = SHPCreateSimpleObject(shpFormat_, 1, &longitude, &latitude, NULL);
+	if (NULL == obj) {
+		Fail("cannot create point shape\n");
+	}
+	
+	index = SHPWriteObject(shp_, -1, obj);
+	SHPDestroyObject(obj);
+	
+	return index;
+}
+
+/* line segment output method
+ *
  * Write the ground trace coordinates of the given satellite loc to output.
- * If specified, nextloc specifies location of satellite at next trace step -
- * used here only if outputting line features for the segment endpoint. If split
- * is true, then line features that cross the dateline will be split into east
- * and west hemisphere segments. Attributes for loc are also output.
+ * If split is true, then line features that cross the dateline will be split
+ * into east and west hemisphere segments. Attributes for loc are also output.
+ *
+ * could eliminate split and make endLoc optional; if NULL, no split
  */
-int ShapefileWriter::output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc, bool split)
+int ShapefileWriter::output(const CoordGeodetic& geoStart, const CoordGeodetic& geoEnd, bool split, const Eci& endLoc)
 {
 	double latitude[2];
 	double longitude[2];
 	SHPObject *obj = NULL;
 	int index;
-	int pointc = 1;
 
-	/* geo loc is used for points and line segment start */
-	latitude[0] = Util::RadiansToDegrees(geo.latitude);
-	longitude[0] = Util::RadiansToDegrees(geo.longitude);
-
+	latitude[0] = Util::RadiansToDegrees(geoStart.latitude);
+	longitude[0] = Util::RadiansToDegrees(geoStart.longitude);
 	Note("Latitude: %lf\n", latitude[0]);
 	Note("Longitude: %lf\n", longitude[0]);
-		
-	/* nextloc is used for line segment end, if needed */
-	if (NULL != nextloc && shpFormat_ == SHPT_ARC) {
-		/* not necessary to keep nextgeo around; we use loc for all attributes */
-		CoordGeodetic nextgeo(nextloc->ToGeodetic());
-		pointc = 2;
-		latitude[1] = Util::RadiansToDegrees(nextgeo.latitude);
-		longitude[1] = Util::RadiansToDegrees(nextgeo.longitude);
+	
+	latitude[1] = Util::RadiansToDegrees(geoEnd.latitude);
+	longitude[1] = Util::RadiansToDegrees(geoEnd.longitude);
 
-		/* This line segment's endpoints are in different E/W hemispheres */		
-		if (split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
-			/* If the segment crosses the 180th meridian, splitSegment will
-			   split this line at the 180th meridian and return a SHPObject.
-			   Otherwise (if the segment crosses the prime meridian), NULL. */
-			obj = splitSegment(latitude[0], longitude[0], latitude[1], longitude[1], loc);		
-		}
-	} else if (shpFormat_ == SHPT_ARC) {
-		Fail("line output requires two points; only one received\n");
+	/* Check if this line segment's endpoints are in different E/W hemispheres */		
+	if (split && ((longitude[0] > 0 && longitude[1] < 0) || (longitude[0] < 0 && longitude[1] > 0))) {
+		/* If the segment crosses the 180th meridian, splitSegment will
+		   split this line at the 180th meridian and return a SHPObject.
+		   Otherwise (if the segment crosses the prime meridian), NULL. */
+		obj = splitSegment(latitude[0], longitude[0], latitude[1], longitude[1], endLoc);		
 	}
 		
 	if (NULL == obj) {
-		obj = SHPCreateSimpleObject(shpFormat_, pointc, longitude, latitude, NULL);
+		obj = SHPCreateSimpleObject(shpFormat_, 2, longitude, latitude, NULL);
 	}
 	if (NULL == obj) {
-		Fail("cannot create shape\n"); // not very informative
+		Fail("cannot create line segment shape\n");
 	}
 	index = SHPWriteObject(shp_, -1, obj);
 	SHPDestroyObject(obj);

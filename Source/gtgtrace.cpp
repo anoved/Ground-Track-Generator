@@ -228,7 +228,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 					// increment shpindex ourselves in csvMode
 					attrwriter->output(shpindex++, minutes, prevEci, geo);
 				} else {
-					shpindex = shpwriter->output(prevEci, geo, &eci, cfg.split);
+					shpindex = shpwriter->output(geo, eci.ToGeodetic(), cfg.split, prevEci);
 					attrwriter->output(shpindex, minutes, prevEci, geo);
 				}
 				step++;
@@ -246,7 +246,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 			if (cfg.csvMode) {
 				attrwriter->output(shpindex++, minutes, eci, geo);
 			} else {
-				shpindex = shpwriter->output(eci, geo);
+				shpindex = shpwriter->output(geo);
 				attrwriter->output(shpindex, minutes, eci, geo);
 			}
 			step++;

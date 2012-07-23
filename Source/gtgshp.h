@@ -21,8 +21,12 @@ public:
 	
 	~ShapefileWriter() {}
 	
-	int output(const Eci& loc, const CoordGeodetic& geo, Eci *nextloc = NULL, bool split = false);
-		
+	/* point output method */
+	int output(const CoordGeodetic& geo);
+	
+	/* line segment output method */
+	int output(const CoordGeodetic& geoStart, const CoordGeodetic& geoEnd, bool split, const Eci& endLoc);
+			
 	void close(void);
 
 private:
