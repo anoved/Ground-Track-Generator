@@ -51,7 +51,7 @@ bool attribute_flags[ATTR_COUNT];
 /* the index of the corresponding field in the output attribute table */
 int attribute_field[ATTR_COUNT];
 
-AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt, bool csvMode, bool csvHeader)
+AttributeWriter::AttributeWriter(const char *basepath, bool has_observer, double lat, double lon, double alt, bool csvMode, bool csvHeader) : dbf_(NULL), csv_(NULL), observer_(NULL), sun_(NULL)
 {
 	/* First thing first - */
 	if (has_observer) {

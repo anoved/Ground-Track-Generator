@@ -21,7 +21,7 @@
  * Prepare to generate output. Creates shapefile (point or line type determined
  * by features argument) at basepath. Creates projection file if create_prj true.
  */
-ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj)
+ShapefileWriter::ShapefileWriter(const char *basepath, enum output_feature_type features, bool create_prj) : shpFormat_(SHPT_POINT), shp_(NULL)
 {
 	switch (features) {
 		case point:
