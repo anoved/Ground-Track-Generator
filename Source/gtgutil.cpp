@@ -20,10 +20,10 @@ namespace gtgutil {
  * Print an error message to stderr and exit with failure status.
  * Message may include format specifiers with additional variable arguments.
  */
-void FailDetail(const char *file, int line, const char *errorString, ...) {
+void FailDetail(const char *file, int lineNumber, const char *errorString, ...) {
 	va_list arglist;
 	va_start(arglist, errorString);
-	fprintf(stderr, "%s:%s:%d: ", _GTG_PROGRAM_, file, line);
+	fprintf(stderr, "%s:%s:%d: ", _GTG_PROGRAM_, file, lineNumber);
 	vfprintf(stderr, errorString, arglist);
 	va_end(arglist);
 	exit(EXIT_FAILURE);
