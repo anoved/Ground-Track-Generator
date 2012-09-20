@@ -26,7 +26,7 @@
  */
 double OffsetInMinutes(double offset, char unit)
 {
-	double offsetMinutes;
+	double offsetMinutes = 0;
 	switch (unit) {
 		case 's':
 			offsetMinutes = offset / 60.0;

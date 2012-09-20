@@ -231,7 +231,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 		
 		/* handle string and numeric attributes differently */
 		if (FTString == attribute_options[attr].type) {
-			const char *s;
+			const char *s = NULL;
 			switch (attr) {
 				case ATTR_TIMEUTC: s = loc.GetDate().ToString().c_str(); break;
 				default:
@@ -247,7 +247,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			}
 			
 		} else if (FTInteger == attribute_options[attr].type) {
-			long n;
+			long n = 0;
 			switch (attr) {
 				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDate().ToTime()); break;
 				case ATTR_ILLUMINATION:
@@ -298,7 +298,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 			}
 			
 		} else if (FTDouble == attribute_options[attr].type) {
-			double n;
+			double n = 0;
 			switch (attr) {
 				case ATTR_LATITUDE:      n = Util::RadiansToDegrees(geo.latitude); break;
 				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
