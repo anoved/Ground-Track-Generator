@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 				/* Ground observer */
 				/* latitude and longitude arguments are required */
 				
-				if (1 != sscanf(optarg, "%lf", &cfg.obslat)) {
+				if (1 != sscanf(optarg, "%32lf", &cfg.obslat)) {
 					Fail("cannot parse observer latitude: %s (should be number between -90 and 90)\n", optarg);
 				}
 				
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 					Fail("missing observer longitude\n");
 				}
 				
-				if (1 != sscanf(argv[optind], "%lf", &cfg.obslon)) {
+				if (1 != sscanf(argv[optind], "%32lf", &cfg.obslon)) {
 					Fail("cannot parse observer longitude: %s (should be number between -180 and 180)\n", argv[optind]);
 				}
 				
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
 				/* a third numeric argument, altitude (km), is optional */
 				if (optind < argc) {
-					if (1 == sscanf(argv[optind], "%lf", &cfg.obsalt)) {
+					if (1 == sscanf(argv[optind], "%32lf", &cfg.obsalt)) {
 						optind++;
 					} // no complaint if we can't read it; leave it for getopt
 				}					
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 			case 'l':
 				/* Interval length */
 
-				if (2 != sscanf(optarg, "%lf%c", &cfg.interval, &cfg.unit)) {
+				if (2 != sscanf(optarg, "%32lf%c", &cfg.interval, &cfg.unit)) {
 					Fail("cannot parse interval: %s\n", optarg);
 				}
 				
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 			case 'n':
 				/* Steps */
 				/* Argument format: integer >= 1 */
-				if (1 != sscanf(optarg, "%d", &cfg.steps)) {
+				if (1 != sscanf(optarg, "%32d", &cfg.steps)) {
 					Fail("cannot parse steps: %s (should be positive integer)\n", optarg);
 				}
 				if (cfg.steps <= 0) {

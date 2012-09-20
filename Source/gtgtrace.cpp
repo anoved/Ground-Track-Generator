@@ -73,11 +73,11 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 	
 	if (0 == strcmp("now", desc)) {
 		mfe = (now - epoch).GetTotalMinutes();
-	} else if (2 == sscanf(desc, "now%lf%c", &offset, &unit)) {
+	} else if (2 == sscanf(desc, "now%32lf%c", &offset, &unit)) {
 		mfe = (now - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
 	} else if (0 == strcmp("epoch", desc)) {
 		mfe = 0.0;
-	} else if (2 == sscanf(desc, "epoch%lf%c", &offset, &unit)) {
+	} else if (2 == sscanf(desc, "epoch%32lf%c", &offset, &unit)) {
 		mfe = OffsetInMinutes(offset, unit);
 	} else {
 		int year, month, day, hour, minute;
@@ -87,10 +87,10 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 			mfe = (time - epoch).GetTotalMinutes();
 		} else {
 			double unixtime;
-			if (3 == sscanf(desc, "%lf%lf%c", &unixtime, &offset, &unit)) {
+			if (3 == sscanf(desc, "%32lf%32lf%c", &unixtime, &offset, &unit)) {
 				Julian time((time_t)unixtime);
 				mfe = (time - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
-			} else if (1 == sscanf(desc, "%lf", &unixtime)) {
+			} else if (1 == sscanf(desc, "%32lf", &unixtime)) {
 				Julian time((time_t)unixtime);
 				mfe = (time - epoch).GetTotalMinutes();
 			} else {
