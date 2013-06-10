@@ -56,7 +56,7 @@ libshp: $(LIB_SHP_DIR)
 
 $(LIB_SGP4_DIR):
 	@echo "# Making libsgp4..."
-	@$(MAKE) --directory=$(LIB_SGP4_DIR) lib
+	@$(MAKE) --directory=$(LIB_SGP4_DIR)
 
 $(LIB_SHP_DIR):
 	@echo "# Making libshp..."
