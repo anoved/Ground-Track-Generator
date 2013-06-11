@@ -9,7 +9,7 @@
 #include <string.h>
 #include <fstream>
 
-#include "CoordTopographic.h"
+#include "CoordTopocentric.h"
 
 #include "gtgutil.h"
 #include "gtgattr.h"

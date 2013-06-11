@@ -13,6 +13,7 @@
 #include "shapefil.h"
 
 #include "Eci.h"
+#include "CoordTopocentric.h"
 #include "CoordGeodetic.h"
 #include "Observer.h"
 #include "SolarPosition.h"

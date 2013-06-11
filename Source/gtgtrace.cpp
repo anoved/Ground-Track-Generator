@@ -10,8 +10,8 @@
 #include <math.h>
 
 #include "SGP4.h"
-#include "Julian.h"
-#include "Timespan.h"
+#include "DateTime.h"
+#include "TimeSpan.h"
 #include "Tle.h"
 
 #include "gtg.h"
@@ -65,16 +65,16 @@ double OffsetInMinutes(double offset, char unit)
 	Returns:
 		MFE (minutes from TLE epoch) of the described time
 */
-double InitTime(const char *desc, const Julian& now, const Julian& epoch)
+double InitTime(const char *desc, const DateTime& now, const DateTime& epoch)
 {
 	double mfe = 0;
 	double offset;
 	char unit;
 	
 	if (0 == strcmp("now", desc)) {
-		mfe = (now - epoch).GetTotalMinutes();
+		mfe = (now - epoch).TotalMinutes();
 	} else if (2 == sscanf(desc, "now%32lf%c", &offset, &unit)) {
-		mfe = (now - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
+		mfe = (now - epoch).TotalMinutes() + OffsetInMinutes(offset, unit);
 	} else if (0 == strcmp("epoch", desc)) {
 		mfe = 0.0;
 	} else if (2 == sscanf(desc, "epoch%32lf%c", &offset, &unit)) {
@@ -83,16 +83,16 @@ double InitTime(const char *desc, const Julian& now, const Julian& epoch)
 		int year, month, day, hour, minute;
 		double second;
 		if (6 == sscanf(desc, "%4d-%2d-%2d %2d:%2d:%9lf UTC", &year, &month, &day, &hour, &minute, &second)) {
-			Julian time(year, month, day, hour, minute, second);
-			mfe = (time - epoch).GetTotalMinutes();
+			DateTime time(year, month, day, hour, minute, second);
+			mfe = (time - epoch).TotalMinutes();
 		} else {
 			double unixtime;
 			if (3 == sscanf(desc, "%32lf%32lf%c", &unixtime, &offset, &unit)) {
-				Julian time((time_t)unixtime);
-				mfe = (time - epoch).GetTotalMinutes() + OffsetInMinutes(offset, unit);
+				DateTime time((time_t)unixtime);
+				mfe = (time - epoch).TotalMinutes() + OffsetInMinutes(offset, unit);
 			} else if (1 == sscanf(desc, "%32lf", &unixtime)) {
-				Julian time((time_t)unixtime);
-				mfe = (time - epoch).GetTotalMinutes();
+				DateTime time((time_t)unixtime);
+				mfe = (time - epoch).TotalMinutes();
 			} else {
 				Fail("cannot parse time: %s\n", desc);
 			}
@@ -145,8 +145,8 @@ std::string BuildBasepath(const std::string& rootname, const GTGConfiguration& c
  * Do some initialization that may be specific to this track (output start time,
  * name, etc.) and do the main orbit propagation loop, outputting at each step.
  */
-void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
-		const GTGConfiguration& cfg, const Timespan& interval)
+void GenerateGroundTrack(Tle& tle, SGP4& model, DateTime& now,
+		const GTGConfiguration& cfg, const TimeSpan& interval)
 {
 	int step = 0;
 	Eci eci(now, 0, 0, 0);
@@ -162,7 +162,7 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
 	AttributeWriter *attrwriter = NULL;
 	int shpindex = 0;
 	
-	intervalMinutes = interval.GetTotalMinutes();
+	intervalMinutes = interval.TotalMinutes();
 	
 	/* for line output mode */
 	Eci prevEci(eci);
@@ -284,8 +284,8 @@ void GenerateGroundTrack(Tle& tle, SGP4& model, Julian& now,
  * Create an SGP4 model for the specified satellite two-line element set
  * and start generating its ground track.
  */
-void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration &cfg,
-		const Timespan& interval)
+void InitGroundTrace(Tle& tle, DateTime& now, const GTGConfiguration &cfg,
+		const TimeSpan& interval)
 {
 	try {
 		SGP4 model(tle);

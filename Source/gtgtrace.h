@@ -8,6 +8,6 @@
 #ifndef _GTGTRACE_H_
 #define _GTGTRACE_H_
 
-void InitGroundTrace(Tle& tle, Julian& now, const GTGConfiguration& cfg, const Timespan& interval);
+void InitGroundTrace(Tle& tle, DateTime& now, const GTGConfiguration& cfg, const TimeSpan& interval);
 
 #endif

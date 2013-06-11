@@ -5,7 +5,7 @@
 #include <queue>
 
 #include "Tle.h"
-#include "Julian.h"
+#include "DateTime.h"
 
 #include "gtg.h"
 #include "gtgtle.h"
@@ -15,12 +15,12 @@
 
 int main(int argc, char *argv[])
 {
-	Julian now;
+	DateTime now;
 	int opt = 0;
 	int longIndex = 0;
 	std::queue<Tle> tles;
 	GTGConfiguration cfg;
-	Timespan interval;
+	//TimeSpan interval(1); // new lib has no () constructor; have to specify something. Consider 0 for initial.
 	
 	/* All attributes turned off by default */
 	FlagAllAttributes(false);
@@ -279,13 +279,16 @@ int main(int argc, char *argv[])
 	}
 	
 	/* Compute step interval in whatever units were specified */
+	double intervalSeconds = 0;
 	switch (cfg.unit) {
-		case 's': interval.AddSeconds(cfg.interval); break;
-		case 'm': interval.AddSeconds(cfg.interval * 60.0); break;
-		case 'h': interval.AddSeconds(cfg.interval * 60.0 * 60.0); break;
-		case 'd': interval.AddSeconds(cfg.interval * 60.0 * 60.0 * 24.0); break;
+		case 's': intervalSeconds = cfg.interval; break;
+		case 'm': intervalSeconds = cfg.interval * 60.0; break;
+		case 'h': intervalSeconds = cfg.interval * 60.0 * 60.0; break;
+		case 'd': intervalSeconds = cfg.interval * 60.0 * 60.0 * 24.0; break;
 	}
-	Note("Step interval: %.9lf seconds\n", interval.GetTotalSeconds());
+	
+	TimeSpan interval(intervalSeconds * 1000000);
+	Note("Step interval: %.9lf seconds\n", interval.TotalSeconds());
 	
 	/* interpret remaining command line arguments as paths to TLE files */
 	for (int i = 0; i < argc; i++) {

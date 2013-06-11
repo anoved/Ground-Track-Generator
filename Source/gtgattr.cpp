@@ -233,7 +233,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 		if (FTString == attribute_options[attr].type) {
 			const char *s = NULL;
 			switch (attr) {
-				case ATTR_TIMEUTC: s = loc.GetDate().ToString().c_str(); break;
+				case ATTR_TIMEUTC: s = loc.GetDateTime().ToString().c_str(); break;
 				default:
 					Fail("unhandled string attribute id: %d\n", attr);
 					break;
@@ -249,27 +249,27 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 		} else if (FTInteger == attribute_options[attr].type) {
 			long n = 0;
 			switch (attr) {
-				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDate().ToTime()); break;
+				case ATTR_TIMEUNIX: n = (long)(0.5 + loc.GetDateTime().Ticks()); break;
 				case ATTR_ILLUMINATION:
 					{
 						// "Visually Observing Earth Satellites" by T.S. Kelso,
 						// 1996, http://www.celestrak.com/columns/v03n01/
 						
-						Vector sunToEarthVector = sun_->FindPosition(loc.GetDate()).GetPosition();
-						Vector satToEarthVector = loc.GetPosition();
-						Vector satToSunVector = satToEarthVector.Subtract(sunToEarthVector);
+						Vector sunToEarthVector = sun_->FindPosition(loc.GetDateTime()).Position();
+						Vector satToEarthVector = loc.Position();
+						Vector satToSunVector = satToEarthVector - sunToEarthVector;
 						
 						// apparent width of earth radius, in radians, from satellite's perspective
 						// kXKMPER is WGS 72 equatorial earth radius, in km, from libsgp4/Globals.h
 						// (so this is not geodetically correct - radius depends on our position)
-						double earthSemidiameter = asin(kXKMPER/satToEarthVector.GetMagnitude());
+						double earthSemidiameter = asin(kXKMPER/satToEarthVector.Magnitude());
 						
 						// apparent width of solar radius, in radians, from satellite's perspective
 						// using 695500.0 as very approximate solar radius
-						double sunSemidiameter = asin(695500.0/satToSunVector.GetMagnitude());
+						double sunSemidiameter = asin(695500.0/satToSunVector.Magnitude());
 						
 						double earthSunAngle = acos(satToEarthVector.Dot(satToSunVector) /
-								(satToEarthVector.GetMagnitude() * satToSunVector.GetMagnitude()));
+								(satToEarthVector.Magnitude() * satToSunVector.Magnitude()));
 						
 						// by default, consider the satellite illuminated
 						n = ATTR_ILLUMINATION_ILLUMINATED;
@@ -304,7 +304,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
 				case ATTR_TIMEMFE:       n = mfe; break;
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
-				case ATTR_VELOCITY:      n = loc.GetVelocity().GetMagnitude(); break;
+				case ATTR_VELOCITY:      n = loc.Velocity().Magnitude(); break;
 				case ATTR_HEADING:
 					{
 						// offsetting position by one centimeter in the direction
@@ -312,30 +312,30 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 						// sub-satellite ground position to this offset position
 						// as the heading. it's an approximate hack in lieue of
 						// converting ECI coordinates to ECEF->NED to get heading.
-						Vector motion = loc.GetVelocity();
-						double motionMagnitude = motion.GetMagnitude();
+						Vector motion = loc.Velocity();
+						double motionMagnitude = motion.Magnitude();
 						// offset from loc by a centimeter (unit motion vector in km * 0.00001)
-						Eci offsetLoc(loc.GetDate(), Vector(
-								loc.GetPosition().x + motion.x / motionMagnitude * 0.00001,
-								loc.GetPosition().y + motion.y / motionMagnitude * 0.00001,
-								loc.GetPosition().z + motion.z / motionMagnitude * 0.00001));
+						Eci offsetLoc(loc.GetDateTime(), Vector(
+								loc.Position().x + motion.x / motionMagnitude * 0.00001,
+								loc.Position().y + motion.y / motionMagnitude * 0.00001,
+								loc.Position().z + motion.z / motionMagnitude * 0.00001));
 						Observer nadir(Util::RadiansToDegrees(geo.latitude),
 								Util::RadiansToDegrees(geo.longitude), 0);
 						n = Util::RadiansToDegrees(nadir.GetLookAngle(offsetLoc).azimuth);
 					}
 					break;
-				case ATTR_POSITION_X:    n = loc.GetPosition().x; break;
-				case ATTR_POSITION_Y:    n = loc.GetPosition().y; break;
-				case ATTR_POSITION_Z:    n = loc.GetPosition().z; break;
-				case ATTR_VELOCITY_X:    n = loc.GetVelocity().x; break;
-				case ATTR_VELOCITY_Y:    n = loc.GetVelocity().y; break;
-				case ATTR_VELOCITY_Z:    n = loc.GetVelocity().z; break;
+				case ATTR_POSITION_X:    n = loc.Position().x; break;
+				case ATTR_POSITION_Y:    n = loc.Position().y; break;
+				case ATTR_POSITION_Z:    n = loc.Position().z; break;
+				case ATTR_VELOCITY_X:    n = loc.Velocity().x; break;
+				case ATTR_VELOCITY_Y:    n = loc.Velocity().y; break;
+				case ATTR_VELOCITY_Z:    n = loc.Velocity().z; break;
 				case ATTR_OBS_RANGE:     n = observer_->GetLookAngle(loc).range; break;
 				case ATTR_OBS_RATE:      n = observer_->GetLookAngle(loc).range_rate; break;
 				case ATTR_OBS_ELEVATION: n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).elevation); break;
 				case ATTR_OBS_AZIMUTH:   n = Util::RadiansToDegrees(observer_->GetLookAngle(loc).azimuth); break;
-				case ATTR_OBS_SOLARELEV: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDate())).elevation); break;
-				case ATTR_OBS_SOLARAZIM: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDate())).azimuth); break;
+				case ATTR_OBS_SOLARELEV: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDateTime())).elevation); break;
+				case ATTR_OBS_SOLARAZIM: n = Util::RadiansToDegrees(observer_->GetLookAngle(sun_->FindPosition(loc.GetDateTime())).azimuth); break;
 				default:
 					Fail("unhandled floating point attribute id: %d\n", attr);
 					break;
