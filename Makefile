@@ -9,12 +9,12 @@ RM = /bin/rm
 
 CFLAGS = -g -Wall -fPIC
 
-LIB_SGP4_DIR  = Libraries/sgp4/libsgp4
+LIB_SGP4_DIR  = Libraries/sgp4
 LIB_SHP_DIR   = Libraries/shapelib
 
-INCLUDES = -I $(LIB_SGP4_DIR) -I $(LIB_SHP_DIR)
+INCLUDES = -I $(LIB_SGP4_DIR)/libsgp4 -I $(LIB_SHP_DIR)
 
-LIB_SGP4 = $(LIB_SGP4_DIR)/libsgp4.a
+LIB_SGP4 = $(LIB_SGP4_DIR)/libsgp4/libsgp4.a
 LIB_SHP  = $(LIB_SHP_DIR)/libshp.a
 
 LIB_GTG_DIR = Source

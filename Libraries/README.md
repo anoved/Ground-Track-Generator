@@ -1,6 +1,6 @@
 # Libraries
 
-Ground Track Generator has two external dependencies: Shapelib and Dan Warner's C++ SGP4 Satellite Library. At present, the Ground Track Generator build process expects the libraries to be installed in this directory and built using the provided Makefiles.
+Ground Track Generator has two external dependencies: [Shapelib](http://shapelib.maptools.org/) and Dan Warner's [C++ SGP4 Satellite Library](http://www.danrw.com/sgp4-satellite.php).
 
 ## Shapelib
 
@@ -11,3 +11,5 @@ Ground Track Generator has two external dependencies: Shapelib and Dan Warner's 
 
 1. Go to <http://www.danrw.com/sgp4-satellite.php> and download <http://www.danrw.com/public/sgp4/archive/tip.zip>
 2. Unzip the archive; rename the directory `sgp4` and put it in this directory.
+
+Note that it may be necessary to [re-]run `aclocal`, `automake`, and `./configure` in `sgp4` before it can be built with `make`.
