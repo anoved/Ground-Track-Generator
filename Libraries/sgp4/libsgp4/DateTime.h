@@ -24,6 +24,10 @@
 #include "TimeSpan.h"
 #include "Util.h"
 
+#ifdef __MACH__
+#include <sys/time.h>
+#endif
+
 namespace
 {
     static int daysInMonth[2][13] = {
@@ -140,9 +144,18 @@ public:
     {
         DateTime dt;
         struct timespec ts;
+#ifdef __MACH__
+		struct timeval tv;
+		
+		if (gettimeofday(&tv, NULL) == 0)
+		{
+			ts.tv_sec = tv.tv_sec;
+			ts.tv_nsec = tv.tv_usec * 1000LL;
+#else
 
         if (clock_gettime(CLOCK_REALTIME, &ts) == 0)
         {
+#endif
             if (microseconds)
             {
                 dt = DateTime(UnixEpoch
