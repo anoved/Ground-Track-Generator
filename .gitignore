@@ -11,3 +11,13 @@
 
 # Ignore OS litter
 .DS_Store
+
+# Ignore libsgp4 aclocal/automake/configure-specific files & settings
+/Libraries/sgp4/Makefile
+/Libraries/sgp4/autom4te.cache/requests
+/Libraries/sgp4/config.log
+/Libraries/sgp4/config.status
+/Libraries/sgp4/libsgp4/Makefile
+/Libraries/sgp4/passpredict/Makefile
+/Libraries/sgp4/runtest/Makefile
+/Libraries/sgp4/sattrack/Makefile
