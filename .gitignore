@@ -21,3 +21,9 @@
 /Libraries/sgp4/passpredict/Makefile
 /Libraries/sgp4/runtest/Makefile
 /Libraries/sgp4/sattrack/Makefile
+
+# Ignore binary utilities built with libraries
+/Libraries/sgp4/passpredict/passpredict
+/Libraries/sgp4/runtest/runtest
+/Libraries/sgp4/sattrack/sattrack
+/Libraries/shapelib/dbfdump
