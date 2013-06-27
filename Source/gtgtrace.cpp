@@ -88,10 +88,10 @@ double InitTime(const char *desc, const DateTime& now, const DateTime& epoch)
 		} else {
 			double unixtime;
 			if (3 == sscanf(desc, "%32lf%32lf%c", &unixtime, &offset, &unit)) {
-				DateTime time((time_t)unixtime);
+				DateTime time(UnixEpoch + (unixtime * TicksPerSecond));
 				mfe = (time - epoch).TotalMinutes() + OffsetInMinutes(offset, unit);
 			} else if (1 == sscanf(desc, "%32lf", &unixtime)) {
-				DateTime time((time_t)unixtime);
+				DateTime time(UnixEpoch + (unixtime * TicksPerSecond));
 				mfe = (time - epoch).TotalMinutes();
 			} else {
 				Fail("cannot parse time: %s\n", desc);
