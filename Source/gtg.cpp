@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[])
 {
-	DateTime now;
+	DateTime now = DateTime::Now();
 	int opt = 0;
 	int longIndex = 0;
 	std::queue<Tle> tles;
