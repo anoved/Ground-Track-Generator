@@ -27,6 +27,7 @@ GTGAttributes attribute_options[] = {
 		{"unixtime", FTInteger, 20, 0}, // unix time (integer seconds)
 		{"mfe", FTDouble, 20, 8},       // minutes from epoch (time to TLE)
 		{"altitude", FTDouble, 20, 9},  // geodetic alt of sat (km)
+		{"radius", FTDouble, 20, 9},    // alt of sat from origin (km)
 		{"velocity", FTDouble, 20, 9},  // magnitude of sat velocity (km/s)
 		{"heading", FTDouble, 20, 9},   // degrees clockwise from north
 		{"xposition", FTDouble, 20, 8}, // ECI x (km)
@@ -304,6 +305,7 @@ void AttributeWriter::output(int index, double mfe, const Eci& loc, const CoordG
 				case ATTR_LONGITUDE:     n = Util::RadiansToDegrees(geo.longitude); break;
 				case ATTR_TIMEMFE:       n = mfe; break;
 				case ATTR_ALTITUDE:      n = geo.altitude; break;
+				case ATTR_RADIUS:        n = sqrt((loc.Position().x * loc.Position().x) + (loc.Position().y * loc.Position().y)) / cos(geo.latitude); break;
 				case ATTR_VELOCITY:      n = loc.Velocity().Magnitude(); break;
 				case ATTR_HEADING:
 					{
